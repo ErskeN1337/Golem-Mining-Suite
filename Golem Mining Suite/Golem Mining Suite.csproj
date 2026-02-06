@@ -7,8 +7,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<Version>1.1.0</Version>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ApplicationIcon>images\Golem.ico</ApplicationIcon>
 	</PropertyGroup>
-	<!-- rest of your file stays the same -->
+	<!-- rest stays the same -->
 </Project>
