@@ -1,0 +1,199 @@
+<Window x:Class="Golem_Mining_Suite.PriceComparisonWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Price Comparison" Height="600" Width="800"
+        Background="#1E1E1E">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0"
+                   Name="TitleText"
+                   Text="Price Comparison - Quantanium"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   Foreground="#CCCCCC"
+                   Margin="10"
+                   HorizontalAlignment="Center"/>
+
+        <!-- Sort Options -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0,10,10">
+            <TextBlock Text="Sort by:"
+                       Foreground="#CCCCCC"
+                       FontSize="14"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <ComboBox Name="SortComboBox"
+                      Width="150"
+                      FontSize="14"
+                      Padding="5"
+                      SelectionChanged="SortComboBox_SelectionChanged">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBox">
+                                    <Grid>
+                                        <ToggleButton Name="ToggleButton"
+                                                    Background="#2A2A2A"
+                                                    BorderBrush="#444444"
+                                                    Foreground="#CCCCCC"
+                                                    Grid.Column="2"
+                                                    Focusable="false"
+                                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                    ClickMode="Press">
+                                            <TextBlock Text="{TemplateBinding SelectionBoxItem}" 
+                                                     Margin="5"
+                                                     Foreground="#CCCCCC"
+                                                     Background="#2A2A2A"/>
+                                        </ToggleButton>
+                                        <Popup Name="Popup"
+                                             Placement="Bottom"
+                                             IsOpen="{TemplateBinding IsDropDownOpen}"
+                                             AllowsTransparency="True"
+                                             Focusable="False"
+                                             PopupAnimation="Slide">
+                                            <Grid Name="DropDown"
+                                                SnapsToDevicePixels="True"
+                                                MinWidth="{TemplateBinding ActualWidth}"
+                                                MaxHeight="200">
+                                                <Border Background="#2A2A2A" 
+                                                      BorderBrush="#444444" 
+                                                      BorderThickness="1"/>
+                                                <ScrollViewer Margin="1" SnapsToDevicePixels="True">
+                                                    <StackPanel IsItemsHost="True" 
+                                                              KeyboardNavigation.DirectionalNavigation="Contained" 
+                                                              Background="#2A2A2A"/>
+                                                </ScrollViewer>
+                                            </Grid>
+                                        </Popup>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ComboBox.Style>
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="#2A2A2A"/>
+                        <Setter Property="Foreground" Value="Yellow"/>
+                        <Setter Property="Padding" Value="5"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="#444444"/>
+                                <Setter Property="Foreground" Value="Yellow"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+                <ComboBoxItem Content="Highest Price" IsSelected="True"/>
+                <ComboBoxItem Content="Lowest Price"/>
+                <ComboBoxItem Content="Station Name"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Price List -->
+        <ScrollViewer Grid.Row="2" Margin="10" VerticalScrollBarVisibility="Auto">
+            <ItemsControl Name="PriceListControl">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#2A2A2A"
+                                BorderBrush="#444444"
+                                BorderThickness="1"
+                                Margin="0,0,0,5"
+                                Padding="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding StationName}"
+                                             Foreground="#CCCCCC"
+                                             FontSize="14"
+                                             FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding System}"
+                                             Foreground="#888888"
+                                             FontSize="11"
+                                             Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1"
+                                         Text="{Binding Price, StringFormat={}{0:N0} aUEC}"
+                                         Foreground="Yellow"
+                                         FontSize="18"
+                                         FontWeight="Bold"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,20,0"/>
+
+                                <TextBlock Grid.Column="2"
+                                         Text="{Binding Rank, StringFormat=#{}}"
+                                         Foreground="#888888"
+                                         FontSize="12"
+                                         VerticalAlignment="Center"
+                                         Width="30"
+                                         TextAlignment="Right"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Summary -->
+        <Border Grid.Row="3"
+                Background="#2A2A2A"
+                BorderBrush="#444444"
+                BorderThickness="1"
+                Margin="10"
+                Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Highest Price"
+                             Foreground="#888888"
+                             FontSize="10"/>
+                    <TextBlock Name="HighestPriceText"
+                             Text="0 aUEC"
+                             Foreground="#4CAF50"
+                             FontSize="14"
+                             FontWeight="Bold"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Average Price"
+                             Foreground="#888888"
+                             FontSize="10"/>
+                    <TextBlock Name="AveragePriceText"
+                             Text="0 aUEC"
+                             Foreground="#CCCCCC"
+                             FontSize="14"
+                             FontWeight="Bold"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Lowest Price"
+                             Foreground="#888888"
+                             FontSize="10"/>
+                    <TextBlock Name="LowestPriceText"
+                             Text="0 aUEC"
+                             Foreground="#F44336"
+                             FontSize="14"
+                             FontWeight="Bold"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,1185 @@
+{
+  "status": "ok",
+  "http_code": 200,
+  "data": [
+    {
+      "id": 1,
+      "code": "ARCL1",
+      "displayname": "ARC-L1 Wide Forest Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 2,
+      "code": "ARCL2",
+      "displayname": "ARC-L2 Lively Pathway Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 3,
+      "code": "ARCL3",
+      "displayname": "ARC-L3 Modern Express Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 4,
+      "code": "ARCL4",
+      "displayname": "ARC-L4 Faint Glen Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 5,
+      "code": "ARCL5",
+      "displayname": "ARC-L5 Yellow Core Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 6,
+      "code": "AM045",
+      "displayname": "ArcCorp Mining Area 045",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 7,
+      "code": "AM048",
+      "displayname": "ArcCorp Mining Area 048",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 8,
+      "code": "AM056",
+      "displayname": "ArcCorp Mining Area 056",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 9,
+      "code": "AM061",
+      "displayname": "ArcCorp Mining Area 061",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 10,
+      "code": "AM141",
+      "displayname": "ArcCorp Mining Area 141",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 11,
+      "code": "AM157",
+      "displayname": "ArcCorp Mining Area 157",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 12,
+      "code": "TDA18",
+      "displayname": "Area 18",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 13,
+      "code": "BAIJI",
+      "displayname": "Baijini Point",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 16,
+      "code": "BRIOS",
+      "displayname": "Brio's Breaker Yard",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 18,
+      "code": "CBD",
+      "displayname": "Lorville",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 19,
+      "code": "CRUL1",
+      "displayname": "CRU-L1 Ambitious Dream Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 20,
+      "code": "CRUL4",
+      "displayname": "CRU-L4 Shallow Fields Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 21,
+      "code": "LOCKL4",
+      "displayname": "CRU-L4 Shallow Fields Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 22,
+      "code": "CRUL5",
+      "displayname": "CRU-L5 Beautiful Glen Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 23,
+      "code": "DEAKI",
+      "displayname": "Deakins Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 24,
+      "code": "DEVLI",
+      "displayname": "Devlin Scrap & Salvage",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 25,
+      "code": "EVERU",
+      "displayname": "Everus Harbor",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 27,
+      "code": "GRIMX",
+      "displayname": "Grim HEX",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 28,
+      "code": "ANDER",
+      "displayname": "HDMS-Anderson",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 29,
+      "code": "BEZDE",
+      "displayname": "HDMS-Bezdek",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 30,
+      "code": "EDMON",
+      "displayname": "HDMS-Edmond",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 31,
+      "code": "HADLE",
+      "displayname": "HDMS-Hadley",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 32,
+      "code": "HHAHN",
+      "displayname": "HDMS-Hahn",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 33,
+      "code": "LATHA",
+      "displayname": "HDMS-Lathan",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 34,
+      "code": "NORGA",
+      "displayname": "HDMS-Norgaard",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 35,
+      "code": "OPARE",
+      "displayname": "HDMS-Oparei",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 36,
+      "code": "PERLM",
+      "displayname": "HDMS-Perlman",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 37,
+      "code": "PINEW",
+      "displayname": "HDMS-Pinewood",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 38,
+      "code": "RYDER",
+      "displayname": "HDMS-Ryder",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 39,
+      "code": "STAHN",
+      "displayname": "HDMS-Stanhope",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 40,
+      "code": "THEDU",
+      "displayname": "HDMS-Thedus",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 41,
+      "code": "WOODR",
+      "displayname": "HDMS-Woodruff",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 42,
+      "code": "HICKE",
+      "displayname": "Hickes Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 44,
+      "code": "HURL1",
+      "displayname": "HUR-L1 Green Glade Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 45,
+      "code": "HURL2",
+      "displayname": "HUR-L2 Faithful Dream Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 46,
+      "code": "HURL3",
+      "displayname": "HUR-L3 Thundering Express Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 47,
+      "code": "HURL4",
+      "displayname": "HUR-L4 Melodic Fields Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 48,
+      "code": "HURL5",
+      "displayname": "HUR-L5 High Course Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 49,
+      "code": "IONOR",
+      "displayname": "Area 18",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 51,
+      "code": "L19AD",
+      "displayname": "Lorville",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 54,
+      "code": "MICL1",
+      "displayname": "MIC-L1 Shallow Frontier Station",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 55,
+      "code": "MICL2",
+      "displayname": "MIC-L2 Long Forest Station",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 56,
+      "code": "MICL3",
+      "displayname": "MIC-L3 Endless Odyssey Station",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 57,
+      "code": "MICL4",
+      "displayname": "MIC-L4 Red Crossroads Station",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 58,
+      "code": "MICL5",
+      "displayname": "MIC-L5 Modern Icarus Station",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 59,
+      "code": "MTPLA",
+      "displayname": "New Babbage",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 62,
+      "code": "ORIMS",
+      "displayname": "Orison",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 66,
+      "code": "TRESS",
+      "displayname": "Port Tressler",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 69,
+      "code": "ANVIK",
+      "displayname": "Rayari Anvik Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 70,
+      "code": "CANTW",
+      "displayname": "Rayari Cantwell Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 71,
+      "code": "DELTA",
+      "displayname": "Rayari Deltana Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 72,
+      "code": "KALTA",
+      "displayname": "Rayari Kaltag Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 73,
+      "code": "MCGRA",
+      "displayname": "Rayari McGrath Research Outpost",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 74,
+      "code": "RECLA",
+      "displayname": "Reclamation & Disposal Orinth",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 75,
+      "code": "SAMSO",
+      "displayname": "Samson & Son's Salvage Center",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 77,
+      "code": "SSAL2",
+      "displayname": "Shubin Mining Facility SAL-2",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 78,
+      "code": "SSAL5",
+      "displayname": "Shubin Mining Facility SAL-5",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 79,
+      "code": "SSCD1",
+      "displayname": "Shubin Mining Facility SCD-1",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 80,
+      "code": "SM010",
+      "displayname": "Shubin Mining Facility SM0-10",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 81,
+      "code": "SM013",
+      "displayname": "Shubin Mining Facility SM0-13",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 82,
+      "code": "SM018",
+      "displayname": "Shubin Mining Facility SM0-18",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 83,
+      "code": "SM022",
+      "displayname": "Shubin Mining Facility SM0-22",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 84,
+      "code": "SMCA6",
+      "displayname": "Shubin Mining Facility SMCa-6",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 85,
+      "code": "SMCA8",
+      "displayname": "Shubin Mining Facility SMCa-8",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 86,
+      "code": "TERRA",
+      "displayname": "Terra Mills HydroFarm",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 89,
+      "code": "TDNEW",
+      "displayname": "New Babbage",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 90,
+      "code": "TDORI",
+      "displayname": "Orison",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 251,
+      "code": "TERGAT",
+      "displayname": "Terra Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 252,
+      "code": "PYROG",
+      "displayname": "Pyro Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 253,
+      "code": "NYXSTA",
+      "displayname": "Nyx Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 257,
+      "code": "PBNGA",
+      "displayname": "Nyx Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 258,
+      "code": "PBSTNTERGAT",
+      "displayname": "Terra Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 259,
+      "code": "SERAP",
+      "displayname": "Seraphim Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 262,
+      "code": "PBTRE",
+      "displayname": "Port Tressler",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 263,
+      "code": "PBARCL1",
+      "displayname": "ARC-L1 Wide Forest Station",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 274,
+      "code": "RAPPE",
+      "displayname": "Rappel",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 276,
+      "code": "PICKE",
+      "displayname": "Picker's Field",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 282,
+      "code": "PBCRUL5",
+      "displayname": "CRU-L5 Beautiful Glen Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 283,
+      "code": "PBCRUL4",
+      "displayname": "CRU-L4 Shallow Fields Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 301,
+      "code": "PBBAI",
+      "displayname": "Baijini Point",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 302,
+      "code": "PBCRUL1",
+      "displayname": "CRU-L1 Ambitious Dream Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 303,
+      "code": "PBEVEHAR",
+      "displayname": "Everus Harbor",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 304,
+      "code": "PBHURL2",
+      "displayname": "HUR-L2 Faithful Dream Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 305,
+      "code": "PBHURL3",
+      "displayname": "HUR-L3 Thundering Express Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 306,
+      "code": "PBHURL5",
+      "displayname": "HUR-L5 High Course Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Hurston",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 318,
+      "code": "PBPGA",
+      "displayname": "Pyro Gateway",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 331,
+      "code": "DDA18",
+      "displayname": "Area 18",
+      "star_system_name": "Stanton",
+      "planet_name": "ArcCorp",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 333,
+      "code": "DUNBO",
+      "displayname": "Dunboro",
+      "star_system_name": "Stanton",
+      "planet_name": "MicroTech",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 344,
+      "code": "DDGRI",
+      "displayname": "Grim HEX",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 352,
+      "code": "MRCL5",
+      "displayname": "CRU-L5 Beautiful Glen Station",
+      "star_system_name": "Stanton",
+      "planet_name": "Crusader",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 422,
+      "code": "UEXST",
+      "displayname": "UEX Station",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 436,
+      "code": "CHECK",
+      "displayname": "Checkmate Station",
+      "star_system_name": "Pyro",
+      "planet_name": "Monox",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 443,
+      "code": "ORBIT",
+      "displayname": "Orbituary",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 450,
+      "code": "STARL",
+      "displayname": "Starlight Service",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 453,
+      "code": "PATCH",
+      "displayname": "Patch City",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 466,
+      "code": "RUINS",
+      "displayname": "Ruin Station",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 477,
+      "code": "SCARP",
+      "displayname": "Scarper's Turn",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 479,
+      "code": "MEGUM",
+      "displayname": "Megumi Refueling",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 482,
+      "code": "ENDGA",
+      "displayname": "Endgame",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro IV",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 486,
+      "code": "RODSF",
+      "displayname": "Rod's Fuel 'N Supplies",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro V",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 504,
+      "code": "JACKS",
+      "displayname": "Jackson's Swap",
+      "star_system_name": "Pyro",
+      "planet_name": "Monox",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 507,
+      "code": "ASHLA",
+      "displayname": "Ashland",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro V",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 510,
+      "code": "CHAWL",
+      "displayname": "Chawla's Beach",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro IV",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 511,
+      "code": "GASLI",
+      "displayname": "Gaslight",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro V",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 518,
+      "code": "SEERS",
+      "displayname": "Seer's Canyon",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro V",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 520,
+      "code": "STANT",
+      "displayname": "Stanton Gateway",
+      "star_system_name": "Pyro",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 521,
+      "code": "PBSGA",
+      "displayname": "Stanton Gateway",
+      "star_system_name": "Pyro",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 523,
+      "code": "RATSN",
+      "displayname": "Rat's Nest",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro V",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 549,
+      "code": "DUDLE",
+      "displayname": "Dudley & Daughters",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 551,
+      "code": "BUENO",
+      "displayname": "Bueno Ravine",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 555,
+      "code": "SHEPH",
+      "displayname": "Shepherd's Rest",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 565,
+      "code": "LASTL",
+      "displayname": "Last Landings",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 590,
+      "code": "RUSTV",
+      "displayname": "Rustville",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro I",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 591,
+      "code": "CANAR",
+      "displayname": "Canard View",
+      "star_system_name": "Pyro",
+      "planet_name": "Terminus",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 599,
+      "code": "SUNSE",
+      "displayname": "Sunset Mesa",
+      "star_system_name": "Pyro",
+      "planet_name": "Monox",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 605,
+      "code": "FALLO",
+      "displayname": "Fallow Field",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro IV",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 665,
+      "code": "GOLDEN",
+      "displayname": "The Golden Riviera",
+      "star_system_name": "Pyro",
+      "planet_name": "Bloom",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 688,
+      "code": "CTSACR",
+      "displayname": "Sacren's Plot",
+      "star_system_name": "Pyro",
+      "planet_name": "Pyro IV",
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 729,
+      "code": "30K",
+      "displayname": "30k Inc Trading Hub",
+      "star_system_name": "Stanton",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 742,
+      "code": "NYXG",
+      "displayname": "Nyx Gateway",
+      "star_system_name": "Pyro",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 743,
+      "code": "PBCPNG",
+      "displayname": "Nyx Gateway",
+      "star_system_name": "Pyro",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 763,
+      "code": "PYROG",
+      "displayname": "Pyro Gateway",
+      "star_system_name": "Nyx",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 764,
+      "code": "PBCNPG",
+      "displayname": "Pyro Gateway",
+      "star_system_name": "Nyx",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 778,
+      "code": "LEVSKI",
+      "displayname": "Levski",
+      "star_system_name": "Nyx",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 802,
+      "code": "STANTG",
+      "displayname": "Stanton Gateway",
+      "star_system_name": "Nyx",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    },
+    {
+      "id": 803,
+      "code": "PBCNSG",
+      "displayname": "Stanton Gateway",
+      "star_system_name": "Nyx",
+      "planet_name": null,
+      "type": "commodity",
+      "is_available": 1
+    }
+  ]
+}
