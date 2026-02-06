@@ -6,59 +6,51 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build-and-release:
+  build:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout code
+    - name: Checkout
       uses: actions/checkout@v3
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '8.0.x'
     
-    - name: Restore dependencies
-      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
-    
-    - name: Build and Publish
-      run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -o ./publish --self-contained false
-    
-    - name: List published files (debug)
-      run: Get-ChildItem ./publish -Recurse | Select-Object FullName
-    
-    - name: Create ZIP package
+    - name: Build Solution
       run: |
-        Compress-Archive -Path ./publish/* -DestinationPath ./Golem-Mining-Suite-${{ github.ref_name }}.zip
-      shell: pwsh
+        cd "Golem Mining Suite"
+        dotnet publish "Golem Mining Suite.csproj" `
+          --configuration Release `
+          --output ../release `
+          --runtime win-x64 `
+          --self-contained false `
+          -p:PublishSingleFile=false `
+          -p:DebugType=None `
+          -p:DebugSymbols=false
     
-    - name: Verify ZIP contents
+    - name: List built files
       run: |
-        Write-Host "ZIP file size:"
-        Get-Item ./Golem-Mining-Suite-${{ github.ref_name }}.zip | Select-Object Length
-      shell: pwsh
+        Write-Host "Files in release folder:"
+        Get-ChildItem ./release -Recurse | Select-Object FullName
     
-    - name: Create Release
+    - name: Create ZIP
+      run: |
+        $version = "${{ github.ref_name }}"
+        Compress-Archive -Path ./release/* -DestinationPath "Golem-Mining-Suite-$version.zip"
+        Write-Host "ZIP created"
+        Get-Item "Golem-Mining-Suite-$version.zip" | Select-Object Name, Length
+    
+    - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
         files: Golem-Mining-Suite-${{ github.ref_name }}.zip
         body: |
           ## Golem Mining Suite ${{ github.ref_name }}
           
-          ### Installation
-          1. Download the ZIP file below
-          2. Extract to a folder  
-          3. Run "Golem Mining Suite.exe"
+          Download the ZIP file below, extract it, and run Golem Mining Suite.exe
           
-          ### Auto-Update
-          If you already have Golem Mining Suite installed, just run it and click "Download Update"!
-          
-          ### What's Included
-          - Golem Mining Suite.exe
-          - All required DLL files
-          - terminals.json
-          - Images and resources
-        draft: false
-        prerelease: false
+          **Auto-Update:** If you already have an older version installed, just run it and click "Download Update"!
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
