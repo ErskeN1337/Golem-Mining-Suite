@@ -1,0 +1,54 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.2
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'  # Change to your .NET version
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build Release
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish --no-build
+    
+    - name: Create ZIP package
+      run: |
+        cd publish
+        Compress-Archive -Path * -DestinationPath ../Golem-Mining-Suite-${{ github.ref_name }}.zip
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: Golem-Mining-Suite-${{ github.ref_name }}.zip
+        body: |
+          ## Golem Mining Suite ${{ github.ref_name }}
+          
+          Automatic release built from latest code.
+          
+          ### Installation
+          1. Download the ZIP file below
+          2. Extract to a folder
+          3. Run Golem Mining Suite.exe
+          
+          ### Auto-Update
+          If you're already using Golem Mining Suite, just run your current version and click "Download Update" when prompted!
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

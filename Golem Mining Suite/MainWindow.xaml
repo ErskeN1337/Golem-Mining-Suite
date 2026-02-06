@@ -1,9 +1,12 @@
 <Window x:Class="Golem_Mining_Suite.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Golem Mining Suite" Height="500" Width="800"
+        Title="Golem Mining Suite"
+        Width="800"
+        Height="500"
         Background="#1E1E1E"
         Loaded="Window_Loaded">
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,16 +26,16 @@
 
             <!-- UEX Corp Link Button with Logo Image -->
             <Button Name="UexLinkButton"
-        HorizontalAlignment="Left"
-        VerticalAlignment="Center"
-        Margin="10,10,0,5"
-        Padding="5"
-        Background="#2A2A2A"
-        BorderBrush="Transparent"
-        BorderThickness="0"
-        Cursor="Hand"
-        Click="UexLinkButton_Click"
-        ToolTip="Open UEX Corp website - Live price data source">
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="10,10,0,5"
+                    Padding="5"
+                    Background="#2A2A2A"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="UexLinkButton_Click"
+                    ToolTip="Open UEX Corp website - Live price data source">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="#2A2A2A"/>
@@ -44,8 +47,8 @@
                     </Style>
                 </Button.Style>
                 <Image Source="Images/uex-logo.png" 
-       Height="25" 
-       Stretch="Uniform"/>
+                       Height="25" 
+                       Stretch="Uniform"/>
             </Button>
         </Grid>
 
