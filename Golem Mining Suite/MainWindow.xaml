@@ -6,7 +6,7 @@
         Height="500"
         Background="#1E1E1E"
         Loaded="Window_Loaded">
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,7 +24,6 @@
                        Margin="10,10,10,5"
                        HorizontalAlignment="Center"/>
 
-            <!-- UEX Corp Link Button with Logo Image -->
             <Button Name="UexLinkButton"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
@@ -226,6 +225,7 @@
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -255,7 +255,16 @@
                 </Button.Style>
             </Button>
 
-            <Button Grid.Column="1"
+            <TextBlock Grid.Column="1"
+                       Name="VersionText"
+                       Text="v1.0.6"
+                       Foreground="#CCCCCC"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="20,0"/>
+
+            <Button Grid.Column="2"
                     Content="Cargo Calculator"
                     Width="200"
                     HorizontalAlignment="Center"

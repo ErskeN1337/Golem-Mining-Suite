@@ -24,6 +24,10 @@ namespace Golem_Mining_Suite
 		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			mineralPrices = await FetchAndParsePrices();
+			
+			// Set version text from assembly
+			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
 		}
 
 		private void SearchBox_KeyUp(object sender, KeyEventArgs e)

@@ -139,11 +139,23 @@ namespace Golem_Mining_Suite
                 if (string.IsNullOrEmpty(pricesJson))
                 {
                     // Fetch from API
+                    System.Diagnostics.Debug.WriteLine("Fetching fresh price data from API...");
                     var response = await httpClient.GetAsync("https://uexcorp.space/api/commodities_prices_all");
+                    System.Diagnostics.Debug.WriteLine($"API response status: {response.StatusCode}");
+                    
                     if (response.IsSuccessStatusCode)
                     {
                         pricesJson = await response.Content.ReadAsStringAsync();
+                        System.Diagnostics.Debug.WriteLine($"API response length: {pricesJson?.Length ?? 0} characters");
                     }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"API request failed with status: {response.StatusCode}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Using cached price data from local file");
                 }
 
                 if (!string.IsNullOrEmpty(pricesJson))
@@ -352,6 +364,7 @@ namespace Golem_Mining_Suite
         private void MineralComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CalculateValue();
+            UpdateStationInfo(); // Update station info when mineral changes
         }
 
         private void ScuTextBox_TextChanged(object sender, TextChangedEventArgs e)

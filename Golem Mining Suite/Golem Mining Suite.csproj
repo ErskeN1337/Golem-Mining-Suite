@@ -7,7 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>1.0.6</Version>
+    <Version>1.0.7</Version>
+    <ApplicationIcon>images\Golem.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +20,10 @@
 
   <ItemGroup>
     <None Remove="images\uex-logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="images\Golem.ico" />
   </ItemGroup>
 
   <ItemGroup>
