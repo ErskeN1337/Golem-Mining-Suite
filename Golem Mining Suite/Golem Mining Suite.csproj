@@ -1,47 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RootNamespace>Golem_Mining_Suite</RootNamespace>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <Version>1.1.0</Version>
-    <ApplicationIcon>images\Golem.ico</ApplicationIcon>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <None Remove="NewFolder\**" />
-    <Page Remove="NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="images\GolemMiningSuite_Logo.png" />
-    <None Remove="images\uex-logo.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="images\Golem.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-    <PackageReference Include="PuppeteerSharp" Version="20.2.6" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.40.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="144.0.7559.13300" />
-    <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.36.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="images\GolemMiningSuite_Logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="images\uex-logo.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RootNamespace>Golem_Mining_Suite</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<Version>1.1.0</Version>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ApplicationIcon>images\Golem.ico</ApplicationIcon>
+	</PropertyGroup>
+	<!-- rest of your file stays the same -->
 </Project>
