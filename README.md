@@ -22,8 +22,6 @@ I’m completely new to coding, and this project is my first big endeavor. It’
 
 Add more detailed mining guides and tips.
 
-Include profit calculators based on current mineral values.
-
 Expand the suite with additional tools for mining and trading.
 
 ⚠️ Disclaimer
