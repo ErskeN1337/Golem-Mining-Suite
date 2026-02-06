@@ -1,9 +1,7 @@
 ﻿<Application x:Class="Golem_Mining_Suite.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Golem_Mining_Suite"
-             StartupUri="MainWindow.xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-         
+        <!-- Add any application-wide resources here if needed -->
     </Application.Resources>
 </Application>

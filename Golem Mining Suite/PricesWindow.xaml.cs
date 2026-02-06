@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Golem_Mining_Suite
 {
 	public partial class PricesWindow : Window
 	{
+		private static readonly HttpClient httpClient = new HttpClient();
+
 		public PricesWindow()
 		{
 			InitializeComponent();
@@ -15,7 +19,7 @@ namespace Golem_Mining_Suite
 
 		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			StatusText.Text = "Loading prices from UEX Corp API...";
+			StatusText.Text = "Loading live prices from UEX Corp API...";
 			var prices = await FetchPricesFromAPI();
 
 			if (prices.Count == 0)
@@ -25,7 +29,7 @@ namespace Golem_Mining_Suite
 			}
 			else
 			{
-				StatusText.Text = $"Loaded {prices.Count} live mineral prices from API";
+				StatusText.Text = $"Loaded {prices.Count} live mineral prices (highest selling price per mineral)";
 			}
 
 			PricesGrid.ItemsSource = prices;
@@ -37,55 +41,60 @@ namespace Golem_Mining_Suite
 
 			try
 			{
-				using (var client = new HttpClient())
+				// Fetch all commodity prices from all stations
+				var response = await httpClient.GetAsync("https://uexcorp.space/api/commodities_prices_all");
+				
+				if (!response.IsSuccessStatusCode)
 				{
-					client.Timeout = TimeSpan.FromSeconds(30);
+					System.Diagnostics.Debug.WriteLine("Failed to fetch commodity prices");
+					return priceList;
+				}
 
-					var response = await client.GetStringAsync("https://uexcorp.space/api/2.0/commodities");
-					var jsonDoc = JsonDocument.Parse(response);
-					var commodities = jsonDoc.RootElement.GetProperty("data");
+				var json = await response.Content.ReadAsStringAsync();
+				var jsonDoc = JsonDocument.Parse(json);
+				var pricesData = jsonDoc.RootElement.GetProperty("data");
 
-					var mineralData = new Dictionary<string, double>();
-					var bestLocations = GetBestLocations();
+				// Dictionary to store highest price per mineral across all stations
+				var mineralBestPrices = new Dictionary<string, MineralPriceInfo>();
 
-					foreach (var commodity in commodities.EnumerateArray())
+				foreach (var priceEntry in pricesData.EnumerateArray())
+				{
+					var commodityName = priceEntry.GetProperty("commodity_name").GetString();
+					var terminalName = priceEntry.GetProperty("terminal_name").GetString();
+					var priceSell = priceEntry.GetProperty("price_sell").GetInt32();
+
+					if (priceSell <= 0)
+						continue;
+
+					// Map API names to display names
+					var displayName = MapCommodityName(commodityName);
+					
+					if (IsMineralName(displayName))
 					{
-						var name = commodity.GetProperty("name").GetString();
-						var baseName = name.Replace(" (Raw)", "").Replace(" (Ore)", "");
-
-						if (IsMineralName(baseName))
+						if (!mineralBestPrices.ContainsKey(displayName) || priceSell > mineralBestPrices[displayName].Price)
 						{
-							double price = 0;
-
-							if (commodity.TryGetProperty("price_sell", out var priceSell))
+							mineralBestPrices[displayName] = new MineralPriceInfo
 							{
-								price = priceSell.GetDouble();
-							}
-							else if (commodity.TryGetProperty("price_buy", out var priceBuy))
-							{
-								price = priceBuy.GetDouble();
-							}
-
-							if (price > 0 && (!mineralData.ContainsKey(baseName) || price > mineralData[baseName]))
-							{
-								mineralData[baseName] = price;
-							}
+								MineralName = displayName,
+								Price = priceSell,
+								BestLocation = terminalName
+							};
 						}
 					}
-
-					foreach (var mineral in mineralData)
-					{
-						var displayName = mineral.Key == "Quantainium" ? "Quantanium" : mineral.Key;
-						var location = bestLocations.ContainsKey(displayName) ? bestLocations[displayName] : "Unknown";
-
-						priceList.Add(new PriceData
-						{
-							MineralName = displayName,
-							Price = $"{mineral.Value:N0} aUEC",
-							BestLocation = location
-						});
-					}
 				}
+
+				// Convert to display format
+				foreach (var mineral in mineralBestPrices.Values)
+				{
+					priceList.Add(new PriceData
+					{
+						MineralName = mineral.MineralName,
+						Price = $"{mineral.Price:N0} aUEC",
+						BestLocation = mineral.BestLocation
+					});
+				}
+
+				System.Diagnostics.Debug.WriteLine($"Loaded {priceList.Count} mineral prices from API");
 			}
 			catch (Exception ex)
 			{
@@ -95,35 +104,20 @@ namespace Golem_Mining_Suite
 			return priceList.OrderByDescending(p => ParsePrice(p.Price)).ToList();
 		}
 
-		private Dictionary<string, string> GetBestLocations()
+		private string MapCommodityName(string apiName)
 		{
-			// These are general best locations - prices fluctuate but these are consistently good
-			return new Dictionary<string, string>
-			{
-				{"Quantanium", "Area18 - ArcCorp"},
-				{"Bexalite", "Area18 - ArcCorp"},
-				{"Taranite", "Area18 - ArcCorp"},
-				{"Laranite", "Lorville - Hurston"},
-				{"Agricium", "Lorville - Hurston"},
-				{"Hephaestanite", "Lorville - Hurston"},
-				{"Beryl", "New Babbage - microTech"},
-				{"Gold", "Lorville - Hurston"},
-				{"Borase", "Lorville - Hurston"},
-				{"Tungsten", "Lorville - Hurston"},
-				{"Titanium", "Lorville - Hurston"},
-				{"Corundum", "New Babbage - microTech"},
-				{"Copper", "Lorville - Hurston"},
-				{"Iron", "Lorville - Hurston"},
-				{"Quartz", "New Babbage - microTech"},
-				{"Aluminum", "Area18 - ArcCorp"}
-			};
+			// Map API names to display names (handles "Quantainium" -> "Quantanium")
+			if (apiName == "Quantainium")
+				return "Quantanium";
+			
+			return apiName;
 		}
 
 		private bool IsMineralName(string name)
 		{
 			var minerals = new HashSet<string>
 			{
-				"Quantainium", "Bexalite", "Taranite", "Laranite", "Agricium",
+				"Quantanium", "Bexalite", "Taranite", "Laranite", "Agricium",
 				"Hephaestanite", "Beryl", "Gold", "Borase", "Tungsten",
 				"Titanium", "Iron", "Quartz", "Copper", "Corundum", "Aluminum"
 			};
@@ -140,25 +134,24 @@ namespace Golem_Mining_Suite
 
 		private List<PriceData> GetFallbackPrices()
 		{
-			var bestLocations = GetBestLocations();
 			return new List<PriceData>
 			{
-				new PriceData { MineralName = "Quantanium", Price = "87,859 aUEC", BestLocation = bestLocations["Quantanium"] },
-				new PriceData { MineralName = "Bexalite", Price = "84,800 aUEC", BestLocation = bestLocations["Bexalite"] },
-				new PriceData { MineralName = "Taranite", Price = "84,214 aUEC", BestLocation = bestLocations["Taranite"] },
-				new PriceData { MineralName = "Laranite", Price = "21,563 aUEC", BestLocation = bestLocations["Laranite"] },
-				new PriceData { MineralName = "Agricium", Price = "20,741 aUEC", BestLocation = bestLocations["Agricium"] },
-				new PriceData { MineralName = "Hephaestanite", Price = "18,630 aUEC", BestLocation = bestLocations["Hephaestanite"] },
-				new PriceData { MineralName = "Beryl", Price = "7,684 aUEC", BestLocation = bestLocations["Beryl"] },
-				new PriceData { MineralName = "Gold", Price = "7,508 aUEC", BestLocation = bestLocations["Gold"] },
-				new PriceData { MineralName = "Borase", Price = "6,402 aUEC", BestLocation = bestLocations["Borase"] },
-				new PriceData { MineralName = "Tungsten", Price = "5,097 aUEC", BestLocation = bestLocations["Tungsten"] },
-				new PriceData { MineralName = "Titanium", Price = "4,801 aUEC", BestLocation = bestLocations["Titanium"] },
-				new PriceData { MineralName = "Corundum", Price = "4,030 aUEC", BestLocation = bestLocations["Corundum"] },
-				new PriceData { MineralName = "Copper", Price = "4,008 aUEC", BestLocation = bestLocations["Copper"] },
-				new PriceData { MineralName = "Iron", Price = "2,323 aUEC", BestLocation = bestLocations["Iron"] },
-				new PriceData { MineralName = "Quartz", Price = "2,109 aUEC", BestLocation = bestLocations["Quartz"] },
-				new PriceData { MineralName = "Aluminum", Price = "1,834 aUEC", BestLocation = bestLocations["Aluminum"] }
+				new PriceData { MineralName = "Quantanium", Price = "87,859 aUEC", BestLocation = "Area 18" },
+				new PriceData { MineralName = "Bexalite", Price = "84,800 aUEC", BestLocation = "Area 18" },
+				new PriceData { MineralName = "Taranite", Price = "84,214 aUEC", BestLocation = "Area 18" },
+				new PriceData { MineralName = "Laranite", Price = "21,563 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Agricium", Price = "20,741 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Hephaestanite", Price = "18,630 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Beryl", Price = "7,684 aUEC", BestLocation = "New Babbage" },
+				new PriceData { MineralName = "Gold", Price = "7,508 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Borase", Price = "6,402 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Tungsten", Price = "5,097 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Titanium", Price = "4,801 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Corundum", Price = "4,030 aUEC", BestLocation = "New Babbage" },
+				new PriceData { MineralName = "Copper", Price = "4,008 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Iron", Price = "2,323 aUEC", BestLocation = "Lorville" },
+				new PriceData { MineralName = "Quartz", Price = "2,109 aUEC", BestLocation = "New Babbage" },
+				new PriceData { MineralName = "Aluminum", Price = "1,834 aUEC", BestLocation = "Area 18" }
 			};
 		}
 	}
@@ -167,6 +160,13 @@ namespace Golem_Mining_Suite
 	{
 		public string MineralName { get; set; }
 		public string Price { get; set; }
+		public string BestLocation { get; set; }
+	}
+
+	internal class MineralPriceInfo
+	{
+		public string MineralName { get; set; }
+		public int Price { get; set; }
 		public string BestLocation { get; set; }
 	}
 }
