@@ -1,94 +1,77 @@
 using System;
 using System.Net.Http;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Reflection;
 
 namespace Golem_Mining_Suite
 {
-    public class UpdateChecker
-    {
-        private static readonly HttpClient httpClient = new HttpClient();
-        private const string GITHUB_API_URL = "https://api.github.com/repos/YOUR_USERNAME/YOUR_REPO/releases/latest";
-        
-        // Add User-Agent header (GitHub requires this)
-        static UpdateChecker()
-        {
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "Golem-Mining-Suite");
-        }
+	public static class UpdateChecker
+	{
+		private const string GITHUB_API_URL = "https://api.github.com/repos/ErskeN1337/Golem-Mining-Suite/releases/latest";
 
-        public static async Task<UpdateInfo> CheckForUpdatesAsync()
-        {
-            try
-            {
-                // Get current version from assembly
-                var currentVersion = GetCurrentVersion();
-                
-                // Fetch latest release from GitHub
-                var response = await httpClient.GetAsync(GITHUB_API_URL);
-                
-                if (!response.IsSuccessStatusCode)
-                    return null;
+		public static async Task<UpdateInfo> CheckForUpdateAsync()
+		{
+			try
+			{
+				using (var client = new HttpClient())
+				{
+					client.DefaultRequestHeaders.Add("User-Agent", "Golem-Mining-Suite");
+					client.Timeout = TimeSpan.FromSeconds(10);
 
-                var json = await response.Content.ReadAsStringAsync();
-                var release = JsonSerializer.Deserialize<GitHubRelease>(json);
+					var response = await client.GetStringAsync(GITHUB_API_URL);
+					var jsonDoc = JsonDocument.Parse(response);
+					var root = jsonDoc.RootElement;
 
-                if (release == null || string.IsNullOrEmpty(release.tag_name))
-                    return null;
+					string latestVersion = root.GetProperty("tag_name").GetString().Replace("v", "");
+					string downloadUrl = "";
 
-                // Parse version from tag (remove 'v' prefix if present)
-                var latestVersionString = release.tag_name.TrimStart('v');
-                var latestVersion = new Version(latestVersionString);
+					// Get the ZIP file download URL
+					var assets = root.GetProperty("assets");
+					foreach (var asset in assets.EnumerateArray())
+					{
+						string assetName = asset.GetProperty("name").GetString();
+						if (assetName.EndsWith(".zip"))
+						{
+							downloadUrl = asset.GetProperty("browser_download_url").GetString();
+							break;
+						}
+					}
 
-                // Compare versions
-                if (latestVersion > currentVersion)
-                {
-                    return new UpdateInfo
-                    {
-                        IsUpdateAvailable = true,
-                        CurrentVersion = currentVersion.ToString(),
-                        LatestVersion = latestVersion.ToString(),
-                        ReleaseUrl = release.html_url,
-                        DownloadUrl = release.assets?.Length > 0 ? release.assets[0].browser_download_url : release.html_url,
-                        ReleaseNotes = release.body,
-                        ReleaseName = release.name
-                    };
-                }
+					// Get current version
+					var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+					string currentVersionString = $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}";
 
-                return new UpdateInfo
-                {
-                    IsUpdateAvailable = false,
-                    CurrentVersion = currentVersion.ToString(),
-                    LatestVersion = latestVersion.ToString()
-                };
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
-                return null;
-            }
-        }
+					// Compare versions
+					bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
 
-        private static Version GetCurrentVersion()
-        {
-            return Assembly.GetExecutingAssembly().GetName().Version;
-        }
-    }
+					return new UpdateInfo
+					{
+						IsUpdateAvailable = isNewer,
+						LatestVersion = latestVersion,
+						CurrentVersion = currentVersionString,
+						DownloadUrl = downloadUrl
+					};
+				}
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
 
-    // GitHub API Response Model
-    public class GitHubRelease
-    {
-        public string tag_name { get; set; }
-        public string name { get; set; }
-        public string body { get; set; }
-        public string html_url { get; set; }
-        public GitHubAsset[] assets { get; set; }
-    }
-
-    public class GitHubAsset
-    {
-        public string name { get; set; }
-        public string browser_download_url { get; set; }
-    }
+		private static bool IsNewerVersion(string latestVersion, string currentVersion)
+		{
+			try
+			{
+				var latest = new Version(latestVersion);
+				var current = new Version(currentVersion);
+				return latest > current;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+	}
 }

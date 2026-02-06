@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="images\GolemMiningSuite_Logo.png" />
     <None Remove="images\uex-logo.png" />
   </ItemGroup>
 
@@ -35,6 +36,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="images\GolemMiningSuite_Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="images\uex-logo.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
