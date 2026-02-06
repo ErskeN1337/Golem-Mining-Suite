@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.0.2
+      - 'v*.*.*'
 
 jobs:
   build-and-release:
@@ -16,21 +16,27 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'  # Change to your .NET version
+        dotnet-version: '6.0.x'
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
     
-    - name: Build Release
-      run: dotnet build --configuration Release --no-restore
+    - name: Build and Publish
+      run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -o ./publish --self-contained false
     
-    - name: Publish
-      run: dotnet publish --configuration Release --output ./publish --no-build
+    - name: List published files (debug)
+      run: Get-ChildItem ./publish -Recurse | Select-Object FullName
     
     - name: Create ZIP package
       run: |
-        cd publish
-        Compress-Archive -Path * -DestinationPath ../Golem-Mining-Suite-${{ github.ref_name }}.zip
+        Compress-Archive -Path ./publish/* -DestinationPath ./Golem-Mining-Suite-${{ github.ref_name }}.zip
+      shell: pwsh
+    
+    - name: Verify ZIP contents
+      run: |
+        Write-Host "ZIP file size:"
+        Get-Item ./Golem-Mining-Suite-${{ github.ref_name }}.zip | Select-Object Length
+      shell: pwsh
     
     - name: Create Release
       uses: softprops/action-gh-release@v1
@@ -39,15 +45,19 @@ jobs:
         body: |
           ## Golem Mining Suite ${{ github.ref_name }}
           
-          Automatic release built from latest code.
-          
           ### Installation
           1. Download the ZIP file below
-          2. Extract to a folder
-          3. Run Golem Mining Suite.exe
+          2. Extract to a folder  
+          3. Run "Golem Mining Suite.exe"
           
           ### Auto-Update
-          If you're already using Golem Mining Suite, just run your current version and click "Download Update" when prompted!
+          If you already have Golem Mining Suite installed, just run it and click "Download Update"!
+          
+          ### What's Included
+          - Golem Mining Suite.exe
+          - All required DLL files
+          - terminals.json
+          - Images and resources
         draft: false
         prerelease: false
       env:
