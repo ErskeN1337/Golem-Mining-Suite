@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Mineral Prices" Height="600" Width="900"
         Background="#1E1E1E"
+        BorderBrush="#FF8C42"
+BorderThickness="1"
         Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>

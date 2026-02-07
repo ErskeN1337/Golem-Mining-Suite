@@ -1,8 +1,12 @@
 <Window x:Class="Golem_Mining_Suite.CalculatorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Cargo Value Calculator" Height="450" Width="500"
-        Background="#1E1E1E">
+        Title="Cargo Value Calculator" 
+        Height="450" 
+        Width="500"
+        Background="#1E1E1E"
+        BorderBrush="#FF8C42"
+        BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

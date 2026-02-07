@@ -15,6 +15,14 @@ namespace Golem_Mining_Suite
 			public string MineralChance { get; set; }
 			public string System { get; set; }
 			public double SortValue { get; set; }
+			public string Signature { get; set; }
+			public string DepositType { get; set; }
+		}
+
+		private class ClusterRockInfo
+		{
+			public string Size { get; set; }
+			public string Percentage { get; set; }
 		}
 
 		private string currentDepositName;
@@ -76,7 +84,9 @@ namespace Golem_Mining_Suite
 							DepositChance = planet.Chance,
 							MineralChance = mineralPercentage,
 							System = planet.System,
-							SortValue = depositSpawnRate
+							SortValue = depositSpawnRate,
+							Signature = GetDepositSignature(depositName, planet.System),
+							DepositType = depositName
 						});
 					}
 				}
@@ -269,7 +279,9 @@ namespace Golem_Mining_Suite
 					DepositChance = loc.Chance,
 					MineralChance = "-",
 					System = loc.System,
-					SortValue = double.Parse(loc.Chance.Replace("%", ""))
+					SortValue = double.Parse(loc.Chance.Replace("%", "")),
+					Signature = GetDepositSignature(depositName, loc.System),
+					DepositType = depositName
 				}).ToList();
 				ApplyFilter();
 			}
@@ -309,6 +321,93 @@ namespace Golem_Mining_Suite
 				.ToList();
 
 			LocationsGrid.ItemsSource = sortedLocations;
+		}
+
+		private string GetDepositSignature(string depositName, string system)
+		{
+			var signatures = new Dictionary<string, string>
+			{
+				["Atacamite-Stanton"] = "1800",
+				["Atacamite-Pyro"] = "1806",
+				["Felsic-Stanton"] = "1778",
+				["Felsic-Pyro"] = "1778",
+				["Gneiss-Stanton"] = "1848",
+				["Gneiss-Pyro"] = "1846",
+				["Granite-Stanton"] = "1928",
+				["Granite-Pyro"] = "1928",
+				["Igneous-Stanton"] = "1950",
+				["Igneous-Pyro"] = "1950",
+				["Obsidian-Stanton"] = "1790",
+				["Obsidian-Pyro"] = "1790",
+				["Quartzite-Stanton"] = "1820",
+				["Quartzite-Pyro"] = "1820",
+				["Shale-Stanton"] = "1730",
+				["Shale-Pyro"] = "1730"
+			};
+
+			string key = $"{depositName}-{system}";
+			return signatures.ContainsKey(key) ? signatures[key] : "";
+		}
+
+		private void Signature_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+		{
+			var textBlock = sender as TextBlock;
+			if (textBlock?.DataContext is LocationData locationData)
+			{
+				ShowSignaturePopup(locationData);
+			}
+		}
+
+		private void Signature_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+		{
+			SignaturePopup.IsOpen = false;
+		}
+
+		private void ShowSignaturePopup(LocationData locationData)
+		{
+			if (string.IsNullOrEmpty(locationData.DepositType))
+				return;
+
+			PopupTitle.Text = locationData.DepositType;
+
+			var clusterData = GetClusterRockData(locationData.DepositType);
+			ClusterRocksPanel.ItemsSource = clusterData;
+
+			SignaturePopup.IsOpen = true;
+		}
+
+		private List<ClusterRockInfo> GetClusterRockData(string depositType)
+		{
+			// Get base signature value
+			int baseSignature = 0;
+			switch (depositType)
+			{
+				case "Shale": baseSignature = 1730; break;
+				case "Granite": baseSignature = 1928; break;
+				case "Atacamite": baseSignature = 1800; break;
+				case "Felsic": baseSignature = 1778; break;
+				case "Gneiss": baseSignature = 1848; break;
+				case "Igneous": baseSignature = 1950; break;
+				case "Obsidian": baseSignature = 1790; break;
+				case "Quartzite": baseSignature = 1820; break;
+				default: return new List<ClusterRockInfo>();
+			}
+
+			// Calculate multipliers
+			var clusterData = new List<ClusterRockInfo>
+	{
+		new ClusterRockInfo { Size = "0", Percentage = "0" },
+		new ClusterRockInfo { Size = "2x", Percentage = (baseSignature * 2).ToString() },
+		new ClusterRockInfo { Size = "4x", Percentage = (baseSignature * 4).ToString() },
+		new ClusterRockInfo { Size = "6x", Percentage = (baseSignature * 6).ToString() },
+		new ClusterRockInfo { Size = "8x", Percentage = (baseSignature * 8).ToString() },
+		new ClusterRockInfo { Size = "10x", Percentage = (baseSignature * 10).ToString() },
+		new ClusterRockInfo { Size = "12x", Percentage = (baseSignature * 12).ToString() },
+		new ClusterRockInfo { Size = "14x", Percentage = (baseSignature * 14).ToString() },
+		new ClusterRockInfo { Size = "16x", Percentage = (baseSignature * 16).ToString() }
+	};
+
+			return clusterData;
 		}
 	}
 }

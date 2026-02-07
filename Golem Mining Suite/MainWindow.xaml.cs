@@ -15,13 +15,17 @@ namespace Golem_Mining_Suite
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			// Set version from assembly
+			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+
+			// Check for updates
+			this.Loaded += Window_Loaded;
 		}
 
 		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-			VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
-
 			await CheckForUpdatesAsync();
 		}
 
@@ -101,14 +105,12 @@ namespace Golem_Mining_Suite
 			{
 				string selectedMineral = SuggestionsListBox.SelectedItem.ToString();
 
-				// Find the mineral data
 				var allData = GetMiningData();
 				var foundMineral = allData.FirstOrDefault(m => m.MineralName.ToLower() == selectedMineral.ToLower());
 
 				if (foundMineral != null)
 				{
-					// Pass the MINERAL name to LocationWindow
-					var locationWindow = new LocationWindow(foundMineral.MineralName, true); // true = it's a mineral
+					var locationWindow = new LocationWindow(foundMineral.MineralName, true);
 					PositionWindowToRight(locationWindow);
 					locationWindow.Show();
 				}
@@ -161,45 +163,45 @@ namespace Golem_Mining_Suite
 		}
 
 		private List<MineralData> GetMiningData()
-{
-	return new List<MineralData>
-	{
-		new MineralData
 		{
-			MineralName = "Quantanium",
-			OreSources = new List<OreSource>
+			return new List<MineralData>
 			{
-				new OreSource { OreName = "Granite", Percentage = 9 },
-				new OreSource { OreName = "Shale", Percentage = 7 },
-				new OreSource { OreName = "Igneous", Percentage = 7 },
-				new OreSource { OreName = "Gneiss", Percentage = 4 },
-				new OreSource { OreName = "Felsic", Percentage = 3 }
-			}
-		},
-		new MineralData
-		{
-			MineralName = "Gold",
-			OreSources = new List<OreSource>
-			{
-				new OreSource { OreName = "Granite", Percentage = 25 },
-				new OreSource { OreName = "Shale", Percentage = 25 },
-				new OreSource { OreName = "Atacamite", Percentage = 20 },
-				new OreSource { OreName = "Igneous", Percentage = 19 }
-			}
-		},
-		new MineralData
-		{
-			MineralName = "Bexalite",
-			OreSources = new List<OreSource>
-			{
-				new OreSource { OreName = "Gneiss", Percentage = 18 },
-				new OreSource { OreName = "Quartzite", Percentage = 13 },
-				new OreSource { OreName = "Felsic", Percentage = 12 }
-			}
+				new MineralData
+				{
+					MineralName = "Quantanium",
+					OreSources = new List<OreSource>
+					{
+						new OreSource { OreName = "Granite", Percentage = 9 },
+						new OreSource { OreName = "Shale", Percentage = 7 },
+						new OreSource { OreName = "Igneous", Percentage = 7 },
+						new OreSource { OreName = "Gneiss", Percentage = 4 },
+						new OreSource { OreName = "Felsic", Percentage = 3 }
+					}
+				},
+				new MineralData
+				{
+					MineralName = "Gold",
+					OreSources = new List<OreSource>
+					{
+						new OreSource { OreName = "Granite", Percentage = 25 },
+						new OreSource { OreName = "Shale", Percentage = 25 },
+						new OreSource { OreName = "Atacamite", Percentage = 20 },
+						new OreSource { OreName = "Igneous", Percentage = 19 }
+					}
+				},
+				new MineralData
+				{
+					MineralName = "Bexalite",
+					OreSources = new List<OreSource>
+					{
+						new OreSource { OreName = "Gneiss", Percentage = 18 },
+						new OreSource { OreName = "Quartzite", Percentage = 13 },
+						new OreSource { OreName = "Felsic", Percentage = 12 }
+					}
+				}
+			};
 		}
-		// Add the rest of your minerals here...
-	};
-}
+	}
 
 	public class MineralData
 	{
@@ -212,5 +214,4 @@ namespace Golem_Mining_Suite
 		public string OreName { get; set; }
 		public double Percentage { get; set; }
 	}
-}
 }
