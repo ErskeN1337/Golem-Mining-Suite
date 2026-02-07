@@ -154,7 +154,7 @@
 
             <!-- Columns -->
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Ore Deposit" Binding="{Binding LocationName}" Width="*">
+                <DataGridTextColumn Header="Location" Binding="{Binding LocationName}" Width="*">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="#CCCCCC"/>
@@ -162,7 +162,15 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Percentage" Binding="{Binding Chance}" Width="100">
+                <DataGridTextColumn Header="Deposit %" Binding="{Binding DepositChance}" Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#CCCCCC"/>
+                            <Setter Property="Padding" Value="0"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Mineral %" Binding="{Binding MineralChance}" Width="80">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="#CCCCCC"/>

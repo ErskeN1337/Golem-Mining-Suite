@@ -58,10 +58,10 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Margin="0,10,0,25">
-                    <Image Source="pack://application:,,,/Images/GolemMiningSuite_logo.png" 
-                           Height="67" 
+                    <Image Source="/images/GolemMiningSuite_Logo.png" 
+                           Height="60" 
                            Stretch="Uniform"
-                           Width="232">
+                           Width="203">
                         <Image.Effect>
                             <DropShadowEffect Color="#FF8C42" 
                                               BlurRadius="15" 

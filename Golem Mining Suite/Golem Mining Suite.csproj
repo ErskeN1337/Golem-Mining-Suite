@@ -9,5 +9,17 @@
 		<Version>1.1.0</Version>
 		<ApplicationIcon>images\Golem.ico</ApplicationIcon>
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="images\GolemMiningSuite_Logo.png" />
+	  <None Remove="images\uex-logo.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="images\GolemMiningSuite_Logo.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="images\uex-logo.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
 	<!-- rest stays the same -->
 </Project>

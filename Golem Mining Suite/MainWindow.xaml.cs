@@ -107,17 +107,10 @@ namespace Golem_Mining_Suite
 
 				if (foundMineral != null)
 				{
-					// Get the ore deposit name (we'll use the first ore source name for now)
-					// Or you can modify this to show all deposits for the mineral
-					if (foundMineral.OreSources.Count > 0)
-					{
-						string depositName = foundMineral.OreSources[0].OreName;
-
-						// Use the actual LocationWindow we created!
-						var locationWindow = new LocationWindow(depositName);
-						PositionWindowToRight(locationWindow);
-						locationWindow.Show();
-					}
+					// Pass the MINERAL name to LocationWindow
+					var locationWindow = new LocationWindow(foundMineral.MineralName, true); // true = it's a mineral
+					PositionWindowToRight(locationWindow);
+					locationWindow.Show();
 				}
 
 				SuggestionsListBox.Visibility = Visibility.Collapsed;
