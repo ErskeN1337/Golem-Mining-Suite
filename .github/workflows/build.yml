@@ -1,0 +1,39 @@
+﻿name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
+    
+    - name: Build
+      run: dotnet build "Golem Mining Suite/Golem Mining Suite.csproj" -c Release --no-restore
+    
+    - name: Publish
+      run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -o publish
+    
+    - name: Create ZIP
+      run: Compress-Archive -Path publish/* -DestinationPath "Golem-Mining-Suite-${{ github.ref_name }}.zip"
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: Golem-Mining-Suite-${{ github.ref_name }}.zip
+        body: |
+          Automated release for ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
