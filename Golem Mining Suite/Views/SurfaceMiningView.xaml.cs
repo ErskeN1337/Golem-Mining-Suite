@@ -1,52 +1,30 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Golem_Mining_Suite
+namespace Golem_Mining_Suite.Views
 {
-	public partial class MainWindow : Window
+	public partial class SurfaceMiningView : UserControl
 	{
-		public MainWindow()
+		public event EventHandler BackToMenuRequested;
+
+		public SurfaceMiningView()
 		{
 			InitializeComponent();
 
 			// Set version from assembly
 			var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 			VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
-
-			// Check for updates
-			this.Loaded += Window_Loaded;
 		}
 
-		private async void Window_Loaded(object sender, RoutedEventArgs e)
+		private void BackButton_Click(object sender, RoutedEventArgs e)
 		{
-			await CheckForUpdatesAsync();
-		}
-
-		private async Task CheckForUpdatesAsync()
-		{
-			try
-			{
-				var updateInfo = await UpdateChecker.CheckForUpdateAsync();
-
-				if (updateInfo != null && updateInfo.IsUpdateAvailable)
-				{
-					var updateWindow = new UpdateAvailableWindow(updateInfo);
-					PositionWindowToRight(updateWindow);
-					updateWindow.Owner = this;
-					updateWindow.ShowDialog();
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
-			}
+			BackToMenuRequested?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void SearchBox_KeyUp(object sender, KeyEventArgs e)
@@ -93,7 +71,7 @@ namespace Golem_Mining_Suite
 				SearchBox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999999"));
 			}
 
-			Task.Delay(200).ContinueWith(_ =>
+			System.Threading.Tasks.Task.Delay(200).ContinueWith(_ =>
 			{
 				Dispatcher.Invoke(() => SuggestionsListBox.Visibility = Visibility.Collapsed);
 			});
@@ -111,7 +89,11 @@ namespace Golem_Mining_Suite
 				if (foundMineral != null)
 				{
 					var locationWindow = new LocationWindow(foundMineral.MineralName, true);
-					PositionWindowToRight(locationWindow);
+					var mainWindow = Window.GetWindow(this) as MainWindow;
+					if (mainWindow != null)
+					{
+						mainWindow.PositionWindowToRight(locationWindow);
+					}
 					locationWindow.Show();
 				}
 
@@ -122,27 +104,30 @@ namespace Golem_Mining_Suite
 		private void MineralPrices_Click(object sender, RoutedEventArgs e)
 		{
 			var pricesWindow = new PricesWindow();
-			PositionWindowToRight(pricesWindow);
+			var mainWindow = Window.GetWindow(this) as MainWindow;
+			if (mainWindow != null)
+			{
+				mainWindow.PositionWindowToRight(pricesWindow);
+			}
 			pricesWindow.Show();
 		}
 
 		private void CargoCalculator_Click(object sender, RoutedEventArgs e)
 		{
 			var calculatorWindow = new CalculatorWindow();
-			PositionWindowToRight(calculatorWindow);
+			var mainWindow = Window.GetWindow(this) as MainWindow;
+			if (mainWindow != null)
+			{
+				mainWindow.PositionWindowToRight(calculatorWindow);
+			}
 			calculatorWindow.Show();
-		}
-
-		private void OreDeposits_Click(object sender, RoutedEventArgs e)
-		{
-			MessageBox.Show("Use the search bar above to find specific minerals.", "Ore Deposits");
 		}
 
 		private void UexLinkButton_Click(object sender, RoutedEventArgs e)
 		{
 			try
 			{
-				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+				Process.Start(new ProcessStartInfo
 				{
 					FileName = "https://uexcorp.space",
 					UseShellExecute = true
@@ -153,13 +138,6 @@ namespace Golem_Mining_Suite
 				MessageBox.Show($"Could not open UEX Corp website: {ex.Message}",
 					"Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
-		}
-
-		private void PositionWindowToRight(Window window)
-		{
-			window.WindowStartupLocation = WindowStartupLocation.Manual;
-			window.Left = this.Left + this.ActualWidth + 10;
-			window.Top = this.Top;
 		}
 
 		private List<MineralData> GetMiningData()

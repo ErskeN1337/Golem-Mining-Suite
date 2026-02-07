@@ -1,102 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+using Golem_Mining_Suite.Models;
 
-namespace Golem_Mining_Suite
+namespace Golem_Mining_Suite.Data
 {
-	public partial class LocationWindow : Window
+	public static class SurfaceMiningData
 	{
-		public class LocationData
-		{
-			public string LocationName { get; set; }
-			public string Chance { get; set; }
-			public string DepositChance { get; set; }
-			public string MineralChance { get; set; }
-			public string System { get; set; }
-			public double SortValue { get; set; }
-			public string Signature { get; set; }
-			public string DepositType { get; set; }
-		}
-
-		private class ClusterRockInfo
-		{
-			public string Size { get; set; }
-			public string Percentage { get; set; }
-		}
-
-		private string currentDepositName;
-		private List<LocationData> allLocations;
-		private string currentFilter = "All";
-		private bool isMineral;
-
-		public LocationWindow(string name, bool isMineralSearch = false)
-		{
-			InitializeComponent();
-			isMineral = isMineralSearch;
-
-			if (isMineral)
-			{
-				TitleText.Text = $"Best Ore Deposits for {name}";
-				LoadMineralDeposits(name);
-			}
-			else
-			{
-				currentDepositName = name;
-				TitleText.Text = $"Ore Deposits for {name}";
-				LoadLocations(name);
-			}
-		}
-
-		private void LoadMineralDeposits(string mineralName)
-		{
-			var mineralDepositData = GetMineralToDepositMapping();
-			var depositLocationData = GetAllDepositLocations();
-
-			if (!mineralDepositData.ContainsKey(mineralName))
-			{
-				LocationsGrid.ItemsSource = new List<LocationData>
-				{
-					new LocationData { LocationName = "No data available", DepositChance = "N/A", MineralChance = "N/A", System = "N/A", SortValue = 0 }
-				};
-				return;
-			}
-
-			var depositsWithMineral = mineralDepositData[mineralName];
-			var planetMineralData = new List<LocationData>();
-
-			foreach (var deposit in depositsWithMineral)
-			{
-				string depositName = deposit.LocationName;
-				string mineralPercentage = deposit.Chance;
-
-				if (depositLocationData.ContainsKey(depositName))
-				{
-					var planetsWithDeposit = depositLocationData[depositName];
-
-					foreach (var planet in planetsWithDeposit)
-					{
-						double depositSpawnRate = double.Parse(planet.Chance.Replace("%", ""));
-
-						planetMineralData.Add(new LocationData
-						{
-							LocationName = $"{planet.LocationName} - {depositName}",
-							DepositChance = planet.Chance,
-							MineralChance = mineralPercentage,
-							System = planet.System,
-							SortValue = depositSpawnRate,
-							Signature = GetDepositSignature(depositName, planet.System),
-							DepositType = depositName
-						});
-					}
-				}
-			}
-
-			allLocations = planetMineralData;
-			ApplyFilter();
-		}
-
-		private Dictionary<string, List<LocationData>> GetMineralToDepositMapping()
+		// Mineral to Deposit mapping (static, doesn't change per system)
+		public static Dictionary<string, List<LocationData>> GetMineralToDepositMapping()
 		{
 			return new Dictionary<string, List<LocationData>>
 			{
@@ -207,7 +117,8 @@ namespace Golem_Mining_Suite
 			};
 		}
 
-		private Dictionary<string, List<LocationData>> GetAllDepositLocations()
+		// Get deposit locations (all systems combined)
+		public static Dictionary<string, List<LocationData>> GetAllDepositLocations()
 		{
 			return new Dictionary<string, List<LocationData>>
 			{
@@ -266,64 +177,8 @@ namespace Golem_Mining_Suite
 			};
 		}
 
-		private void LoadLocations(string depositName)
-		{
-			var depositLocations = GetAllDepositLocations();
-
-			if (depositLocations.ContainsKey(depositName))
-			{
-				allLocations = depositLocations[depositName].Select(loc => new LocationData
-				{
-					LocationName = loc.LocationName,
-					Chance = loc.Chance,
-					DepositChance = loc.Chance,
-					MineralChance = "-",
-					System = loc.System,
-					SortValue = double.Parse(loc.Chance.Replace("%", "")),
-					Signature = GetDepositSignature(depositName, loc.System),
-					DepositType = depositName
-				}).ToList();
-				ApplyFilter();
-			}
-		}
-
-		private void FilterButton_Click(object sender, RoutedEventArgs e)
-		{
-			Button clickedButton = sender as Button;
-			currentFilter = clickedButton.Tag.ToString();
-
-			AllButton.Style = (Style)FindResource("FilterButton");
-			StantonButton.Style = (Style)FindResource("FilterButton");
-			PyroButton.Style = (Style)FindResource("FilterButton");
-
-			clickedButton.Style = (Style)FindResource("ActiveFilterButton");
-
-			ApplyFilter();
-		}
-
-		private void ApplyFilter()
-		{
-			if (allLocations == null) return;
-
-			List<LocationData> filteredLocations;
-
-			if (currentFilter == "All")
-			{
-				filteredLocations = allLocations;
-			}
-			else
-			{
-				filteredLocations = allLocations.Where(l => l.System == currentFilter).ToList();
-			}
-
-			var sortedLocations = filteredLocations
-				.OrderByDescending(l => l.SortValue)
-				.ToList();
-
-			LocationsGrid.ItemsSource = sortedLocations;
-		}
-
-		private string GetDepositSignature(string depositName, string system)
+		// Get signatures for deposits
+		public static string GetDepositSignature(string depositName, string system)
 		{
 			var signatures = new Dictionary<string, string>
 			{
@@ -349,65 +204,37 @@ namespace Golem_Mining_Suite
 			return signatures.ContainsKey(key) ? signatures[key] : "";
 		}
 
-		private void Signature_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+		// Get cluster rock calculations
+		public static List<ClusterRockInfo> GetClusterRockData(string depositName)
 		{
-			var textBlock = sender as TextBlock;
-			if (textBlock?.DataContext is LocationData locationData)
+			int baseSignature = depositName switch
 			{
-				ShowSignaturePopup(locationData);
-			}
-		}
+				"Shale" => 1730,
+				"Granite" => 1928,
+				"Atacamite" => 1800,
+				"Felsic" => 1778,
+				"Gneiss" => 1848,
+				"Igneous" => 1950,
+				"Obsidian" => 1790,
+				"Quartzite" => 1820,
+				_ => 0
+			};
 
-		private void Signature_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-		{
-			SignaturePopup.IsOpen = false;
-		}
+			if (baseSignature == 0)
+				return new List<ClusterRockInfo>();
 
-		private void ShowSignaturePopup(LocationData locationData)
-		{
-			if (string.IsNullOrEmpty(locationData.DepositType))
-				return;
-
-			PopupTitle.Text = locationData.DepositType;
-
-			var clusterData = GetClusterRockData(locationData.DepositType);
-			ClusterRocksPanel.ItemsSource = clusterData;
-
-			SignaturePopup.IsOpen = true;
-		}
-
-		private List<ClusterRockInfo> GetClusterRockData(string depositType)
-		{
-			// Get base signature value
-			int baseSignature = 0;
-			switch (depositType)
+			return new List<ClusterRockInfo>
 			{
-				case "Shale": baseSignature = 1730; break;
-				case "Granite": baseSignature = 1928; break;
-				case "Atacamite": baseSignature = 1800; break;
-				case "Felsic": baseSignature = 1778; break;
-				case "Gneiss": baseSignature = 1848; break;
-				case "Igneous": baseSignature = 1950; break;
-				case "Obsidian": baseSignature = 1790; break;
-				case "Quartzite": baseSignature = 1820; break;
-				default: return new List<ClusterRockInfo>();
-			}
-
-			// Calculate multipliers
-			var clusterData = new List<ClusterRockInfo>
-	{
-		new ClusterRockInfo { Size = "0", Percentage = "0" },
-		new ClusterRockInfo { Size = "2x", Percentage = (baseSignature * 2).ToString() },
-		new ClusterRockInfo { Size = "4x", Percentage = (baseSignature * 4).ToString() },
-		new ClusterRockInfo { Size = "6x", Percentage = (baseSignature * 6).ToString() },
-		new ClusterRockInfo { Size = "8x", Percentage = (baseSignature * 8).ToString() },
-		new ClusterRockInfo { Size = "10x", Percentage = (baseSignature * 10).ToString() },
-		new ClusterRockInfo { Size = "12x", Percentage = (baseSignature * 12).ToString() },
-		new ClusterRockInfo { Size = "14x", Percentage = (baseSignature * 14).ToString() },
-		new ClusterRockInfo { Size = "16x", Percentage = (baseSignature * 16).ToString() }
-	};
-
-			return clusterData;
+				new ClusterRockInfo { Size = "0", Percentage = "0" },
+				new ClusterRockInfo { Size = "2x", Percentage = (baseSignature * 2).ToString() },
+				new ClusterRockInfo { Size = "4x", Percentage = (baseSignature * 4).ToString() },
+				new ClusterRockInfo { Size = "6x", Percentage = (baseSignature * 6).ToString() },
+				new ClusterRockInfo { Size = "8x", Percentage = (baseSignature * 8).ToString() },
+				new ClusterRockInfo { Size = "10x", Percentage = (baseSignature * 10).ToString() },
+				new ClusterRockInfo { Size = "12x", Percentage = (baseSignature * 12).ToString() },
+				new ClusterRockInfo { Size = "14x", Percentage = (baseSignature * 14).ToString() },
+				new ClusterRockInfo { Size = "16x", Percentage = (baseSignature * 16).ToString() }
+			};
 		}
 	}
 }
