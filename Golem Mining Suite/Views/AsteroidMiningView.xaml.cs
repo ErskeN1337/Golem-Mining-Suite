@@ -138,6 +138,28 @@ namespace Golem_Mining_Suite.Views
 			}
 		}
 
+		private void MineralButton_Click(object sender, RoutedEventArgs e)
+		{
+			Button clickedButton = sender as Button;
+			AsteroidMineralData mineralData = clickedButton.DataContext as AsteroidMineralData;
+			string mineralName = mineralData?.MineralName;
+
+			// Add 'true' as third parameter for asteroid mode
+			LocationWindow locationWindow = new LocationWindow(mineralName, true, true);
+			locationWindow.ShowDialog();
+		}
+
+		private void OreTypeButton_Click(object sender, RoutedEventArgs e)
+		{
+			Button clickedButton = sender as Button;
+			string oreTypeName = clickedButton?.Content.ToString();
+
+			// Add 'true' as third parameter for asteroid mode
+			LocationWindow locationWindow = new LocationWindow(oreTypeName, false, true);
+			locationWindow.ShowDialog();
+		}
+
+
 		private List<AsteroidMineralData> GetAsteroidMineralData()
 		{
 			return new List<AsteroidMineralData>

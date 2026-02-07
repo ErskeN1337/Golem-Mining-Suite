@@ -19,9 +19,12 @@ namespace Golem_Mining_Suite
 		private double minMineralPercent = 0;
 		private string locationSearchText = "";
 
-		public LocationWindow(string name, bool isMineralSearch = false, bool asteroidMode = false)
+		public LocationWindow(string name, bool isMineralSearch, bool asteroidMode)
 		{
 			InitializeComponent();
+
+			// Set instance variables
+			currentDepositName = name;
 			isMineral = isMineralSearch;
 			isAsteroidMode = asteroidMode;
 
@@ -29,41 +32,57 @@ namespace Golem_Mining_Suite
 			if (isAsteroidMode)
 			{
 				LocationTypePanel.Visibility = Visibility.Visible;
+				OreTypePanel.Visibility = Visibility.Visible;
 				PlanetFilterPanel.Visibility = Visibility.Collapsed;
 			}
 			else
 			{
 				LocationTypePanel.Visibility = Visibility.Collapsed;
+				OreTypePanel.Visibility = Visibility.Collapsed;
 				PlanetFilterPanel.Visibility = Visibility.Visible;
 			}
 
-			// Then load data
-			if (isMineral)
+			// Set window title
+			if (isAsteroidMode)
 			{
-				if (isAsteroidMode)
+				Title = isMineral ? $"Best Locations for {name}" : $"Best Ore Types for {name}";
+			}
+			else
+			{
+				Title = isMineral ? $"Best Locations for {name}" : $"Best Locations for {name}";
+			}
+
+			// Set the TextBlock title as well
+			WindowTitle.Text = Title;
+
+			// Load data based on mode
+			if (isAsteroidMode)
+			{
+				if (isMineral)
 				{
-					TitleText.Text = $"Best Ore Types for {name}";
 					LoadAsteroidMineralLocations(name);
 				}
 				else
 				{
-					TitleText.Text = $"Best Ore Deposits for {name}";
-					LoadMineralDeposits(name);
+					LoadAsteroidOreTypeLocations(name);
 				}
 			}
 			else
 			{
-				currentDepositName = name;
-				if (isAsteroidMode)
+				if (isMineral)
 				{
-					TitleText.Text = $"Ore Type: {name}";
-					LoadAsteroidOreTypeLocations(name);
+					LoadMineralDeposits(name);
 				}
 				else
 				{
-					TitleText.Text = $"Ore Deposits for {name}";
 					LoadLocations(name);
 				}
+			}
+
+			// Load ore type filter for asteroid mining
+			if (isAsteroidMode)
+			{
+				LoadOreTypeFilter();
 			}
 
 			// Load planet filter for surface mining
@@ -241,6 +260,15 @@ namespace Golem_Mining_Suite
 			PlanetComboBox.SelectedIndex = 0;
 		}
 
+		private void LoadOreTypeFilter()
+		{
+			var oreTypes = new List<string> { "All Ore Types" };
+			oreTypes.AddRange(new[] { "C-Type", "E-Type", "I-Type", "M-Type", "P-Type", "Q-Type", "S-Type" });
+
+			OreTypeComboBox.ItemsSource = oreTypes;
+			OreTypeComboBox.SelectedIndex = 0;
+		}
+
 		// System Filter
 		private void FilterButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -278,6 +306,13 @@ namespace Golem_Mining_Suite
 		private void PlanetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (PlanetComboBox.SelectedItem == null || allLocations == null) return;
+			ApplyFilter();
+		}
+
+		// Ore Type filter changed
+		private void OreTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (OreTypeComboBox.SelectedItem == null) return;
 			ApplyFilter();
 		}
 
@@ -342,7 +377,6 @@ namespace Golem_Mining_Suite
 						case "MiningBase":
 							return locationName.Contains("mining base");
 						case "Lagrange":
-							// Matches: HUR L1, MIC L2, ARC L3, CRU L4, etc.
 							return System.Text.RegularExpressions.Regex.IsMatch(locationName, @"\s+l[1-5](\s|$)");
 						case "Belt":
 							return locationName.Contains("belt");
@@ -352,7 +386,19 @@ namespace Golem_Mining_Suite
 				}).ToList();
 			}
 
-			// 3. Filter by Planet (Surface mode only)
+			// 3. Filter by Ore Type (Asteroid mode only)
+			if (isAsteroidMode && OreTypeComboBox != null && OreTypeComboBox.SelectedItem != null)
+			{
+				string selectedOreType = OreTypeComboBox.SelectedItem.ToString();
+				if (selectedOreType != "All Ore Types")
+				{
+					filteredLocations = filteredLocations.Where(l =>
+						l.DepositChance != null && l.LocationName.Contains(selectedOreType)
+					).ToList();
+				}
+			}
+
+			// 4. Filter by Planet (Surface mode only)
 			if (!isAsteroidMode && PlanetComboBox != null && PlanetComboBox.SelectedItem != null)
 			{
 				string selectedPlanet = PlanetComboBox.SelectedItem.ToString();
@@ -364,7 +410,7 @@ namespace Golem_Mining_Suite
 				}
 			}
 
-			// 4. Filter by Location Name Search (both modes)
+			// 5. Filter by Location Name Search (both modes)
 			if (!string.IsNullOrWhiteSpace(locationSearchText))
 			{
 				filteredLocations = filteredLocations.Where(l =>
@@ -372,7 +418,7 @@ namespace Golem_Mining_Suite
 				).ToList();
 			}
 
-			// 5. Filter by Min Deposit %
+			// 6. Filter by Min Deposit %
 			if (minDepositPercent > 0)
 			{
 				filteredLocations = filteredLocations.Where(l =>
@@ -382,7 +428,7 @@ namespace Golem_Mining_Suite
 				}).ToList();
 			}
 
-			// 6. Filter by Min Mineral %
+			// 7. Filter by Min Mineral %
 			if (minMineralPercent > 0 && isMineral)
 			{
 				filteredLocations = filteredLocations.Where(l =>

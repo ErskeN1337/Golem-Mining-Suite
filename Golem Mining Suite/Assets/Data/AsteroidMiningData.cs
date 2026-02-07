@@ -182,10 +182,9 @@ namespace Golem_Mining_Suite.Data
 
 			// Get all asteroid locations from all systems
 			var allLocations = new List<AsteroidLocationData>();
-			allLocations.AddRange(StantonAsteroidLocations.GetAllLocations());
-			// TODO: Add Pyro and Nyx when ready
-			// allLocations.AddRange(PyroAsteroidLocations.GetAllLocations());
-			// allLocations.AddRange(NyxAsteroidLocations.GetAllLocations());
+			allLocations.AddRange(AsteroidLocationLoader.LoadFromCSV("Stanton"));
+			allLocations.AddRange(AsteroidLocationLoader.LoadFromCSV("Pyro"));
+			allLocations.AddRange(AsteroidLocationLoader.LoadFromCSV("Nyx")); // Uncommented!
 
 			// Group by ore type
 			var oreTypes = new[] { "C-Type", "E-Type", "I-Type", "M-Type", "P-Type", "Q-Type", "S-Type" };
@@ -267,4 +266,5 @@ namespace Golem_Mining_Suite.Data
 			};
 		}
 	}
+
 }

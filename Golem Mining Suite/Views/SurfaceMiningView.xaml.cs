@@ -88,7 +88,8 @@ namespace Golem_Mining_Suite.Views
 
 				if (foundMineral != null)
 				{
-					var locationWindow = new LocationWindow(foundMineral.MineralName, true);
+					// FIXED: Added third parameter (false for surface mode)
+					var locationWindow = new LocationWindow(foundMineral.MineralName, true, false);
 					var mainWindow = Window.GetWindow(this) as MainWindow;
 					if (mainWindow != null)
 					{
@@ -138,6 +139,28 @@ namespace Golem_Mining_Suite.Views
 				MessageBox.Show($"Could not open UEX Corp website: {ex.Message}",
 					"Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
+		}
+
+		private void MineralButton_Click(object sender, RoutedEventArgs e)
+		{
+			Button clickedButton = sender as Button;
+			// FIXED: Using MineralData instead of MineralItem
+			MineralData mineralItem = clickedButton.DataContext as MineralData;
+			string mineralName = mineralItem?.MineralName;
+
+			// Add 'false' as third parameter for surface mode
+			LocationWindow locationWindow = new LocationWindow(mineralName, true, false);
+			locationWindow.ShowDialog();
+		}
+
+		private void DepositButton_Click(object sender, RoutedEventArgs e)
+		{
+			Button clickedButton = sender as Button;
+			string depositName = clickedButton?.Content.ToString();
+
+			// Add 'false' as third parameter for surface mode  
+			LocationWindow locationWindow = new LocationWindow(depositName, false, false);
+			locationWindow.ShowDialog();
 		}
 
 		private List<MineralData> GetMiningData()
