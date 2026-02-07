@@ -25,6 +25,13 @@ namespace Golem_Mining_Suite
 
 					string latestVersion = root.GetProperty("tag_name").GetString().Replace("v", "");
 					string downloadUrl = "";
+					string releaseNotes = "";
+
+					// Try to get release notes
+					if (root.TryGetProperty("body", out var bodyElement))
+					{
+						releaseNotes = bodyElement.GetString();
+					}
 
 					// Get the ZIP file download URL
 					var assets = root.GetProperty("assets");
@@ -50,7 +57,8 @@ namespace Golem_Mining_Suite
 						IsUpdateAvailable = isNewer,
 						LatestVersion = latestVersion,
 						CurrentVersion = currentVersionString,
-						DownloadUrl = downloadUrl
+						DownloadUrl = downloadUrl,
+						ReleaseNotes = releaseNotes
 					};
 				}
 			}

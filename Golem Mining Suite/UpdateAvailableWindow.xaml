@@ -1,34 +1,89 @@
 <Window x:Class="Golem_Mining_Suite.UpdateAvailableWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Update Available" Height="400" Width="500"
-        Background="#1E1E1E"
+        Title="Update Available" Height="450" Width="550"
+        Background="#1A1A1A"
+        BorderBrush="#FF8C42"
+        BorderThickness="1"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
-    <Grid>
+
+    <Window.Resources>
+        <Style x:Key="UpdateButton" TargetType="Button">
+            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3D3528"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF8C42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#333333"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Title -->
-        <StackPanel Grid.Row="0" Margin="20,20,20,10">
-            <TextBlock Text="🎉 Update Available!"
-                       FontSize="24"
+        <!-- Logo and Title -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Image Source="/images/GolemMiningSuite_Logo.png" 
+                   Height="40" 
+                   HorizontalAlignment="Left"
+                   Stretch="Uniform"
+                   Width="140">
+                <Image.Effect>
+                    <DropShadowEffect Color="#FF8C42" 
+                                      BlurRadius="10" 
+                                      ShadowDepth="0" 
+                                      Opacity="0.3"/>
+                </Image.Effect>
+            </Image>
+
+            <TextBlock Text="Update Available!"
+                       FontSize="20"
                        FontWeight="Bold"
-                       Foreground="#4CAF50"
-                       HorizontalAlignment="Center"/>
-        </StackPanel>
+                       Foreground="#FF8C42"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Grid>
 
         <!-- Version Info -->
         <Border Grid.Row="1" 
-                Background="#2A2A2A"
-                BorderBrush="#444444"
+                Background="#252525"
+                BorderBrush="#333333"
                 BorderThickness="1"
-                Margin="20,10"
-                Padding="15">
+                CornerRadius="4"
+                Margin="0,0,0,15"
+                Padding="20">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -52,7 +107,7 @@
 
                 <TextBlock Grid.Column="1"
                          Text="→"
-                         Foreground="#4CAF50"
+                         Foreground="#FF8C42"
                          FontSize="24"
                          FontWeight="Bold"
                          VerticalAlignment="Center"
@@ -65,7 +120,7 @@
                              HorizontalAlignment="Center"/>
                     <TextBlock Name="NewVersionText"
                              Text="v1.1.0"
-                             Foreground="#4CAF50"
+                             Foreground="#FF8C42"
                              FontSize="20"
                              FontWeight="Bold"
                              HorizontalAlignment="Center"
@@ -74,84 +129,52 @@
             </Grid>
         </Border>
 
+        <!-- What's New Header -->
+        <TextBlock Grid.Row="2"
+                   Text="What's New:"
+                   Foreground="#CCCCCC"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   Margin="0,0,0,10"/>
+
         <!-- Release Notes -->
-        <Border Grid.Row="2"
-                Background="#2A2A2A"
-                BorderBrush="#444444"
+        <Border Grid.Row="3"
+                Background="#252525"
+                BorderBrush="#333333"
                 BorderThickness="1"
-                Margin="20,10">
+                CornerRadius="4"
+                Margin="0,0,0,20">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="15">
-                    <TextBlock Text="What's New:"
-                             Foreground="#CCCCCC"
-                             FontSize="14"
-                             FontWeight="Bold"
-                             Margin="0,0,0,10"/>
-                    <TextBlock Name="ReleaseNotesText"
-                             Text="Loading release notes..."
-                             Foreground="#CCCCCC"
-                             TextWrapping="Wrap"
-                             FontSize="12"/>
-                </StackPanel>
+                <TextBlock Name="ReleaseNotesText"
+                         Text="Loading release notes..."
+                         Foreground="#CCCCCC"
+                         TextWrapping="Wrap"
+                         FontSize="12"
+                         Margin="15"/>
             </ScrollViewer>
         </Border>
 
         <!-- Buttons -->
-        <Grid Grid.Row="3" Margin="20">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
                     Name="DownloadButton"
                     Content="Download Update"
-                    Margin="0,0,5,0"
-                    Padding="10"
-                    FontSize="14"
                     FontWeight="Bold"
-                    Background="#4CAF50"
-                    Foreground="White"
-                    BorderBrush="#4CAF50"
-                    BorderThickness="1"
-                    Cursor="Hand"
-                    Click="DownloadButton_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Background" Value="#4CAF50"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#66BB6A"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    Click="DownloadButton_Click"
+                    Style="{StaticResource UpdateButton}"/>
 
-            <Button Grid.Column="1"
+            <Button Grid.Column="2"
                     Name="SkipButton"
                     Content="Skip for Now"
-                    Margin="5,0,0,0"
-                    Padding="10"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Background="#2A2A2A"
-                    Foreground="#CCCCCC"
-                    BorderBrush="#444444"
-                    BorderThickness="1"
-                    Cursor="Hand"
-                    Click="SkipButton_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Background" Value="#2A2A2A"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#444444"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+                    FontWeight="Normal"
+                    Click="SkipButton_Click"
+                    Style="{StaticResource UpdateButton}"/>
         </Grid>
     </Grid>
 </Window>
