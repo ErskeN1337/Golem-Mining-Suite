@@ -39,6 +39,13 @@ To verify a release:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 💡 About Me
+
+I’m completely new to coding, and this project is my first big endeavor. It’s been a huge learning experience, and I’m excited to continue improving the suite while making it useful for the Star Citizen community.
+
+**Enjoying the tool?**
+[☕ Buy me a coffee](https://buymeacoffee.com/ericamcoff)
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
