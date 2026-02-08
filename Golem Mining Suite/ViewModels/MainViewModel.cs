@@ -21,6 +21,7 @@ namespace Golem_Mining_Suite.ViewModels
         private SurfaceMiningView _surfaceMiningView;
         private AsteroidMiningView _asteroidMiningView;
         private ROCMiningView _rocMiningView;
+        private SettingsView _settingsView;
 
         [ObservableProperty]
         private object _currentView;
@@ -57,6 +58,10 @@ namespace Golem_Mining_Suite.ViewModels
             _rocMiningView = new ROCMiningView();
             var rocVM = App.Current.Services.GetService(typeof(ROCMiningViewModel));
             if (rocVM != null) _rocMiningView.DataContext = rocVM;
+
+            _settingsView = new SettingsView();
+            var liveDataVM = new LiveDataViewModel();
+            _settingsView.DataContext = liveDataVM;
 
             // Set initial view
             CurrentView = _mainMenuView;
@@ -114,6 +119,9 @@ namespace Golem_Mining_Suite.ViewModels
                     break;
                 case "ROCMining":
                     CurrentView = _rocMiningView;
+                    break;
+                case "Settings":
+                    CurrentView = _settingsView;
                     break;
             }
         }
