@@ -53,6 +53,8 @@ namespace Golem_Mining_Suite.ViewModels
         {
             _allMiningData = _miningDataService.GetFeaturedSurfaceMinerals();
             FeaturedMinerals = new ObservableCollection<MineralData>(_allMiningData);
+            // DEBUG: Verify count and names
+            // System.Console.WriteLine($"[DEBUG] Loaded {_allMiningData.Count} minerals in SurfaceMiningViewModel.");
         }
 
         [RelayCommand]
