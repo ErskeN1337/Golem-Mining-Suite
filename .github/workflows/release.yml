@@ -48,7 +48,7 @@ jobs:
         Get-Item "Golem-Mining-Suite-$version.zip" | Select-Object Name, Length
 
     - name: Generate build provenance attestation
-      uses: actions/attest-build-provenance@v1
+      uses: actions/attest-build-provenance@v3
       with:
         subject-path: 'Golem-Mining-Suite-${{ github.ref_name }}.zip'
     
