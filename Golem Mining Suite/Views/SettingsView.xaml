@@ -1,0 +1,160 @@
+<UserControl x:Class="Golem_Mining_Suite.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Golem_Mining_Suite.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:LiveDataViewModel}"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="40">
+            <!-- Header -->
+            <TextBlock Text="Settings" 
+                       FontSize="32" 
+                       FontWeight="Bold" 
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Margin="0,0,0,30"/>
+
+            <!-- Live Data Section -->
+            <Border Background="{StaticResource SecondaryBackgroundBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="25"
+                    Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="🌐 Live Crowdsourced Data (Beta)" 
+                               FontSize="20" 
+                               FontWeight="Bold" 
+                               Foreground="{StaticResource AccentBrush}"
+                               Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Help the community by automatically sharing terminal prices you visit in-game." 
+                               FontSize="14" 
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,20"/>
+
+                    <!-- Enable Toggle -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding IsEnabled}"
+                                  Command="{Binding ToggleLiveDataCommand}"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,15,0"/>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Enable Live Data Sharing" 
+                                       FontSize="16" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Automatically detect and share terminal data while playing" 
+                                       FontSize="12" 
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Status Indicators -->
+                    <Border Background="#2A2A2A"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="15">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Status -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="Status: " 
+                                           FontSize="14" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding StatusText}" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- Game Detection -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="🎮 Star Citizen: " 
+                                           FontSize="14" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="Running" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#4CAF50"
+                                           Visibility="{Binding IsGameRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <TextBlock Text="Not Detected" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"
+                                           Foreground="#F44336"/>
+                            </StackPanel>
+
+                            <!-- Contribution Stats -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                <TextBlock Text="📊 Terminals Shared: " 
+                                           FontSize="14" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding ContributionCount}" 
+                                           FontSize="14" 
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource AccentBrush}"/>
+                                <TextBlock Text=" | Last Update: " 
+                                           FontSize="14" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="15,0,0,0"/>
+                                <TextBlock Text="{Binding LastUpdateText}" 
+                                           FontSize="14" 
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Privacy Notice -->
+                    <Border Background="#1E1E1E"
+                            BorderBrush="{StaticResource AccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="15"
+                            Margin="0,15,0,0">
+                        <StackPanel>
+                            <TextBlock Text="🔒 Privacy &amp; Security" 
+                                       FontSize="14" 
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       Margin="0,0,0,8"/>
+                            <TextBlock TextWrapping="Wrap" 
+                                       FontSize="12" 
+                                       Foreground="{StaticResource TextSecondaryBrush}">
+                                <Run Text="✓ Anonymous - No personal data collected"/><LineBreak/>
+                                <Run Text="✓ Screen reading only - No memory hacking"/><LineBreak/>
+                                <Run Text="✓ Rate limited - Max 1 upload per 30 seconds"/><LineBreak/>
+                                <Run Text="✓ Opt-in only - Disable anytime"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Future Settings Sections -->
+            <TextBlock Text="More settings coming soon..." 
+                       FontSize="14" 
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontStyle="Italic"
+                       HorizontalAlignment="Center"
+                       Margin="0,20,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
