@@ -30,7 +30,7 @@ namespace Golem_Mining_Suite.Views
 
 		private void RocMining_Click(object sender, RoutedEventArgs e)
 		{
-			NavigationRequested?.Invoke(this, "RocMining");
+			NavigationRequested?.Invoke(this, "ROCMining");
 		}
 
 		private void UexLinkButton_Click(object sender, RoutedEventArgs e)

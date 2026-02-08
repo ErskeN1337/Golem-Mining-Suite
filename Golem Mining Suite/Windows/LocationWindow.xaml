@@ -269,25 +269,25 @@
 
                     <!-- Min Deposit % -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" 
-                                HorizontalAlignment="Right" VerticalAlignment="Center" 
-                                Margin="10,0">
+            HorizontalAlignment="Right" VerticalAlignment="Center" 
+            Margin="10,0">
                         <TextBlock Text="Min Deposit:" Foreground="#CCCCCC" 
-                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox x:Name="MinDepositBox" Width="60" Height="35" 
-                                 Text="0" TextChanged="MinDepositBox_TextChanged"/>
+               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="MinDepositBox" Width="60" Height="40" 
+             Text="0" TextChanged="MinDepositBox_TextChanged"/>
                         <TextBlock Text="%" Foreground="#CCCCCC" 
-                                   VerticalAlignment="Center" Margin="5,0,0,0"/>
+               VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
 
                     <!-- Min Mineral % -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" 
-                                HorizontalAlignment="Right" VerticalAlignment="Center">
+            HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="Min Mineral:" Foreground="#CCCCCC" 
-                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox x:Name="MinMineralBox" Width="60" Height="35" 
-                                 Text="0" TextChanged="MinMineralBox_TextChanged"/>
+               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="MinMineralBox" Width="´50" Height="40" 
+             Text="0" TextChanged="MinMineralBox_TextChanged"/>
                         <TextBlock Text="%" Foreground="#CCCCCC" 
-                                   VerticalAlignment="Center" Margin="5,0,0,0"/>
+               VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Grid>
             </Grid>

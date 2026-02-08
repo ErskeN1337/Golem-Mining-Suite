@@ -9,7 +9,7 @@ namespace Golem_Mining_Suite
 	{
 		private MainMenuView mainMenuView;
 		private SurfaceMiningView surfaceMiningView;
-		private AsteroidMiningView asteroidMiningView; 
+		private AsteroidMiningView asteroidMiningView;
 
 		public MainWindow()
 		{
@@ -22,7 +22,7 @@ namespace Golem_Mining_Suite
 			surfaceMiningView = new SurfaceMiningView();
 			surfaceMiningView.BackToMenuRequested += OnBackToMenuRequested;
 
-			asteroidMiningView = new AsteroidMiningView();  
+			asteroidMiningView = new AsteroidMiningView();
 			asteroidMiningView.BackToMenuRequested += OnBackToMenuRequested;
 
 			// Show main menu by default
@@ -42,7 +42,6 @@ namespace Golem_Mining_Suite
 			try
 			{
 				var updateInfo = await UpdateChecker.CheckForUpdateAsync();
-
 				if (updateInfo != null && updateInfo.IsUpdateAvailable)
 				{
 					var updateWindow = new UpdateAvailableWindow(updateInfo);
@@ -65,10 +64,12 @@ namespace Golem_Mining_Suite
 					ShowSurfaceMining();
 					break;
 				case "AsteroidMining":
-					ShowAsteroidMining();  
+					ShowAsteroidMining();
 					break;
-				case "RocMining":
-					MessageBox.Show("ROC/FPS Mining - Coming Soon!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+				case "ROCMining":
+					var rocView = new ROCMiningView();
+					rocView.BackToMenuRequested += OnBackToMenuRequested;
+					ContentArea.Content = rocView;
 					break;
 			}
 		}
@@ -88,7 +89,7 @@ namespace Golem_Mining_Suite
 			ContentArea.Content = surfaceMiningView;
 		}
 
-		private void ShowAsteroidMining()  
+		private void ShowAsteroidMining()
 		{
 			ContentArea.Content = asteroidMiningView;
 		}

@@ -14,12 +14,13 @@ namespace Golem_Mining_Suite
 		private string currentFilter = "All";
 		private bool isMineral;
 		private bool isAsteroidMode;
+		private bool isROCMode;
 		private string currentLocationType = "All";
 		private double minDepositPercent = 0;
 		private double minMineralPercent = 0;
 		private string locationSearchText = "";
 
-		public LocationWindow(string name, bool isMineralSearch, bool asteroidMode)
+		public LocationWindow(string name, bool isMineralSearch, bool asteroidMode, bool rocMode = false)
 		{
 			InitializeComponent();
 
@@ -27,9 +28,45 @@ namespace Golem_Mining_Suite
 			currentDepositName = name;
 			isMineral = isMineralSearch;
 			isAsteroidMode = asteroidMode;
+			isROCMode = rocMode;
+
+			// Load data based on mode
+			if (isROCMode)
+			{
+				LoadROCRockTypeLocations(name);
+			}
+			else if (isAsteroidMode)
+			{
+				if (isMineral)
+				{
+					LoadAsteroidMineralLocations(name);
+				}
+				else
+				{
+					LoadAsteroidOreTypeLocations(name);
+				}
+			}
+			else
+			{
+				if (isMineral)
+				{
+					LoadMineralDeposits(name);
+				}
+				else
+				{
+					LoadLocations(name);
+				}
+			}
 
 			// Show/hide filters based on mode FIRST
-			if (isAsteroidMode)
+			if (isROCMode)
+			{
+				// ROC mode - hide all type-specific filters, only show system and search
+				LocationTypePanel.Visibility = Visibility.Collapsed;
+				OreTypePanel.Visibility = Visibility.Collapsed;
+				PlanetFilterPanel.Visibility = Visibility.Collapsed;
+			}
+			else if (isAsteroidMode)
 			{
 				LocationTypePanel.Visibility = Visibility.Visible;
 				OreTypePanel.Visibility = Visibility.Visible;
@@ -56,7 +93,11 @@ namespace Golem_Mining_Suite
 			WindowTitle.Text = Title;
 
 			// Load data based on mode
-			if (isAsteroidMode)
+			if (isROCMode)
+			{
+				LoadROCRockTypeLocations(name);
+			}
+			else if (isAsteroidMode)
 			{
 				if (isMineral)
 				{
@@ -224,6 +265,18 @@ namespace Golem_Mining_Suite
 					Signature = AsteroidMiningData.GetOreTypeSignature(oreTypeName),
 					DepositType = oreTypeName
 				}).ToList();
+				ApplyFilter();
+			}
+		}
+
+		// ROC MINING - Load rock type locations
+		private void LoadROCRockTypeLocations(string rockType)
+		{
+			var rockLocations = ROCMiningData.GetRockTypeLocations();
+
+			if (rockLocations.ContainsKey(rockType))
+			{
+				allLocations = rockLocations[rockType];
 				ApplyFilter();
 			}
 		}
