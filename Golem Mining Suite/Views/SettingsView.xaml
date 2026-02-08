@@ -94,8 +94,7 @@
                                 <TextBlock Text="Running" 
                                            FontSize="14" 
                                            FontWeight="SemiBold"
-                                           Foreground="#4CAF50"
-                                           Visibility="{Binding IsGameRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                           Foreground="#4CAF50"/>
                                 <TextBlock Text="Not Detected" 
                                            FontSize="14" 
                                            FontWeight="SemiBold"
