@@ -17,6 +17,8 @@ Modular design, easy to expand with new features in the future.
 💡 About Me
 
 I’m completely new to coding, and this project is my first big endeavor. It’s been a huge learning experience, and I’m excited to continue improving the suite while making it useful for the Star Citizen community.
+You like my work and wanna buy me coffee? here's my link:
+https://buymeacoffee.com/ericamcoff
 
 📦 Future Plans
 
