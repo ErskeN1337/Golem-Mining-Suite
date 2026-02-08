@@ -23,7 +23,14 @@ namespace Golem_Mining_Suite
 
 			if (!string.IsNullOrEmpty(updateInfo.ReleaseNotes))
 			{
-				ReleaseNotesText.Text = updateInfo.ReleaseNotes;
+				// Format release notes for better readability
+				string formattedNotes = updateInfo.ReleaseNotes
+					.Replace("## ", "\n") // Remove markdown headers
+					.Replace("### ", "• ") // Convert subheaders to bullets
+					.Replace("- ", "  • ") // Indent list items
+					.Trim();
+				
+				ReleaseNotesText.Text = formattedNotes;
 			}
 			else
 			{
