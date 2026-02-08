@@ -45,6 +45,10 @@
     <Grid>
         <Border Background="#1A1A1A" BorderBrush="#2A2A2A" BorderThickness="1">
             <Grid Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="83*"/>
+                    <ColumnDefinition Width="7*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -55,13 +59,13 @@
 
                 <!-- Back Button -->
                 <Button Grid.Row="0"
-                        Content="← Back to Menu"
-                        Click="BackButton_Click"
-                        HorizontalAlignment="Left"
-                        Cursor="Hand"
-                        Padding="10,6"
-                        Margin="0,0,0,10"
-                        FontSize="12">
+                 Content="← Back to Menu"
+                 Click="BackButton_Click"
+                 HorizontalAlignment="Left"
+                 Cursor="Hand"
+                 Padding="10,6"
+                 FontSize="10" Width="100" VerticalAlignment="Top"
+                 FontWeight="Bold">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="#252525"/>
@@ -98,11 +102,11 @@
                 </Button>
 
                 <!-- Logo -->
-                <StackPanel Grid.Row="1" Margin="0,10,0,25">
-                    <Image Source="/Assets/Images/GolemMiningSuite_Logo.png" 
-                           Height="60" 
+                <StackPanel Grid.Row="0" Margin="0,20,0,40" Grid.ColumnSpan="2">
+                    <Image Source="/Assets/images/GolemMiningSuite_Logo.png" 
+                           Height="85" 
                            Stretch="Uniform"
-                           Width="203">
+                           Width="270" Margin="0,15,0,0">
                         <Image.Effect>
                             <DropShadowEffect Color="#FF8C42" 
                                               BlurRadius="15" 
@@ -110,6 +114,14 @@
                                               Opacity="0.3"/>
                         </Image.Effect>
                     </Image>
+
+                    <!-- ADD THIS -->
+                    <TextBlock Text="ROC Mining"
+               Foreground="#FF8C42"
+               FontSize="16"
+               FontWeight="SemiBold"
+               HorizontalAlignment="Center"
+               Margin="0,15,0,0"/>
                 </StackPanel>
 
                 <!-- Search Bar -->
@@ -118,7 +130,7 @@
                         BorderBrush="#333333" 
                         BorderThickness="1"
                         CornerRadius="4"
-                        Margin="0,0,0,25">
+                        Margin="0,0,0,25" Grid.ColumnSpan="2">
                     <Grid>
                         <TextBox x:Name="SearchBox"
                                  Text="Search rock type..."
@@ -129,7 +141,8 @@
                                  Padding="12,10"
                                  KeyUp="SearchBox_KeyUp"
                                  GotFocus="SearchBox_GotFocus"
-                                 LostFocus="SearchBox_LostFocus"/>
+                                 LostFocus="SearchBox_LostFocus"
+                                 FontWeight="Bold"/>
 
                         <ListBox x:Name="SuggestionsListBox"
                                  Margin="0,45,0,0"
@@ -157,18 +170,20 @@
                 </Border>
 
                 <!-- Menu Buttons -->
-                <StackPanel Grid.Row="3">
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,0,61" Grid.RowSpan="2">
                     <Button Content="💎 Mineral Prices"
                             Click="MineralPrices_Click"
-                            Style="{StaticResource MenuButton}"/>
+                            Style="{StaticResource MenuButton}"
+                            FontWeight="Bold"/>
 
                     <Button Content="📦 Cargo Calculator"
                             Click="CargoCalculator_Click"
-                            Style="{StaticResource MenuButton}"/>
+                            Style="{StaticResource MenuButton}"
+                            FontWeight="Bold"/>
                 </StackPanel>
 
                 <!-- Footer -->
-                <Grid Grid.Row="4" Margin="0,20,0,0">
+                <Grid Grid.Row="4" Margin="0,20,0,0" Grid.ColumnSpan="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>

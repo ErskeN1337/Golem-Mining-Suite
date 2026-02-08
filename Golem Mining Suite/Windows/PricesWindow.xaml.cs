@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Golem_Mining_Suite
 {
@@ -12,6 +13,10 @@ namespace Golem_Mining_Suite
 	{
 		private List<PriceData> allPrices = new List<PriceData>();
 		private Dictionary<int, string> terminalToSystem = new Dictionary<int, string>();
+
+		// Add these fields to your PricesWindow class
+		internal RadioButton StantonRadio;
+		internal RadioButton PyroRadio;
 
 		public PricesWindow()
 		{
@@ -85,25 +90,35 @@ namespace Golem_Mining_Suite
 
 		private void FilterChanged(object sender, RoutedEventArgs e)
 		{
-			ApplyFilter();
+			// Get current system filter from button styles
+			string systemFilter = "All";
+			if (StantonButton.Style == (Style)FindResource("ActiveFilterButton"))
+				systemFilter = "Stanton";
+			else if (PyroButton.Style == (Style)FindResource("ActiveFilterButton"))
+				systemFilter = "Pyro";
+
+			ApplyFilter(systemFilter);
 		}
 
-		private void ApplyFilter()
+		private void ApplyFilter(string systemFilter = "All")
 		{
 			if (allPrices == null || allPrices.Count == 0)
 				return;
 
 			IEnumerable<PriceData> filtered = allPrices;
 
-			if (StantonRadio?.IsChecked == true)
+			// Apply system filter
+			if (systemFilter == "Stanton")
 			{
 				filtered = filtered.Where(p => p.StarSystem != null && p.StarSystem.Contains("Stanton"));
 			}
-			else if (PyroRadio?.IsChecked == true)
+			else if (systemFilter == "Pyro")
 			{
 				filtered = filtered.Where(p => p.StarSystem != null && p.StarSystem.Contains("Pyro"));
 			}
+			// "All" shows everything, no filter needed
 
+			// Apply mineral filter
 			if (MineralFilterComboBox?.SelectedItem != null)
 			{
 				string selectedMineral = MineralFilterComboBox.SelectedItem.ToString();
@@ -237,5 +252,30 @@ namespace Golem_Mining_Suite
 			public string Demand { get; set; }
 			public string StarSystem { get; set; }
 		}
+
+		private void FilterButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (sender is Button clickedButton && clickedButton.Tag != null)
+			{
+				string filter = clickedButton.Tag.ToString();
+
+				// Reset all buttons to inactive style
+				AllButton.Style = (Style)FindResource("FilterButton");
+				StantonButton.Style = (Style)FindResource("FilterButton");
+				PyroButton.Style = (Style)FindResource("FilterButton");
+
+				// Set clicked button to active style
+				clickedButton.Style = (Style)FindResource("ActiveFilterButton");
+
+				// Apply filter
+				ApplyFilter(filter);
+			}
+		}
+	}
+	// StationInfo at namespace level - accessible to all classes
+	public class StationInfo
+	{
+		public string DisplayName { get; set; }
+		public string StarSystem { get; set; }
 	}
 }

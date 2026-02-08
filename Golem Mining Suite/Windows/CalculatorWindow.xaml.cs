@@ -1,464 +1,242 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Golem_Mining_Suite
 {
-	public partial class CalculatorWindow : Window
-	{
-		private Dictionary<string, double> defaultMineralPrices;
-		private Dictionary<int, StationInfo> stations;
-		private Dictionary<int, Dictionary<string, double>> stationPrices;
-		private static readonly HttpClient httpClient = new HttpClient();
-		private bool pricesLoaded = false;
+    public partial class CalculatorWindow : Window
+    {
+        private Dictionary<string, double> currentShipCapacity;
+        private Dictionary<string, double> mineralPrices;
+        private List<ComboBox> mineralComboBoxes;
+        private List<TextBox> scuTextBoxes;
 
-		public CalculatorWindow()
-		{
-			InitializeComponent();
-			LoadDefaultMineralPrices();
+        public CalculatorWindow()
+        {
+            InitializeComponent();
+            InitializeData();
+            LoadShips();
+            LoadStations();
+            LoadMinerals();
+        }
 
-			// Populate minerals immediately since we have default prices
-			PopulateMineralComboBox();
+        private void InitializeData()
+        {
+            // Store references to controls for easier iteration
+            mineralComboBoxes = new List<ComboBox>
+            {
+                Mineral1ComboBox, Mineral2ComboBox, Mineral3ComboBox,
+                Mineral4ComboBox, Mineral5ComboBox
+            };
 
-			// Populate stations with default option immediately
-			StationComboBox.ItemsSource = new List<string> { "Default Prices" };
-			StationComboBox.SelectedIndex = 0;
+            scuTextBoxes = new List<TextBox>
+            {
+                SCU1TextBox, SCU2TextBox, SCU3TextBox,
+                SCU4TextBox, SCU5TextBox
+            };
 
-			// Load live data asynchronously
-			_ = LoadStationsAsync();
-		}
+            // Ship cargo capacities (in SCU)
+            currentShipCapacity = new Dictionary<string, double>
+            {
+                { "Prospector", 32 },
+                { "MOLE", 96 },
+                { "ROC", 1.2 },
+                { "Cutlass Black", 46 },
+                { "Freelancer MAX", 122 },
+                { "Constellation Andromeda", 96 },
+                { "Caterpillar", 576 },
+                { "C2 Hercules", 696 }
+            };
 
-		private void LoadDefaultMineralPrices()
-		{
-			defaultMineralPrices = new Dictionary<string, double>
-			{
-				{ "Quantanium", 87859 },
-				{ "Bexalite", 84800 },
-				{ "Taranite", 84214 },
-				{ "Laranite", 21563 },
-				{ "Agricium", 20741 },
-				{ "Hephaestanite", 18630 },
-				{ "Beryl", 7684 },
-				{ "Gold", 7508 },
-				{ "Borase", 6402 },
-				{ "Tungsten", 5097 },
-				{ "Titanium", 4801 },
-				{ "Corundum", 4030 },
-				{ "Copper", 4008 },
-				{ "Iron", 2323 },
-				{ "Quartz", 2109 },
-				{ "Aluminum", 1834 }
-			};
-		}
+            // Default mineral prices (aUEC per SCU) - from UEX Corp
+            mineralPrices = new Dictionary<string, double>
+            {
+                { "Quantanium", 88800 },
+                { "Bexalite", 40100 },
+                { "Taranite", 36000 },
+                { "Borase", 32450 },
+                { "Laranite", 30450 },
+                { "Agricium", 25550 },
+                { "Hephaestanite", 23600 },
+                { "Gold", 6204 },
+                { "Copper", 6030 },
+                { "Beryl", 4930 },
+                { "Tungsten", 3825 },
+                { "Diamond", 7005 },
+                { "Titanium", 8335 },
+                { "Corundum", 2525 },
+                { "Quartz", 1525 },
+                { "Aluminum", 1230 },
+                { "Iron", 855 }
+            };
+        }
 
-		private string MapMineralToAPI(string mineralName)
-		{
-			if (mineralName == "Quantanium")
-				return "Quantainium";
-			return mineralName;
-		}
+        private void LoadShips()
+        {
+            ShipComboBox.ItemsSource = currentShipCapacity.Keys.OrderBy(s => s).ToList();
+            ShipComboBox.SelectedIndex = 0; // Default to Prospector
+        }
 
-		private async Task LoadStationsAsync()
-		{
-			try
-			{
-				stations = new Dictionary<int, StationInfo>();
-				stationPrices = new Dictionary<int, Dictionary<string, double>>();
+        private void LoadStations()
+        {
+            var stations = new List<string>
+            {
+                "Default Prices",
+                "Port Tressler (+5%)",
+                "Port Olisar (Standard)",
+                "Everus Harbor (Standard)",
+                "Baijini Point (Standard)",
+                "Seraphim Station (Standard)"
+            };
 
-				string stationsJson = LoadStationsFromFile();
-				if (string.IsNullOrEmpty(stationsJson))
-				{
-					stationsJson = await FetchStationsFromApiAsync();
-				}
+            StationComboBox.ItemsSource = stations;
+            StationComboBox.SelectedIndex = 0;
+        }
 
-				if (!string.IsNullOrEmpty(stationsJson))
-				{
-					ParseStationsJson(stationsJson);
-				}
+        private void LoadMinerals()
+        {
+            var minerals = new List<string> { "None" };
+            minerals.AddRange(mineralPrices.Keys.OrderBy(m => m));
 
-				await LoadPricesFromApiAsync();
+            foreach (var comboBox in mineralComboBoxes)
+            {
+                comboBox.ItemsSource = minerals;
+                comboBox.SelectedIndex = 0;
+            }
+        }
 
-				Dispatcher.Invoke(() =>
-				{
-					PopulateStationComboBox();
-					UpdateStationInfo();
-				});
-			}
-			catch (Exception ex)
-			{
-				Dispatcher.Invoke(() =>
-				{
-					MessageBox.Show($"Failed to load data: {ex.Message}\nUsing default prices.",
-						"Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-				});
-			}
-		}
+        private void ShipComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateCargoCapacity();
+        }
 
-		private string LoadStationsFromFile()
-		{
-			try
-			{
-				string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "terminals.json");
-				if (File.Exists(filePath))
-				{
-					return File.ReadAllText(filePath);
-				}
-			}
-			catch { }
-			return null;
-		}
+        private void StationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CalculateTotalValue();
+        }
 
-		private async Task<string> FetchStationsFromApiAsync()
-		{
-			try
-			{
-				var response = await httpClient.GetAsync("https://uexcorp.space/api/terminals");
-				if (response.IsSuccessStatusCode)
-				{
-					return await response.Content.ReadAsStringAsync();
-				}
-			}
-			catch { }
-			return null;
-		}
+        private void MineralComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CalculateTotalValue();
+        }
 
-		private async Task LoadPricesFromApiAsync()
-		{
-			try
-			{
-				string pricesJson = LoadPricesFromFile();
+        private void SCUTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CalculateTotalValue();
+        }
 
-				if (string.IsNullOrEmpty(pricesJson))
-				{
-					System.Diagnostics.Debug.WriteLine("Fetching fresh price data from API...");
-					var response = await httpClient.GetAsync("https://uexcorp.space/api/commodities_prices_all");
-					System.Diagnostics.Debug.WriteLine($"API response status: {response.StatusCode}");
+        private void UpdateCargoCapacity()
+        {
+            if (ShipComboBox.SelectedItem == null || scuTextBoxes == null)
+                return;
 
-					if (response.IsSuccessStatusCode)
-					{
-						pricesJson = await response.Content.ReadAsStringAsync();
-						System.Diagnostics.Debug.WriteLine($"API response length: {pricesJson?.Length ?? 0} characters");
-					}
-					else
-					{
-						System.Diagnostics.Debug.WriteLine($"API request failed with status: {response.StatusCode}");
-					}
-				}
-				else
-				{
-					System.Diagnostics.Debug.WriteLine("Using cached price data from local file");
-				}
+            string selectedShip = ShipComboBox.SelectedItem.ToString();
+            double maxCapacity = currentShipCapacity[selectedShip];
+            double usedCapacity = 0;
 
-				if (!string.IsNullOrEmpty(pricesJson))
-				{
-					ParsePricesJson(pricesJson);
-					pricesLoaded = true;
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Failed to load prices: {ex.Message}");
-			}
-		}
+            // Calculate total SCU used
+            foreach (var textBox in scuTextBoxes)
+            {
+                if (double.TryParse(textBox.Text, out double scu))
+                {
+                    usedCapacity += scu;
+                }
+            }
 
-		private string LoadPricesFromFile()
-		{
-			try
-			{
-				string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "commodities_prices_all.json");
-				if (File.Exists(filePath))
-				{
-					return File.ReadAllText(filePath);
-				}
-			}
-			catch { }
-			return null;
-		}
+            // Update progress bar and text
+            double percentage = maxCapacity > 0 ? (usedCapacity / maxCapacity) * 100 : 0;
+            CargoProgressBar.Value = Math.Min(percentage, 100);
+            CargoCapacityText.Text = $"{usedCapacity:F1} / {maxCapacity:F1} SCU";
 
-		private void ParsePricesJson(string json)
-		{
-			try
-			{
-				using (JsonDocument doc = JsonDocument.Parse(json))
-				{
-					var data = doc.RootElement.GetProperty("data");
+            // Change color if over capacity
+            if (usedCapacity > maxCapacity)
+            {
+                CargoCapacityText.Foreground = System.Windows.Media.Brushes.Red;
+            }
+            else
+            {
+                CargoCapacityText.Foreground = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF8C42"));
+            }
+        }
 
-					foreach (var priceEntry in data.EnumerateArray())
-					{
-						int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
-						string commodityName = priceEntry.GetProperty("commodity_name").GetString();
-						int priceSell = priceEntry.GetProperty("price_sell").GetInt32();
+        private void CalculateTotalValue()
+        {
+            if (mineralComboBoxes == null || scuTextBoxes == null)
+                return;
 
-						if (stations.ContainsKey(terminalId) && priceSell > 0)
-						{
-							if (!stationPrices.ContainsKey(terminalId))
-							{
-								stationPrices[terminalId] = new Dictionary<string, double>();
-							}
+            double totalValue = 0;
+            double totalSCU = 0;
+            string bestLocation = "Port Tressler";
 
-							stationPrices[terminalId][commodityName] = priceSell;
-						}
-					}
-				}
+            // Get station multiplier
+            double stationMultiplier = 1.0;
+            if (StationComboBox.SelectedItem != null)
+            {
+                string station = StationComboBox.SelectedItem.ToString();
+                if (station.Contains("Port Tressler"))
+                {
+                    stationMultiplier = 1.05; // 5% bonus
+                    bestLocation = "Port Tressler";
+                }
+            }
 
-				System.Diagnostics.Debug.WriteLine($"Loaded prices for {stationPrices.Count} stations");
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Failed to parse prices JSON: {ex.Message}");
-			}
-		}
+            // Calculate total value from all mineral rows
+            for (int i = 0; i < mineralComboBoxes.Count; i++)
+            {
+                var mineralCombo = mineralComboBoxes[i];
+                var scuTextBox = scuTextBoxes[i];
 
-		private void ParseStationsJson(string json)
-		{
-			try
-			{
-				using (JsonDocument doc = JsonDocument.Parse(json))
-				{
-					var data = doc.RootElement.GetProperty("data");
+                if (mineralCombo.SelectedItem == null || mineralCombo.SelectedItem.ToString() == "None")
+                    continue;
 
-					foreach (var terminal in data.EnumerateArray())
-					{
-						if (terminal.GetProperty("type").GetString() == "commodity" &&
-							terminal.GetProperty("is_available").GetInt32() == 1)
-						{
-							var stationInfo = new StationInfo
-							{
-								Id = terminal.GetProperty("id").GetInt32(),
-								Code = terminal.GetProperty("code").GetString(),
-								DisplayName = terminal.GetProperty("displayname").GetString(),
-								StarSystem = terminal.GetProperty("star_system_name").GetString(),
-								Planet = GetStringOrNull(terminal, "planet_name")
-							};
+                string mineralName = mineralCombo.SelectedItem.ToString();
+                if (!mineralPrices.ContainsKey(mineralName))
+                    continue;
 
-							stations[stationInfo.Id] = stationInfo;
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"Failed to parse stations JSON: {ex.Message}");
-			}
-		}
+                if (double.TryParse(scuTextBox.Text, out double scu) && scu > 0)
+                {
+                    double price = mineralPrices[mineralName] * stationMultiplier;
+                    totalValue += price * scu;
+                    totalSCU += scu;
+                }
+            }
 
-		private string GetStringOrNull(JsonElement element, string propertyName)
-		{
-			if (element.TryGetProperty(propertyName, out JsonElement prop))
-			{
-				return prop.ValueKind == JsonValueKind.Null ? null : prop.GetString();
-			}
-			return null;
-		}
+            // Update UI
+            TotalValueText.Text = $"Total Value: {totalValue:N0} aUEC";
+            BestLocationText.Text = $"💰 Best Price At: {bestLocation}";
 
-		private void PopulateStationComboBox()
-		{
-			var stationList = new List<string> { "Default Prices" };
+            if (totalSCU > 0)
+            {
+                double avgPrice = totalValue / totalSCU;
+                PricePerSCUText.Text = $"Average: {avgPrice:N0} aUEC/SCU";
+            }
+            else
+            {
+                PricePerSCUText.Text = "Average: 0 aUEC/SCU";
+            }
 
-			if (stations != null && stations.Count > 0)
-			{
-				var uniqueStations = stations.Values
-					.GroupBy(s => s.DisplayName)
-					.Select(g => g.First())
-					.OrderBy(s => s.DisplayName)
-					.Select(s => $"{s.DisplayName} ({s.StarSystem})");
+            // Update cargo capacity
+            UpdateCargoCapacity();
+        }
 
-				stationList.AddRange(uniqueStations);
-			}
+        private void ClearRow_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag != null)
+            {
+                int rowIndex = int.Parse(button.Tag.ToString()) - 1;
+                mineralComboBoxes[rowIndex].SelectedIndex = 0;
+                scuTextBoxes[rowIndex].Text = "0";
+            }
+        }
 
-			StationComboBox.ItemsSource = stationList;
-			StationComboBox.SelectedIndex = 0;
-		}
-
-		private void PopulateMineralComboBox()
-		{
-			MineralComboBox.ItemsSource = defaultMineralPrices.Keys.OrderBy(x => x).ToList();
-			if (MineralComboBox.Items.Count > 0)
-				MineralComboBox.SelectedIndex = 0;
-		}
-
-		private void StationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			CalculateValue();
-			UpdateStationInfo();
-		}
-
-		private void ComparePricesButton_Click(object sender, RoutedEventArgs e)
-		{
-			if (MineralComboBox.SelectedItem == null)
-			{
-				MessageBox.Show("Please select a mineral first.", "No Mineral Selected",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-				return;
-			}
-
-			if (!pricesLoaded || stationPrices.Count == 0)
-			{
-				MessageBox.Show("Price data is still loading or unavailable. Please wait a moment and try again.",
-					"Price Data Not Ready", MessageBoxButton.OK, MessageBoxImage.Warning);
-				return;
-			}
-
-			string selectedMineral = MineralComboBox.SelectedItem.ToString();
-
-			var comparisonWindow = new PriceComparisonWindow(selectedMineral, stations, stationPrices);
-			comparisonWindow.ShowDialog();
-		}
-
-		private void UpdateStationInfo()
-		{
-			if (StationComboBox.SelectedIndex == 0)
-			{
-				StationInfoText.Text = "Using default prices";
-				return;
-			}
-
-			if (StationComboBox.SelectedItem == null)
-				return;
-
-			string selectedStation = StationComboBox.SelectedItem.ToString();
-
-			StationInfo station = null;
-			foreach (var s in stations.Values)
-			{
-				string stationDisplay = $"{s.DisplayName} ({s.StarSystem})";
-				if (stationDisplay == selectedStation)
-				{
-					station = s;
-					break;
-				}
-			}
-
-			if (station != null && stationPrices.ContainsKey(station.Id))
-			{
-				int priceCount = stationPrices[station.Id].Count;
-				StationInfoText.Text = $"Station: {station.DisplayName} ({priceCount} commodities with live prices)";
-			}
-			else if (station != null)
-			{
-				StationInfoText.Text = $"Station: {station.DisplayName} (using default prices - no live data)";
-			}
-			else
-			{
-				StationInfoText.Text = $"Station: {selectedStation}";
-			}
-		}
-
-		private void MineralComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			CalculateValue();
-			UpdateStationInfo();
-		}
-
-		private void ScuTextBox_TextChanged(object sender, TextChangedEventArgs e)
-		{
-			CalculateValue();
-		}
-
-		private void CalculateValue()
-		{
-			if (MineralComboBox.SelectedItem == null)
-			{
-				ResultText.Text = "Total Value: 0 aUEC";
-				DetailText.Text = "";
-				return;
-			}
-
-			string selectedMineral = MineralComboBox.SelectedItem.ToString();
-
-			if (string.IsNullOrWhiteSpace(ScuTextBox.Text))
-			{
-				double pricePerScu = GetMineralPrice(selectedMineral);
-				ResultText.Text = "Total Value: 0 aUEC";
-				DetailText.Text = $"Price per SCU: {pricePerScu:N2} aUEC";
-				return;
-			}
-
-			if (double.TryParse(ScuTextBox.Text, out double scuAmount))
-			{
-				double pricePerScu = GetMineralPrice(selectedMineral);
-				double totalValue = scuAmount * pricePerScu;
-
-				ResultText.Text = $"Total Value: {totalValue:N2} aUEC";
-				DetailText.Text = $"{scuAmount} SCU × {pricePerScu:N2} aUEC/SCU";
-			}
-			else
-			{
-				ResultText.Text = "Invalid SCU amount";
-				DetailText.Text = "Please enter a valid number";
-			}
-		}
-
-		private double GetMineralPrice(string mineralName)
-		{
-			if (StationComboBox.SelectedIndex == 0)
-			{
-				return defaultMineralPrices.ContainsKey(mineralName)
-					? defaultMineralPrices[mineralName]
-					: 0;
-			}
-
-			string selectedStation = StationComboBox.SelectedItem?.ToString();
-			if (string.IsNullOrEmpty(selectedStation))
-			{
-				return defaultMineralPrices.ContainsKey(mineralName)
-					? defaultMineralPrices[mineralName]
-					: 0;
-			}
-
-			StationInfo station = null;
-			foreach (var s in stations.Values)
-			{
-				string stationDisplay = $"{s.DisplayName} ({s.StarSystem})";
-				if (stationDisplay == selectedStation)
-				{
-					station = s;
-					break;
-				}
-			}
-
-			if (station != null && stationPrices.ContainsKey(station.Id))
-			{
-				string apiCommodityName = MapMineralToAPI(mineralName);
-
-				var prices = stationPrices[station.Id];
-				if (prices.ContainsKey(apiCommodityName))
-				{
-					System.Diagnostics.Debug.WriteLine($"Found price for {apiCommodityName} at {station.DisplayName}: {prices[apiCommodityName]}");
-					return prices[apiCommodityName];
-				}
-				else
-				{
-					System.Diagnostics.Debug.WriteLine($"No price for {apiCommodityName} at {station.DisplayName}, using default");
-				}
-			}
-			else if (station != null)
-			{
-				System.Diagnostics.Debug.WriteLine($"Station {station.DisplayName} has no price data, using default");
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine($"Could not find station: {selectedStation}");
-			}
-
-			return defaultMineralPrices.ContainsKey(mineralName)
-				? defaultMineralPrices[mineralName]
-				: 0;
-		}
-	}
-
-	public class StationInfo
-	{
-		public int Id { get; set; }
-		public string Code { get; set; }
-		public string DisplayName { get; set; }
-		public string StarSystem { get; set; }
-		public string Planet { get; set; }
-	}
+        private void CompareButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Open PricesWindow for comparison
+            var pricesWindow = new PricesWindow();
+            pricesWindow.Show();
+        }
+    }
 }

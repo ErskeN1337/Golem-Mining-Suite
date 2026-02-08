@@ -4,8 +4,49 @@
         Title="Mineral Prices" Height="600" Width="900"
         Background="#1E1E1E"
         BorderBrush="#FF8C42"
-BorderThickness="1"
+        BorderThickness="1"
         Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="FilterButton" TargetType="Button">
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#444444"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- ADD TRIGGERS -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3D3528"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF8C42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FF8C42"/>
+                                <Setter Property="Foreground" Value="#1E1E1E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ActiveFilterButton" TargetType="Button" BasedOn="{StaticResource FilterButton}">
+            <Setter Property="Background" Value="#FF8C42"/>
+            <Setter Property="Foreground" Value="#1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#FF8C42"/>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,60 +54,49 @@ BorderThickness="1"
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Filter Bar -->
-        <Border Grid.Row="0" Background="#2A2A2A" Margin="10" Padding="10">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Star System:" 
-                           Foreground="#CCCCCC" 
-                           VerticalAlignment="Center"
-                           Margin="0,0,10,0"/>
-                <RadioButton Name="AllSystemsRadio" 
-                             Content="All" 
-                             Foreground="#CCCCCC" 
-                             IsChecked="True"
-                             Margin="0,0,15,0"
-                             Checked="FilterChanged"/>
-                <RadioButton Name="StantonRadio" 
-                             Content="Stanton" 
-                             Foreground="#CCCCCC" 
-                             Margin="0,0,15,0"
-                             Checked="FilterChanged"/>
-                <RadioButton Name="PyroRadio" 
-                             Content="Pyro" 
-                             Foreground="#CCCCCC"
-                             Margin="0,0,30,0"
-                             Checked="FilterChanged"/>
-
-                <TextBlock Text="Mineral:" 
-                           Foreground="#CCCCCC" 
-                           VerticalAlignment="Center"
-                           Margin="0,0,10,0"/>
-                <ComboBox Name="MineralFilterComboBox"
-                          Width="150"
-                          Height="25"
-                          SelectionChanged="FilterChanged">
-                    <ComboBox.Style>
-                        <Style TargetType="ComboBox">
-                            <Setter Property="Background" Value="#2A2A2A"/>
-                            <Setter Property="Foreground" Value="#CCCCCC"/>
-                            <Setter Property="BorderBrush" Value="#444444"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ComboBox">
-                                        <Grid>
-                                            <ToggleButton Name="ToggleButton"
-                                                        Grid.Column="2"
-                                                        Background="#2A2A2A"
-                                                        BorderBrush="#444444"
-                                                        Focusable="false"
-                                                        IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                                        ClickMode="Press">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition Width="20"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <ContentPresenter Name="ContentSite"
+        <!-- System Filter (Row 0) - Both modes -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Width="770" Margin="0,5,0,0" Height="36" VerticalAlignment="Top">
+            <TextBlock Text="System:" Foreground="#CCCCCC" 
+               VerticalAlignment="Center" Margin="10,10,5,0"/>
+            <Button x:Name="AllButton" Content="All" Width="100" Height="26"
+            Style="{StaticResource ActiveFilterButton}"
+            Margin="5,10,5,0" Click="FilterButton_Click" Tag="All"/>
+            <Button x:Name="StantonButton" Content="Stanton" Width="100" Height="25"
+            Style="{StaticResource FilterButton}"
+            Margin="5,10,5,0" Click="FilterButton_Click" Tag="Stanton"/>
+            <Button x:Name="PyroButton" Content="Pyro" Width="100" Height="25"
+            Style="{StaticResource FilterButton}"
+            Margin="5,10,5,0" Click="FilterButton_Click" Tag="Pyro"/>
+            <TextBlock Text="Mineral:" 
+                       Foreground="#CCCCCC" 
+                       VerticalAlignment="Center"
+                       Margin="150,10,5,0"/>
+            <ComboBox Name="MineralFilterComboBox"
+                      Width="150"
+                      Height="25"
+                      SelectionChanged="FilterChanged" Margin="5,10,5,0">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="Background" Value="#2A2A2A"/>
+                        <Setter Property="Foreground" Value="#CCCCCC"/>
+                        <Setter Property="BorderBrush" Value="#444444"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBox">
+                                    <Grid>
+                                        <ToggleButton Name="ToggleButton"
+                                                    Grid.Column="2"
+                                                    Background="#2A2A2A"
+                                                    BorderBrush="#444444"
+                                                    Focusable="false"
+                                                    IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                    ClickMode="Press">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="20"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Name="ContentSite"
                 Grid.Column="0"
                 IsHitTestVisible="False"
                 Content="{TemplateBinding SelectionBoxItem}"
@@ -76,57 +106,56 @@ BorderThickness="1"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Left"
                 TextElement.Foreground="#CCCCCC"/>
-                                                    <TextBlock Grid.Column="1"
-                                                             Text="▼"
-                                                             Foreground="#CCCCCC"
-                                                             VerticalAlignment="Center"
-                                                             HorizontalAlignment="Center"
-                                                             FontSize="8"/>
-                                                </Grid>
-                                            </ToggleButton>
-                                            <Popup Name="Popup"
-                                                 Placement="Bottom"
-                                                 IsOpen="{TemplateBinding IsDropDownOpen}"
-                                                 AllowsTransparency="True"
-                                                 Focusable="False"
-                                                 PopupAnimation="Slide">
-                                                <Grid Name="DropDown"
-                                                    SnapsToDevicePixels="True"
-                                                    MinWidth="{TemplateBinding ActualWidth}"
-                                                    MaxHeight="200">
-                                                    <Border x:Name="DropDownBorder"
-                                                          Background="#2A2A2A"
-                                                          BorderThickness="1"
-                                                          BorderBrush="#444444"/>
-                                                    <ScrollViewer Margin="2"
-                                                                SnapsToDevicePixels="True">
-                                                        <StackPanel IsItemsHost="True"
-                                                                  KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                                    </ScrollViewer>
-                                                </Grid>
-                                            </Popup>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ComboBox.Style>
-                    <ComboBox.ItemContainerStyle>
-                        <Style TargetType="ComboBoxItem">
-                            <Setter Property="Background" Value="#2A2A2A"/>
-                            <Setter Property="Foreground" Value="#CCCCCC"/>
-                            <Setter Property="Padding" Value="5"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#444444"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ComboBox.ItemContainerStyle>
-                    <ComboBoxItem Content="All Minerals" IsSelected="True"/>
-                </ComboBox>
-            </StackPanel>
-        </Border>
+                                                <TextBlock Grid.Column="1"
+                                                         Text="▼"
+                                                         Foreground="#CCCCCC"
+                                                         VerticalAlignment="Center"
+                                                         HorizontalAlignment="Center"
+                                                         FontSize="8"/>
+                                            </Grid>
+                                        </ToggleButton>
+                                        <Popup Name="Popup"
+                                             Placement="Bottom"
+                                             IsOpen="{TemplateBinding IsDropDownOpen}"
+                                             AllowsTransparency="True"
+                                             Focusable="False"
+                                             PopupAnimation="Slide">
+                                            <Grid Name="DropDown"
+                                                SnapsToDevicePixels="True"
+                                                MinWidth="{TemplateBinding ActualWidth}"
+                                                MaxHeight="200">
+                                                <Border x:Name="DropDownBorder"
+                                                      Background="#2A2A2A"
+                                                      BorderThickness="1"
+                                                      BorderBrush="#444444"/>
+                                                <ScrollViewer Margin="2"
+                                                            SnapsToDevicePixels="True">
+                                                    <StackPanel IsItemsHost="True"
+                                                              KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                                </ScrollViewer>
+                                            </Grid>
+                                        </Popup>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ComboBox.Style>
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="#2A2A2A"/>
+                        <Setter Property="Foreground" Value="#CCCCCC"/>
+                        <Setter Property="Padding" Value="5"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#444444"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+                <ComboBoxItem Content="All Minerals" IsSelected="True"/>
+            </ComboBox>
+        </StackPanel>
 
         <!-- Prices Grid -->
         <DataGrid Name="PricesGrid"
