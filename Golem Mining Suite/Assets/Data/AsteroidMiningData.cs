@@ -122,6 +122,15 @@ namespace Golem_Mining_Suite.Data
 					new LocationData { LocationName = "C-Type", Chance = "4%" },
 					new LocationData { LocationName = "E-Type", Chance = "4%" }
 				},
+				["Borase"] = new List<LocationData>
+				{
+					new LocationData { LocationName = "M-Type", Chance = "18%" },
+					new LocationData { LocationName = "P-Type", Chance = "15%" },
+					new LocationData { LocationName = "C-Type", Chance = "12%" },
+					new LocationData { LocationName = "Q-Type", Chance = "10%" },
+					new LocationData { LocationName = "E-Type", Chance = "8%" },
+					new LocationData { LocationName = "S-Type", Chance = "6%" }
+				},
 				["Aluminum"] = new List<LocationData>
 				{
 					new LocationData { LocationName = "S-Type", Chance = "63%" },

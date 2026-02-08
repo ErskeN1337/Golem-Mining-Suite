@@ -84,7 +84,14 @@ namespace Golem_Mining_Suite.ViewModels
             { "Corundum", 2525 },
             { "Quartz", 1525 },
             { "Aluminum", 1230 },
-            { "Iron", 855 }
+            { "Iron", 855 },
+            // ROC Minerals
+            { "Hadanite", 27500 },
+            { "Dolivine", 13500 },
+            { "Aphorite", 15250 },
+            { "Janalite", 20500 },
+            { "Beradom", 11000 },
+            { "Feynmaline", 9500 }
         };
 
         public CalculatorViewModel(IWindowService windowService, IPriceService priceService)
