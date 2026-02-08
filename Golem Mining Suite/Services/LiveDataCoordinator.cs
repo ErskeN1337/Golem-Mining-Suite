@@ -34,7 +34,8 @@ namespace Golem_Mining_Suite.Services
         public LiveDataCoordinator()
         {
             _gameDetection = new GameDetectionService();
-            _ocrService = new OCRService();
+            var tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+            _ocrService = new OCRService(tessDataPath);
             _parser = new TerminalParser();
             
             // Load Supabase configuration
