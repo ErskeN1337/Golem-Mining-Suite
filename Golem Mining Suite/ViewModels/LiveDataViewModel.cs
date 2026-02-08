@@ -42,7 +42,7 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [RelayCommand]
-        private void ToggleLiveData()
+        private async void ToggleLiveData()
         {
             if (IsEnabled)
             {
@@ -54,7 +54,8 @@ namespace Golem_Mining_Suite.ViewModels
             else
             {
                 // Enable
-                if (_coordinator.Start())
+                StatusText = "Starting...";
+                if (await _coordinator.StartAsync())
                 {
                     IsEnabled = true;
                     StatusText = IsGameRunning ? "Monitoring..." : "Waiting for game...";
@@ -81,7 +82,6 @@ namespace Golem_Mining_Suite.ViewModels
             ContributionCount++;
             LastUpdateText = $"{DateTime.Now:HH:mm:ss}";
             
-            // TODO: Upload to backend (Phase 3)
             System.Diagnostics.Debug.WriteLine($"[LiveData] Captured: {data.CommodityName} at {data.TerminalName} - {data.PriceSell} aUEC");
         }
 

@@ -1,5 +1,7 @@
 using Golem_Mining_Suite.Models;
 using System;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +15,7 @@ namespace Golem_Mining_Suite.Services
         private readonly GameDetectionService _gameDetection;
         private readonly OCRService _ocrService;
         private readonly TerminalParser _parser;
+        private readonly SupabaseService? _supabaseService;
         
         private CancellationTokenSource? _cancellationTokenSource;
         private Task? _monitoringTask;
@@ -33,12 +36,26 @@ namespace Golem_Mining_Suite.Services
             _gameDetection = new GameDetectionService();
             _ocrService = new OCRService();
             _parser = new TerminalParser();
+            
+            // Load Supabase configuration
+            try
+            {
+                var config = LoadConfiguration();
+                if (config != null)
+                {
+                    _supabaseService = new SupabaseService(config.Url, config.Key);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LiveData] Failed to load Supabase config: {ex.Message}");
+            }
         }
 
         /// <summary>
         /// Start monitoring for terminal data
         /// </summary>
-        public bool Start()
+        public async Task<bool> StartAsync()
         {
             if (_isEnabled)
                 return true;
@@ -48,6 +65,16 @@ namespace Golem_Mining_Suite.Services
             {
                 ErrorOccurred?.Invoke(this, "Failed to initialize OCR engine. Ensure tessdata folder exists.");
                 return false;
+            }
+
+            // Initialize Supabase if available
+            if (_supabaseService != null)
+            {
+                var supabaseInitialized = await _supabaseService.InitializeAsync();
+                if (!supabaseInitialized)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] Supabase initialization failed - continuing without backend");
+                }
             }
 
             _isEnabled = true;
@@ -105,6 +132,23 @@ namespace Golem_Mining_Suite.Services
                     {
                         _lastCapture = DateTime.Now;
                         TerminalDataCaptured?.Invoke(this, terminalData);
+                        
+                        // Upload to Supabase if available
+                        if (_supabaseService != null)
+                        {
+                            _ = Task.Run(async () =>
+                            {
+                                var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
+                                if (uploaded)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"[LiveData] Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName}");
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"[LiveData] Upload failed for {terminalData.CommodityName}");
+                                }
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -160,6 +204,45 @@ namespace Golem_Mining_Suite.Services
         {
             Stop();
             _ocrService?.Dispose();
+        }
+
+        private SupabaseConfig? LoadConfiguration()
+        {
+            try
+            {
+                var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+                if (!File.Exists(appSettingsPath))
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] appsettings.json not found");
+                    return null;
+                }
+
+                var json = File.ReadAllText(appSettingsPath);
+                var doc = JsonDocument.Parse(json);
+                
+                if (doc.RootElement.TryGetProperty("Supabase", out var supabaseElement))
+                {
+                    var url = supabaseElement.GetProperty("Url").GetString();
+                    var key = supabaseElement.GetProperty("Key").GetString();
+                    
+                    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(key))
+                    {
+                        return new SupabaseConfig { Url = url, Key = key };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LiveData] Config load error: {ex.Message}");
+            }
+            
+            return null;
+        }
+
+        private class SupabaseConfig
+        {
+            public string Url { get; set; } = string.Empty;
+            public string Key { get; set; } = string.Empty;
         }
     }
 }
