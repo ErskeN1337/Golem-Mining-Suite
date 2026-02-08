@@ -73,9 +73,13 @@
                     <Button Content="ROC" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining"/>
                 </StackPanel>
 
-                 <!-- Right Side - Placeholder or minimal -->
+                 <!-- Right Side - Bug Report -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
-                   <!-- Maybe version text here later, but it's in footer now -->
+                    <Button Content="Report a Bug 🐛" 
+                            Command="{Binding OpenBugReportCommand}"
+                            Style="{StaticResource NavButton}"
+                            Foreground="{StaticResource AccentBrush}"
+                            FontWeight="Bold"/>
                 </StackPanel>
             </Grid>
         </Border>

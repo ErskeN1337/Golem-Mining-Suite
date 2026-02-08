@@ -176,37 +176,38 @@
                        HorizontalAlignment="Left"
                        VerticalAlignment="Bottom"/>
 
-            <Button x:Name="UexLinkButton"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    Command="{Binding OpenUexLinkCommand}"
-                    Padding="0">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Opacity" Value="0.6"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="Transparent">
-                                        <ContentPresenter/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="1.0"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <Image Source="/Assets/Images/uex-logo.png" 
-                       Height="30" 
-                       Stretch="Uniform"/>
-            </Button>
+            <!-- Footer Links -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Button x:Name="UexLinkButton"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Command="{Binding OpenUexLinkCommand}"
+                        Padding="0">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Opacity" Value="0.6"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="Transparent">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="1.0"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Image Source="/Assets/Images/uex-logo.png" 
+                           Height="30" 
+                           Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>
