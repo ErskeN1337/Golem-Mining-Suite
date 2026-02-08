@@ -1,16 +1,88 @@
 ﻿<Window x:Class="Golem_Mining_Suite.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:views="clr-namespace:Golem_Mining_Suite.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Golem_Mining_Suite.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="Golem Mining Suite" 
-        Height="550" 
-        Width="400"
-        Background="#1A1A1A"
-        BorderBrush="#FF8C42"
-        BorderThickness="1"
-        ResizeMode="CanMinimize">
+        Height="700" 
+        Width="1100"
+        Background="{StaticResource PrimaryBackgroundBrush}"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Foreground" Value="#1E1E1E"/>
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
     <Grid>
-        <ContentControl Name="ContentArea"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/> <!-- Header -->
+            <RowDefinition Height="*"/>  <!-- Content -->
+        </Grid.RowDefinitions>
+
+        <!-- Header Bar -->
+        <Border Grid.Row="0" Background="{StaticResource SecondaryBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Logo -->
+                    <ColumnDefinition Width="*"/>    <!-- Navigation -->
+                    <ColumnDefinition Width="Auto"/> <!-- Right Side (Settings/Profile if needed, currently empty) -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo Area -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
+                    <Image Source="/Assets/Images/GolemMiningSuite_Logo.png" Height="40" Margin="0,0,15,0"/>
+                </StackPanel>
+
+                <!-- Main Navigation -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Button Content="HOME" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="MainMenu"/>
+                    <Button Content="SURFACE" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="SurfaceMining"/>
+                    <Button Content="ASTEROID" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="AsteroidMining"/>
+                    <Button Content="ROC" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining"/>
+                </StackPanel>
+
+                 <!-- Right Side - Placeholder or minimal -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
+                   <!-- Maybe version text here later, but it's in footer now -->
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Border Grid.Row="1" Margin="20" Background="{StaticResource SecondaryBackgroundBrush}" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+            <ContentControl Content="{Binding CurrentView}" Margin="10"/>
+        </Border>
     </Grid>
 </Window>

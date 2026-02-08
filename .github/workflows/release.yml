@@ -5,16 +5,21 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
 jobs:
   build:
     runs-on: windows-latest
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     
@@ -41,16 +46,29 @@ jobs:
         Compress-Archive -Path ./release/* -DestinationPath "Golem-Mining-Suite-$version.zip"
         Write-Host "ZIP created"
         Get-Item "Golem-Mining-Suite-$version.zip" | Select-Object Name, Length
+
+    - name: Generate build provenance attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: 'Golem-Mining-Suite-${{ github.ref_name }}.zip'
     
     - name: Upload Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: Golem-Mining-Suite-${{ github.ref_name }}.zip
         body: |
           ## Golem Mining Suite ${{ github.ref_name }}
           
-          Download the ZIP file below, extract it, and run Golem Mining Suite.exe
+          ### New Features & Improvements
+          - **Enhanced Dashboard**: Quick access to Prices, Calculator, and Refinery tools.
+          - **Header Clean-up**: Streamlined navigation and layout.
+          - **UI Polish**: Fixed text clarity in mining cards and improved dropdown styling.
+          - **Internal Refactoring**: Major codebase improvements for better performance and maintainability.
+
+          Download the ZIP file below, extract it, and run `Golem Mining Suite.exe`.
           
-          **Auto-Update:** If you already have an older version installed, just run it and click "Download Update"!
+          **Verification**:
+          This release is signed with GitHub Build Provenance. You can verify it using the GitHub CLI:
+          `gh attestation verify Golem-Mining-Suite-${{ github.ref_name }}.zip --owner ${{ github.repository_owner }}`
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

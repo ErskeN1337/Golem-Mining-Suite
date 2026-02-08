@@ -1,17 +1,23 @@
 ﻿<Window x:Class="Golem_Mining_Suite.LocationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Best Locations" Height="700" Width="1100"
-        Background="#1A1A1A"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Golem_Mining_Suite"
+        xmlns:viewmodels="clr-namespace:Golem_Mining_Suite.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:LocationViewModel}"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="700" Width="1100"
+        Background="{StaticResource PrimaryBackgroundBrush}"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize">
 
     <Window.Resources>
         <!-- Filter Button Style -->
         <Style x:Key="FilterButton" TargetType="Button">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="15,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -19,151 +25,33 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="4">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2A2A2A"/>
-                    <Setter Property="BorderBrush" Value="#FF8C42"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Active Filter Button Style -->
-        <Style x:Key="ActiveFilterButton" TargetType="Button" BasedOn="{StaticResource FilterButton}">
-            <Setter Property="Background" Value="#2A2A2A"/>
-            <Setter Property="BorderBrush" Value="#FF8C42"/>
-            <Setter Property="Foreground" Value="#FF8C42"/>
-        </Style>
-
-        <!-- ComboBox Style -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton Name="ToggleButton"
-                                     Grid.Column="2"
-                                     Focusable="false"
-                                     IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                     ClickMode="Press"
-                                     Background="#1A1A1A"
-                                     BorderBrush="#333333"
-                                     BorderThickness="1">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="20"/>
-                                    </Grid.ColumnDefinitions>
-                                    <ContentPresenter Grid.Column="0"
-                                                 Name="ContentSite"
-                                                 IsHitTestVisible="False"
-                                                 Content="{TemplateBinding SelectionBoxItem}"
-                                                 ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                                 ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                                 Margin="8,3,0,3"
-                                                 VerticalAlignment="Center"
-                                                 HorizontalAlignment="Left">
-                                        <ContentPresenter.Resources>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#CCCCCC"/>
-                                            </Style>
-                                        </ContentPresenter.Resources>
-                                    </ContentPresenter>
-                                    <Path Grid.Column="1"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center"
-                                     Data="M 0 0 L 4 4 L 8 0 Z"
-                                     Fill="#CCCCCC"/>
-                                </Grid>
-                            </ToggleButton>
-                            <Popup Name="Popup"
-                              Placement="Bottom"
-                              IsOpen="{TemplateBinding IsDropDownOpen}"
-                              AllowsTransparency="True"
-                              Focusable="False"
-                              PopupAnimation="Slide">
-                                <Grid Name="DropDown"
-                                 SnapsToDevicePixels="True"
-                                 MinWidth="{TemplateBinding ActualWidth}"
-                                 MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border x:Name="DropDownBorder"
-                                       Background="#252525"
-                                       BorderThickness="1"
-                                       BorderBrush="#333333"/>
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
-                                    </ScrollViewer>
-                                </Grid>
-                            </Popup>
-                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource SecondaryBackgroundBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="#1E1E1E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- ComboBoxItem Style -->
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border Background="{TemplateBinding Background}"
-                            Padding="{TemplateBinding Padding}">
-                            <ContentPresenter/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3D3528"/>
-                    <Setter Property="Foreground" Value="#FF8C42"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#3D3528"/>
-                    <Setter Property="Foreground" Value="#FF8C42"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <!-- TextBox Style -->
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="CaretBrush" Value="#FF8C42"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="2">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                     Margin="{TemplateBinding Padding}"
-                                     VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}"/>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"/>
     </Window.Resources>
 
     <Grid>
@@ -175,14 +63,15 @@
 
         <!-- Title -->
         <TextBlock x:Name="WindowTitle" Grid.Row="0" 
+           Text="{Binding Title}"
            FontSize="24" FontWeight="Bold" 
-           Foreground="#FF8C42" 
+           Foreground="{StaticResource AccentBrush}" 
            Margin="20,20,20,10"
            HorizontalAlignment="Left"/>
 
         <!-- Filter Panel -->
-        <Border Grid.Row="1" Background="#252525" 
-                BorderBrush="#333333" BorderThickness="0,1"
+        <Border Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}" 
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1"
                 Padding="20,15">
             <Grid>
                 <Grid.RowDefinitions>
@@ -195,62 +84,157 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- System Filter (Row 0) - Both modes -->
+                <!-- System Filter (Row 0) -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="System:" Foreground="#CCCCCC" 
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Button x:Name="AllButton" Content="All" Width="100" Height="35"
-                            Style="{StaticResource ActiveFilterButton}"
-                            Margin="5,0" Click="FilterButton_Click" Tag="All"/>
-                    <Button x:Name="StantonButton" Content="Stanton" Width="100" Height="35"
-                            Style="{StaticResource FilterButton}"
-                            Margin="5,0" Click="FilterButton_Click" Tag="Stanton"/>
-                    <Button x:Name="PyroButton" Content="Pyro" Width="100" Height="35"
-                            Style="{StaticResource FilterButton}"
-                            Margin="5,0" Click="FilterButton_Click" Tag="Pyro"/>
+                    <TextBlock Text="System:" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
+                    
+                    <Button Content="All" Width="100" Height="35" Margin="5,0"
+                            Command="{Binding SetSystemFilterCommand}" CommandParameter="All">
+                         <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedSystem}" Value="All">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Content="Stanton" Width="100" Height="35" Margin="5,0"
+                            Command="{Binding SetSystemFilterCommand}" CommandParameter="Stanton">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedSystem}" Value="Stanton">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <Button Content="Pyro" Width="100" Height="35" Margin="5,0"
+                            Command="{Binding SetSystemFilterCommand}" CommandParameter="Pyro">
+                         <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedSystem}" Value="Pyro">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
                 <!-- Location Type Filter (Row 2) - Asteroid only -->
                 <StackPanel x:Name="LocationTypePanel" Grid.Row="2" 
                             Orientation="Horizontal" HorizontalAlignment="Center" 
-                            Visibility="Collapsed">
-                    <TextBlock Text="Type:" Foreground="#CCCCCC" 
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Button x:Name="AllTypeButton" Content="All" Width="120" Height="35"
-                            Style="{StaticResource ActiveFilterButton}"
-                            Margin="5,0" Click="LocationTypeFilter_Click" Tag="All"/>
-                    <Button x:Name="MiningBaseButton" Content="Mining Bases" Width="120" Height="35"
-                            Style="{StaticResource FilterButton}"
-                            Margin="5,0" Click="LocationTypeFilter_Click" Tag="MiningBase"/>
-                    <Button x:Name="LagrangeButton" Content="Lagrange Points" Width="120" Height="35"
-                            Style="{StaticResource FilterButton}"
-                            Margin="5,0" Click="LocationTypeFilter_Click" Tag="Lagrange"/>
-                    <Button x:Name="BeltButton" Content="Belts" Width="120" Height="35"
-                            Style="{StaticResource FilterButton}"
-                            Margin="5,0" Click="LocationTypeFilter_Click" Tag="Belt"/>
+                            Visibility="{Binding IsAsteroidMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Type:" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
+
+                    <Button Content="All" Width="120" Height="35" Margin="5,0"
+                            Command="{Binding SetLocationTypeFilterCommand}" CommandParameter="All">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedLocationType}" Value="All">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Mining Bases" Width="120" Height="35" Margin="5,0"
+                            Command="{Binding SetLocationTypeFilterCommand}" CommandParameter="MiningBase">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedLocationType}" Value="MiningBase">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Lagrange Points" Width="120" Height="35" Margin="5,0"
+                            Command="{Binding SetLocationTypeFilterCommand}" CommandParameter="Lagrange">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedLocationType}" Value="Lagrange">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Belts" Width="120" Height="35" Margin="5,0"
+                            Command="{Binding SetLocationTypeFilterCommand}" CommandParameter="Belt">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedLocationType}" Value="Belt">
+                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="#1E1E1E"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
 
                 <!-- Ore Type Filter (Row 4) - Asteroid only -->
                 <StackPanel x:Name="OreTypePanel" Grid.Row="4" 
                             Orientation="Horizontal" HorizontalAlignment="Center" 
-                            Visibility="Collapsed">
-                    <TextBlock Text="Ore Type:" Foreground="#CCCCCC" 
+                            Visibility="{Binding IsAsteroidMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Ore Type:" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="OreTypeComboBox" Width="150" Height="35"
-                              SelectionChanged="OreTypeComboBox_SelectionChanged"/>
+                              ItemsSource="{Binding OreTypes}"
+                              SelectedItem="{Binding SelectedOreType}"/>
                 </StackPanel>
 
-                <!-- Planet Filter (Row 4) - Surface only -->
+                <!-- Planet Filter (Row 4) - Surface only - Need Inverted BoolToVis -->
                 <StackPanel x:Name="PlanetFilterPanel" Grid.Row="4" 
-                            Orientation="Horizontal" HorizontalAlignment="Center" 
-                            Visibility="Collapsed">
-                    <TextBlock Text="Planet:" Foreground="#CCCCCC" 
+                            Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAsteroidMode}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Planet:" Foreground="{StaticResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="PlanetComboBox" Width="200" Height="35"
-                              SelectionChanged="PlanetComboBox_SelectionChanged"/>
+                              ItemsSource="{Binding Planets}"
+                              SelectedItem="{Binding SelectedPlanet}"/>
                 </StackPanel>
 
-                <!-- Search and Percentage Filters (Row 6) - Both modes -->
+                <!-- Search and Percentage Filters (Row 6) -->
                 <Grid Grid.Row="6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -261,32 +245,32 @@
                     <!-- Search Box -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" 
                                 HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock Text="Search:" Foreground="#CCCCCC" 
+                        <TextBlock Text="Search:" Foreground="{StaticResource TextSecondaryBrush}" 
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox x:Name="LocationSearchBox" Width="200" Height="35"
-                                 TextChanged="LocationSearchBox_TextChanged"/>
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <!-- Min Deposit % -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" 
             HorizontalAlignment="Right" VerticalAlignment="Center" 
             Margin="10,0">
-                        <TextBlock Text="Min Deposit:" Foreground="#CCCCCC" 
+                        <TextBlock Text="Min Deposit:" Foreground="{StaticResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox x:Name="MinDepositBox" Width="60" Height="40" 
-             Text="0" TextChanged="MinDepositBox_TextChanged"/>
-                        <TextBlock Text="%" Foreground="#CCCCCC" 
+                        <TextBox x:Name="MinDepositBox" Width="60" Height="35" 
+              Text="{Binding MinDepositPercentText, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="%" Foreground="{StaticResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
 
                     <!-- Min Mineral % -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" 
             HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="Min Mineral:" Foreground="#CCCCCC" 
+                        <TextBlock Text="Min Mineral:" Foreground="{StaticResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox x:Name="MinMineralBox" Width="50" Height="40" 
-             Text="0" TextChanged="MinMineralBox_TextChanged"/>
-                        <TextBlock Text="%" Foreground="#CCCCCC" 
+                        <TextBox x:Name="MinMineralBox" Width="50" Height="35" 
+              Text="{Binding MinMineralPercentText, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Text="%" Foreground="{StaticResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Grid>
@@ -295,13 +279,14 @@
 
         <!-- Data Grid -->
         <DataGrid x:Name="LocationsGrid" Grid.Row="2"
+                  ItemsSource="{Binding Locations}"
                   AutoGenerateColumns="False"
-                  Background="#1A1A1A"
-                  Foreground="#CCCCCC"
-                  BorderBrush="#333333"
+                  Background="{StaticResource SecondaryBackgroundBrush}"
+                  Foreground="{StaticResource TextPrimaryBrush}"
+                  BorderBrush="{StaticResource BorderBrush}"
                   GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="#333333"
-                  RowBackground="#1A1A1A"
+                  RowBackground="{StaticResource SecondaryBackgroundBrush}"
                   AlternatingRowBackground="#252525"
                   HeadersVisibility="Column"
                   IsReadOnly="True"
@@ -311,11 +296,11 @@
 
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="#2A2A2A"/>
-                    <Setter Property="Foreground" Value="#FF8C42"/>
+                    <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
                     <Setter Property="FontWeight" Value="Bold"/>
                     <Setter Property="Padding" Value="10,8"/>
-                    <Setter Property="BorderBrush" Value="#333333"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
                     <Setter Property="BorderThickness" Value="0,0,1,1"/>
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
                 </Style>
@@ -325,10 +310,19 @@
                 <Style TargetType="DataGridCell">
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="Template">
+                         <Setter.Value>
+                             <ControlTemplate TargetType="DataGridCell">
+                                 <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                     <ContentPresenter/>
+                                 </Border>
+                             </ControlTemplate>
+                         </Setter.Value>
+                    </Setter>
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="#3D3528"/>
-                            <Setter Property="Foreground" Value="#FF8C42"/>
+                            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -341,11 +335,13 @@
                 <DataGridTemplateColumn Header="Signature" Width="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Signature}" 
-                                       Foreground="#FF8C42" 
-                                       Cursor="Hand"
-                                       MouseEnter="Signature_MouseEnter"
-                                       MouseLeave="Signature_MouseLeave"/>
+                              <Button Content="{Binding Signature}"
+                                     Command="{Binding DataContext.ShowSignatureCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                     CommandParameter="{Binding}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Foreground="{StaticResource AccentBrush}"
+                                     Cursor="Hand"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -354,29 +350,35 @@
 
         <!-- Signature Popup -->
         <Popup x:Name="SignaturePopup" 
+               IsOpen="{Binding IsPopupOpen}"
+               Placement="Center"
                PlacementTarget="{Binding ElementName=LocationsGrid}"
-               Placement="Mouse"
-               AllowsTransparency="True">
-            <Border Background="#2A2A2A" 
-                    BorderBrush="#FF8C42" 
+               StaysOpen="False">
+            <Border Background="{StaticResource SecondaryBackgroundBrush}" 
+                    BorderBrush="{StaticResource AccentBrush}" 
                     BorderThickness="2" 
                     CornerRadius="4"
                     Padding="15">
                 <StackPanel>
-                    <TextBlock x:Name="PopupTitle" 
-                               FontSize="16" 
-                               FontWeight="Bold" 
-                               Foreground="#FF8C42" 
-                               Margin="0,0,0,10"/>
-                    <ItemsControl x:Name="ClusterRocksPanel">
+                    <Grid Margin="0,0,0,10">
+                         <TextBlock Text="{Binding PopupTitle}" 
+                                FontSize="16" 
+                                FontWeight="Bold" 
+                                Foreground="{StaticResource AccentBrush}"/>
+                         <Button Content="✖" HorizontalAlignment="Right" 
+                                 Foreground="{StaticResource TextSecondaryBrush}" Background="Transparent" BorderThickness="0"
+                                 Command="{Binding CloseSignatureCommand}"/>
+                    </Grid>
+                   
+                    <ItemsControl ItemsSource="{Binding ClusterRocks}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="{Binding Size}" 
-                                               Foreground="#CCCCCC" 
+                                               Foreground="{StaticResource TextSecondaryBrush}" 
                                                Width="80"/>
                                     <TextBlock Text="{Binding Percentage}" 
-                                               Foreground="#FF8C42" 
+                                               Foreground="{StaticResource AccentBrush}" 
                                                FontWeight="Bold"/>
                                 </StackPanel>
                             </DataTemplate>

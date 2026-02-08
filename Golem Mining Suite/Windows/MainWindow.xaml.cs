@@ -1,32 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using Golem_Mining_Suite.ViewModels;
 using Golem_Mining_Suite.Views;
 
 namespace Golem_Mining_Suite
 {
 	public partial class MainWindow : Window
 	{
-		private MainMenuView mainMenuView;
-		private SurfaceMiningView surfaceMiningView;
-		private AsteroidMiningView asteroidMiningView;
-
-		public MainWindow()
+		public MainWindow(MainViewModel viewModel)
 		{
 			InitializeComponent();
-
-			// Initialize views
-			mainMenuView = new MainMenuView();
-			mainMenuView.NavigationRequested += OnNavigationRequested;
-
-			surfaceMiningView = new SurfaceMiningView();
-			surfaceMiningView.BackToMenuRequested += OnBackToMenuRequested;
-
-			asteroidMiningView = new AsteroidMiningView();
-			asteroidMiningView.BackToMenuRequested += OnBackToMenuRequested;
-
-			// Show main menu by default
-			ShowMainMenu();
+			DataContext = viewModel;
 
 			// Check for updates
 			this.Loaded += Window_Loaded;
@@ -54,44 +39,6 @@ namespace Golem_Mining_Suite
 			{
 				System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
 			}
-		}
-
-		private void OnNavigationRequested(object sender, string destination)
-		{
-			switch (destination)
-			{
-				case "SurfaceMining":
-					ShowSurfaceMining();
-					break;
-				case "AsteroidMining":
-					ShowAsteroidMining();
-					break;
-				case "ROCMining":
-					var rocView = new ROCMiningView();
-					rocView.BackToMenuRequested += OnBackToMenuRequested;
-					ContentArea.Content = rocView;
-					break;
-			}
-		}
-
-		private void OnBackToMenuRequested(object sender, EventArgs e)
-		{
-			ShowMainMenu();
-		}
-
-		private void ShowMainMenu()
-		{
-			ContentArea.Content = mainMenuView;
-		}
-
-		private void ShowSurfaceMining()
-		{
-			ContentArea.Content = surfaceMiningView;
-		}
-
-		private void ShowAsteroidMining()
-		{
-			ContentArea.Content = asteroidMiningView;
 		}
 
 		public void PositionWindowToRight(Window window)
