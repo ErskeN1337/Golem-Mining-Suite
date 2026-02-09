@@ -16,6 +16,7 @@ namespace Golem_Mining_Suite.Services
         private readonly OCRService _ocrService;
         private readonly TerminalParser _parser;
         private readonly SupabaseService? _supabaseService;
+        private readonly string _logFilePath;
         
         private CancellationTokenSource? _cancellationTokenSource;
         private Task? _monitoringTask;
@@ -37,6 +38,10 @@ namespace Golem_Mining_Suite.Services
             var tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
             _ocrService = new OCRService(tessDataPath);
             _parser = new TerminalParser();
+            _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
+            
+            // Clear old log on startup
+            try { File.WriteAllText(_logFilePath, $"=== Live Data Debug Log - {DateTime.Now} ===\n"); } catch { }
             
             // Load Supabase configuration
             try
@@ -165,17 +170,17 @@ namespace Golem_Mining_Suite.Services
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("[LiveData] Starting capture attempt...");
+                LogDebug("Starting capture attempt...");
                 
                 // Get game window bounds
                 var bounds = _gameDetection.GetWindowBounds();
                 if (!bounds.HasValue)
                 {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] Failed to get window bounds");
+                    LogDebug("Failed to get window bounds");
                     return null;
                 }
 
-                System.Diagnostics.Debug.WriteLine($"[LiveData] Window bounds: {bounds.Value.Width}x{bounds.Value.Height} at ({bounds.Value.X}, {bounds.Value.Y})");
+                LogDebug($"Window bounds: {bounds.Value.Width}x{bounds.Value.Height} at ({bounds.Value.X}, {bounds.Value.Y})");
 
                 // Estimate terminal region
                 var terminalRegion = _ocrService.EstimateTerminalRegion(
@@ -187,11 +192,11 @@ namespace Golem_Mining_Suite.Services
 
                 if (!terminalRegion.HasValue)
                 {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] Failed to estimate terminal region");
+                    LogDebug("Failed to estimate terminal region");
                     return null;
                 }
 
-                System.Diagnostics.Debug.WriteLine($"[LiveData] Terminal region: {terminalRegion.Value.Width}x{terminalRegion.Value.Height} at ({terminalRegion.Value.X}, {terminalRegion.Value.Y})");
+                LogDebug($"Terminal region: {terminalRegion.Value.Width}x{terminalRegion.Value.Height} at ({terminalRegion.Value.X}, {terminalRegion.Value.Y})");
 
                 // Capture and extract text
                 var ocrText = _ocrService.CaptureAndExtractText(
@@ -203,31 +208,42 @@ namespace Golem_Mining_Suite.Services
 
                 if (string.IsNullOrWhiteSpace(ocrText))
                 {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] OCR returned empty text");
+                    LogDebug("OCR returned empty text");
                     return null;
                 }
 
-                System.Diagnostics.Debug.WriteLine($"[LiveData] OCR extracted {ocrText.Length} characters");
-                System.Diagnostics.Debug.WriteLine($"[LiveData] OCR Text Preview: {ocrText.Substring(0, Math.Min(200, ocrText.Length))}");
+                LogDebug($"OCR extracted {ocrText.Length} characters");
+                LogDebug($"OCR Text Preview: {ocrText.Substring(0, Math.Min(200, ocrText.Length))}");
 
                 // Parse terminal data
                 var parsedData = _parser.ParseTerminalText(ocrText);
                 if (parsedData == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] Parser failed to extract terminal data");
+                    LogDebug("Parser failed to extract terminal data");
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"[LiveData] Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
+                    LogDebug($"Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
                 }
                 
                 return parsedData;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[LiveData] Capture exception: {ex.Message}");
+                LogDebug($"Capture exception: {ex.Message}");
                 return null;
             }
+        }
+
+        private void LogDebug(string message)
+        {
+            var logMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            System.Diagnostics.Debug.WriteLine($"[LiveData] {message}");
+            try
+            {
+                File.AppendAllText(_logFilePath, logMessage + "\n");
+            }
+            catch { }
         }
 
         public void Dispose()
