@@ -20,6 +20,14 @@ namespace Golem_Mining_Suite.Services
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT
         {
@@ -30,7 +38,6 @@ namespace Golem_Mining_Suite.Services
         }
 
         private const string STAR_CITIZEN_PROCESS = "StarCitizen";
-        private const string STAR_CITIZEN_WINDOW_TITLE = "Star Citizen";
 
         /// <summary>
         /// Check if Star Citizen is currently running
@@ -49,20 +56,25 @@ namespace Golem_Mining_Suite.Services
         }
 
         /// <summary>
-        /// Get the Star Citizen window handle
+        /// Get the Star Citizen window handle by finding the main window of the StarCitizen.exe process
         /// </summary>
         public IntPtr GetStarCitizenWindow()
         {
-            // Try to find window by title
-            IntPtr hwnd = FindWindow(null, STAR_CITIZEN_WINDOW_TITLE);
-            
-            if (hwnd == IntPtr.Zero)
+            try
             {
-                // Try alternative window titles
-                hwnd = FindWindow(null, "Star Citizen - Alpha");
-            }
+                var processes = Process.GetProcessesByName(STAR_CITIZEN_PROCESS);
+                if (processes.Length == 0) return IntPtr.Zero;
 
-            return hwnd;
+                // Get the first Star Citizen process
+                var process = processes[0];
+                
+                // Return the main window handle
+                return process.MainWindowHandle;
+            }
+            catch
+            {
+                return IntPtr.Zero;
+            }
         }
 
         /// <summary>
