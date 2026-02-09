@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
-		<Version>1.1.9</Version>
+		<Version>1.2.0</Version>
 		<ApplicationIcon>Assets\Images\Golem.ico</ApplicationIcon>
 	</PropertyGroup>
 
@@ -48,6 +48,18 @@
 		<Compile Update="Assets\Data\AsteroidLocations\AsteroidLocationLoader.cs">
 			<Generator>MSBuild:Compile</Generator>
 		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Tesseract OCR Training Data -->
+		<None Include="tessdata\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		
+		<!-- Supabase Configuration -->
+		<None Include="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>

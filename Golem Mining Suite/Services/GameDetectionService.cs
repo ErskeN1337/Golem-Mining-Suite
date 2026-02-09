@@ -94,16 +94,39 @@ namespace Golem_Mining_Suite.Services
         public (int X, int Y, int Width, int Height)? GetWindowBounds()
         {
             IntPtr hwnd = GetStarCitizenWindow();
-            if (hwnd == IntPtr.Zero) return null;
-
-            if (GetWindowRect(hwnd, out RECT rect))
+            
+            // Try to get window rect
+            if (hwnd != IntPtr.Zero && GetWindowRect(hwnd, out RECT rect))
             {
-                return (
-                    rect.Left,
-                    rect.Top,
-                    rect.Right - rect.Left,
-                    rect.Bottom - rect.Top
-                );
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+                
+                // Check if we got valid dimensions
+                if (width > 0 && height > 0)
+                {
+                    return (rect.Left, rect.Top, width, height);
+                }
+            }
+
+            // Fallback: If Star Citizen is running but we can't get window bounds,
+            // assume it's in fullscreen mode and use primary screen dimensions
+            if (IsStarCitizenRunning())
+            {
+                try
+                {
+                    // Get primary screen dimensions using WPF
+                    int width = (int)System.Windows.SystemParameters.PrimaryScreenWidth;
+                    int height = (int)System.Windows.SystemParameters.PrimaryScreenHeight;
+                    
+                    if (width > 0 && height > 0)
+                    {
+                        return (0, 0, width, height);
+                    }
+                }
+                catch
+                {
+                    // If screen detection fails, return null
+                }
             }
 
             return null;

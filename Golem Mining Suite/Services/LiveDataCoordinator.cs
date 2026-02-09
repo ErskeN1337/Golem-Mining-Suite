@@ -85,25 +85,25 @@ namespace Golem_Mining_Suite.Services
             {
                 try
                 {
-                    LogDebug("Initializing Supabase...");
+                    LogDebugCritical("🔄 Initializing Supabase...");
                     var supabaseInitialized = await _supabaseService.InitializeAsync();
                     if (!supabaseInitialized)
                     {
-                        LogDebug("Supabase initialization failed (non-critical)");
+                        LogDebugCritical("⚠️ Supabase initialization failed (uploads will not work)");
                     }
                     else
                     {
-                        LogDebug("Supabase initialized successfully");
+                        LogDebugCritical("✅ Supabase initialized successfully - uploads enabled");
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogDebug($"Supabase initialization exception: {ex.Message}");
+                    LogDebugCritical($"❌ Supabase initialization exception: {ex.Message}");
                 }
             }
             else
             {
-                LogDebug("No Supabase service configured");
+                LogDebugCritical("⚠️ No Supabase service configured - uploads disabled");
             }
 
             LogDebug("Starting monitoring task...");
@@ -167,14 +167,21 @@ namespace Golem_Mining_Suite.Services
                             {
                                 _ = Task.Run(async () =>
                                 {
-                                    var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
-                                    if (uploaded)
+                                    try
                                     {
-                                        LogDebug($"Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName}");
+                                        var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
+                                        if (uploaded)
+                                        {
+                                            LogDebugCritical($"✅ Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName} - Price: {terminalData.PriceSell} aUEC");
+                                        }
+                                        else
+                                        {
+                                            LogDebugCritical($"❌ Upload failed for {terminalData.CommodityName} (Terminal: {terminalData.TerminalName}, Price: {terminalData.PriceSell})");
+                                        }
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        LogDebug($"Upload failed for {terminalData.CommodityName}");
+                                        LogDebugCritical($"❌ Upload exception for {terminalData.CommodityName}: {ex.Message}");
                                     }
                                 });
                             }
@@ -247,17 +254,17 @@ namespace Golem_Mining_Suite.Services
                 }
 
                 LogDebug($"OCR extracted {ocrText.Length} characters");
-                LogDebug($"OCR Text Preview: {ocrText.Substring(0, Math.Min(200, ocrText.Length))}");
+                LogDebugCritical($"OCR Text Preview: {ocrText.Substring(0, Math.Min(500, ocrText.Length))}");
 
                 // Parse terminal data
                 var parsedData = _parser.ParseTerminalText(ocrText);
                 if (parsedData == null)
                 {
-                    LogDebug("Parser failed to extract terminal data");
+                    LogDebugCritical("Parser failed to extract terminal data");
                 }
                 else
                 {
-                    LogDebug($"Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
+                    LogDebugCritical($"Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
                 }
                 
                 return parsedData;
@@ -269,8 +276,32 @@ namespace Golem_Mining_Suite.Services
             }
         }
 
+        private DateTime _lastLogTime = DateTime.MinValue;
+        private const int LOG_INTERVAL_SECONDS = 5;
+
         private void LogDebug(string message)
         {
+            // Rate limit debug logging to prevent spam
+            var timeSinceLastLog = DateTime.Now - _lastLogTime;
+            if (timeSinceLastLog.TotalSeconds < LOG_INTERVAL_SECONDS)
+            {
+                return; // Skip this log entry
+            }
+
+            _lastLogTime = DateTime.Now;
+            
+            var logMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            System.Diagnostics.Debug.WriteLine($"[LiveData] {message}");
+            try
+            {
+                File.AppendAllText(_logFilePath, logMessage + "\n");
+            }
+            catch { }
+        }
+
+        private void LogDebugCritical(string message)
+        {
+            // Always log critical messages (bypass rate limiting)
             var logMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
             System.Diagnostics.Debug.WriteLine($"[LiveData] {message}");
             try

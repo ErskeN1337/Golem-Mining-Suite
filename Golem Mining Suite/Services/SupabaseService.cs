@@ -2,6 +2,7 @@ using Golem_Mining_Suite.Models;
 using Supabase;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,8 +33,8 @@ namespace Golem_Mining_Suite.Services
             {
                 var options = new SupabaseOptions
                 {
-                    AutoRefreshToken = true,
-                    AutoConnectRealtime = true
+                    AutoRefreshToken = false,
+                    AutoConnectRealtime = false  // Disable realtime for simpler initialization
                 };
 
                 _client = new Client(_supabaseUrl, _supabaseKey, options);
@@ -41,8 +42,9 @@ namespace Golem_Mining_Suite.Services
                 _isInitialized = true;
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[Supabase] Init failed: {ex.Message}");
                 _isInitialized = false;
                 return false;
             }
@@ -74,8 +76,20 @@ namespace Golem_Mining_Suite.Services
                 await _client.From<TerminalPriceRecord>().Insert(dbRecord);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
+                try 
+                { 
+                    File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Upload failed: {ex.Message}\n");
+                    File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Exception type: {ex.GetType().Name}\n");
+                    if (ex.InnerException != null)
+                    {
+                        File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Inner exception: {ex.InnerException.Message}\n");
+                    }
+                } 
+                catch { }
+                System.Diagnostics.Debug.WriteLine($"[Supabase] Upload failed: {ex.Message}");
                 return false;
             }
         }
