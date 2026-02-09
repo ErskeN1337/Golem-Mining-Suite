@@ -99,14 +99,10 @@
                                 <TextBlock Text="🎮 Star Citizen: " 
                                            FontSize="14" 
                                            Foreground="{StaticResource TextSecondaryBrush}"/>
-                                <TextBlock Text="Running" 
+                                <TextBlock Text="{Binding GameStatusText}" 
                                            FontSize="14" 
                                            FontWeight="SemiBold"
-                                           Foreground="#4CAF50"/>
-                                <TextBlock Text="Not Detected" 
-                                           FontSize="14" 
-                                           FontWeight="SemiBold"
-                                           Foreground="#F44336"/>
+                                           Foreground="{Binding GameStatusColor}"/>
                             </StackPanel>
 
                             <!-- Contribution Stats -->

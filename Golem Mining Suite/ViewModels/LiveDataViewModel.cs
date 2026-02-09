@@ -28,6 +28,12 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private string _lastUpdateText = "Never";
 
+        [ObservableProperty]
+        private string _gameStatusText = "Not Detected";
+
+        [ObservableProperty]
+        private string _gameStatusColor = "#F44336";
+
         public LiveDataViewModel()
         {
             _coordinator = new LiveDataCoordinator();
@@ -67,16 +73,6 @@ namespace Golem_Mining_Suite.ViewModels
             }
         }
 
-        private void UpdateGameStatus()
-        {
-            IsGameRunning = _coordinator.IsGameRunning;
-            
-            if (IsEnabled)
-            {
-                StatusText = IsGameRunning ? "Monitoring..." : "Waiting for game...";
-            }
-        }
-
         private void OnTerminalDataCaptured(object? sender, TerminalData data)
         {
             ContributionCount++;
@@ -89,6 +85,22 @@ namespace Golem_Mining_Suite.ViewModels
         {
             System.Diagnostics.Debug.WriteLine($"[LiveData] Error: {error}");
             StatusText = $"Error: {error}";
+        }
+
+        private void UpdateGameStatus()
+        {
+            IsGameRunning = _coordinator.IsGameRunning;
+            
+            if (IsGameRunning)
+            {
+                GameStatusText = "Running";
+                GameStatusColor = "#4CAF50";
+            }
+            else
+            {
+                GameStatusText = "Not Detected";
+                GameStatusColor = "#F44336";
+            }
         }
     }
 }
