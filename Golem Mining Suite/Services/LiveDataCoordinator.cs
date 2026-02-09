@@ -132,65 +132,74 @@ namespace Golem_Mining_Suite.Services
 
         private async Task MonitoringLoop(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                try
+                LogDebug("Monitoring loop started");
+                
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    // Check if game is running
-                    if (!_gameDetection.IsStarCitizenRunning())
+                    try
                     {
-                        await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
-                        continue;
-                    }
-
-                    // Check rate limiting
-                    if ((DateTime.Now - _lastCapture).TotalSeconds < CAPTURE_INTERVAL_SECONDS)
-                    {
-                        await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
-                        continue;
-                    }
-
-                    // Check if possibly at terminal
-                    if (!_gameDetection.IsPossiblyAtTerminal())
-                    {
-                        await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
-                        continue;
-                    }
-
-                    // Attempt to capture terminal data
-                    var terminalData = CaptureTerminalData();
-                    if (terminalData != null && terminalData.IsValid())
-                    {
-                        _lastCapture = DateTime.Now;
-                        TerminalDataCaptured?.Invoke(this, terminalData);
-                        
-                        // Upload to Supabase if available
-                        if (_supabaseService != null)
+                        // Check if game is running
+                        if (!_gameDetection.IsStarCitizenRunning())
                         {
-                            _ = Task.Run(async () =>
+                            await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
+                            continue;
+                        }
+
+                        // Rate limiting
+                        var timeSinceLastCapture = DateTime.Now - _lastCapture;
+                        if (timeSinceLastCapture.TotalSeconds < CAPTURE_INTERVAL_SECONDS)
+                        {
+                            await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
+                            continue;
+                        }
+
+                        // Attempt to capture terminal data
+                        var terminalData = CaptureTerminalData();
+                        if (terminalData != null && terminalData.IsValid())
+                        {
+                            _lastCapture = DateTime.Now;
+                            TerminalDataCaptured?.Invoke(this, terminalData);
+                            
+                            // Upload to Supabase if available
+                            if (_supabaseService != null)
                             {
-                                var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
-                                if (uploaded)
+                                _ = Task.Run(async () =>
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"[LiveData] Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName}");
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"[LiveData] Upload failed for {terminalData.CommodityName}");
-                                }
-                            });
+                                    var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
+                                    if (uploaded)
+                                    {
+                                        LogDebug($"Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName}");
+                                    }
+                                    else
+                                    {
+                                        LogDebug($"Upload failed for {terminalData.CommodityName}");
+                                    }
+                                });
+                            }
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogDebug($"Monitoring loop iteration error: {ex.Message}");
+                        await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    ErrorOccurred?.Invoke(this, $"Monitoring error: {ex.Message}");
-                }
-
-                await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
             }
+            catch (Exception ex)
+            {
+                LogDebug($"Monitoring loop fatal error: {ex.Message}");
+                LogDebug($"Stack trace: {ex.StackTrace}");
+                ErrorOccurred?.Invoke(this, $"Monitoring loop crashed: {ex.Message}");
+            }
+            
+            LogDebug("Monitoring loop ended");
         }
-
         private TerminalData? CaptureTerminalData()
         {
             try
