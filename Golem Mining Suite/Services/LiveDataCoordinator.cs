@@ -83,18 +83,30 @@ namespace Golem_Mining_Suite.Services
             // Initialize Supabase if available
             if (_supabaseService != null)
             {
-                LogDebug("Initializing Supabase...");
-                var supabaseInitialized = await _supabaseService.InitializeAsync();
-                if (!supabaseInitialized)
+                try
                 {
-                    LogDebug("Supabase initialization failed (non-critical)");
+                    LogDebug("Initializing Supabase...");
+                    var supabaseInitialized = await _supabaseService.InitializeAsync();
+                    if (!supabaseInitialized)
+                    {
+                        LogDebug("Supabase initialization failed (non-critical)");
+                    }
+                    else
+                    {
+                        LogDebug("Supabase initialized successfully");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    LogDebug("Supabase initialized successfully");
+                    LogDebug($"Supabase initialization exception: {ex.Message}");
                 }
             }
+            else
+            {
+                LogDebug("No Supabase service configured");
+            }
 
+            LogDebug("Starting monitoring task...");
             _isEnabled = true;
             _cancellationTokenSource = new CancellationTokenSource();
             _monitoringTask = Task.Run(() => MonitoringLoop(_cancellationTokenSource.Token));
