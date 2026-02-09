@@ -29,11 +29,32 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private string _statusText = "Loading...";
 
+        [ObservableProperty]
+        private bool _isLiveConnected;
+
         public PricesViewModel(IPriceService priceService)
         {
             _priceService = priceService;
             Prices = new ObservableCollection<PriceData>();
             Minerals = new ObservableCollection<string>();
+            
+            // Subscribe to live events
+            if (_priceService is PriceService ps)
+            {
+                 IsLiveConnected = ps.IsLiveConnected; // Init
+                 
+                 ps.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() => 
+                 {
+                     StatusText = "Live Data Received";
+                     ApplyFilter();
+                 });
+                 
+                 ps.LinkStatusChanged += (s, connected) => 
+                 {
+                     App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
+                 };
+            }
+            
             LoadDataCommand.ExecuteAsync(null);
         }
 
@@ -45,7 +66,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             if (_allPrices.Count > 0)
             {
-                StatusText = $"Loaded {_allPrices.Count} live prices";
+                StatusText = $"Loaded {_allPrices.Count} prices (waiting for live...)";
             }
             else
             {
@@ -58,6 +79,7 @@ namespace Golem_Mining_Suite.ViewModels
 
         private void PopulateMineralFilter()
         {
+            if (_allPrices == null) return;
             var minerals = _allPrices.Select(p => p.MineralName).Distinct().OrderBy(m => m).ToList();
             Minerals.Clear();
             Minerals.Add("All Minerals");

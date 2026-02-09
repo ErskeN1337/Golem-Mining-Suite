@@ -1,7 +1,6 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Golem_Mining_Suite.ViewModels; // Added this
 using Golem_Mining_Suite.Windows;
 using Golem_Mining_Suite.ViewModels;
 

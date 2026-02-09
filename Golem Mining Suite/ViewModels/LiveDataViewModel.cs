@@ -34,9 +34,9 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private string _gameStatusColor = "#F44336";
 
-        public LiveDataViewModel()
+        public LiveDataViewModel(LiveDataCoordinator coordinator)
         {
-            _coordinator = new LiveDataCoordinator();
+            _coordinator = coordinator;
             _coordinator.TerminalDataCaptured += OnTerminalDataCaptured;
             _coordinator.ErrorOccurred += OnErrorOccurred;
 

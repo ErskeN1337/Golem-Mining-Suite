@@ -32,7 +32,7 @@ namespace Golem_Mining_Suite.Services
         public bool IsEnabled => _isEnabled;
         public bool IsGameRunning => _gameDetection.IsStarCitizenRunning();
 
-        public LiveDataCoordinator()
+        public LiveDataCoordinator(SupabaseService? supabaseService)
         {
             _gameDetection = new GameDetectionService();
             var tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
@@ -40,22 +40,10 @@ namespace Golem_Mining_Suite.Services
             _parser = new TerminalParser();
             _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
             
+            _supabaseService = supabaseService;
+            
             // Clear old log on startup
             try { File.WriteAllText(_logFilePath, $"=== Live Data Debug Log - {DateTime.Now} ===\n"); } catch { }
-            
-            // Load Supabase configuration
-            try
-            {
-                var config = LoadConfiguration();
-                if (config != null)
-                {
-                    _supabaseService = new SupabaseService(config.Url, config.Key);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[LiveData] Failed to load Supabase config: {ex.Message}");
-            }
         }
 
         /// <summary>
@@ -317,43 +305,5 @@ namespace Golem_Mining_Suite.Services
             _ocrService?.Dispose();
         }
 
-        private SupabaseConfig? LoadConfiguration()
-        {
-            try
-            {
-                var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-                if (!File.Exists(appSettingsPath))
-                {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] appsettings.json not found");
-                    return null;
-                }
-
-                var json = File.ReadAllText(appSettingsPath);
-                var doc = JsonDocument.Parse(json);
-                
-                if (doc.RootElement.TryGetProperty("Supabase", out var supabaseElement))
-                {
-                    var url = supabaseElement.GetProperty("Url").GetString();
-                    var key = supabaseElement.GetProperty("Key").GetString();
-                    
-                    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(key))
-                    {
-                        return new SupabaseConfig { Url = url, Key = key };
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[LiveData] Config load error: {ex.Message}");
-            }
-            
-            return null;
-        }
-
-        private class SupabaseConfig
-        {
-            public string Url { get; set; } = string.Empty;
-            public string Key { get; set; } = string.Empty;
-        }
     }
 }

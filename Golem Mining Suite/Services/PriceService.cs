@@ -11,6 +11,11 @@ namespace Golem_Mining_Suite.Services
 {
     public class PriceService : IPriceService
     {
+        public event EventHandler? PricesUpdated;
+        public event EventHandler<bool>? LinkStatusChanged;
+        public bool IsLiveConnected { get; private set; }
+        private List<PriceData> _liveOverrides = new List<PriceData>();
+
         private Dictionary<int, string> _terminalToSystem = new Dictionary<int, string>();
 
         public async Task<Dictionary<int, string>> GetTerminalMappingAsync()
@@ -62,30 +67,32 @@ namespace Golem_Mining_Suite.Services
                 {
                     client.Timeout = TimeSpan.FromSeconds(30);
 
+                    // Fetch API prices
                     var response = await client.GetStringAsync("https://uexcorp.space/api/commodities_prices_all");
                     var jsonDoc = JsonDocument.Parse(response);
                     var pricesData = jsonDoc.RootElement.GetProperty("data");
 
                     foreach (var priceEntry in pricesData.EnumerateArray())
                     {
-                        var commodityName = priceEntry.GetProperty("commodity_name").GetString();
-                        var terminalName = priceEntry.GetProperty("terminal_name").GetString();
+                        var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
+                        var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
                         var priceSell = priceEntry.GetProperty("price_sell").GetInt32();
 
                         int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
                         string starSystem = _terminalToSystem.ContainsKey(terminalId) ? _terminalToSystem[terminalId] : "Unknown";
 
+                        // Skip checking SCU for simplicity or implement if needed
                         int scu = 0;
                         int scuMax = 100;
 
                         if (priceEntry.TryGetProperty("scu", out JsonElement scuElement))
                         {
-                            scu = scuElement.GetInt32();
+                            scu = scuElement.ValueKind == JsonValueKind.Number ? scuElement.GetInt32() : 0;
                         }
 
                         if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
                         {
-                            scuMax = scuMaxElement.GetInt32();
+                            scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
                         }
 
                         if (priceSell <= 0)
@@ -98,16 +105,37 @@ namespace Golem_Mining_Suite.Services
                             double inventoryPercent = scuMax > 0 ? (double)scu / scuMax * 100 : 0;
                             string demand = inventoryPercent < 50 ? "High" : "Low";
 
-                            priceList.Add(new PriceData
+                            // Check for LIVE override
+                            var overrideData = _liveOverrides.FirstOrDefault(o => o.MineralName == displayName && o.BestLocation == terminalName);
+                            if (overrideData != null)
                             {
-                                MineralName = displayName,
-                                Price = $"{priceSell:N0} aUEC",
-                                NumericPrice = priceSell,
-                                BestLocation = terminalName,
-                                Demand = demand,
-                                StarSystem = starSystem
-                            });
+                                // Use live data
+                                priceList.Add(overrideData);
+                            }
+                            else
+                            {
+                                priceList.Add(new PriceData
+                                {
+                                    MineralName = displayName,
+                                    Price = $"{priceSell:N0} aUEC",
+                                    NumericPrice = priceSell,
+                                    BestLocation = terminalName,
+                                    Demand = demand,
+                                    StarSystem = starSystem,
+                                    LastUpdatedText = "API" // Explicitly mark as API
+                                });
+                            }
                         }
+                    }
+                }
+                
+                // Also add any live overrides that weren't in the API list (new entries?)
+                // Effectively merging:
+                foreach (var live in _liveOverrides)
+                {
+                    if (!priceList.Contains(live))
+                    {
+                        priceList.Add(live);
                     }
                 }
             }
@@ -116,18 +144,49 @@ namespace Golem_Mining_Suite.Services
                return GetFallbackPrices();
             }
 
-            return priceList;
+            return priceList.OrderByDescending(p => p.NumericPrice).ToList();
         }
 
-        private string MapCommodityName(string apiName)
+        public void UpdateWithLiveData(object? sender, TerminalData liveData)
         {
-            if (apiName == "Quantainium")
-                return "Quantanium";
-
-            return apiName;
+            AddLivePriceOverride(liveData);
+            PricesUpdated?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool IsMineralName(string name)
+        private void AddLivePriceOverride(TerminalData data)
+        {
+             if (data.PriceSell <= 0) return;
+             
+             var displayName = MapCommodityName(data.CommodityName);
+             if (!IsMineralName(displayName)) return;
+             
+             // Create PriceData
+             var priceData = new PriceData
+             {
+                 MineralName = displayName,
+                 Price = $"{data.PriceSell:N0} aUEC",
+                 NumericPrice = data.PriceSell,
+                 BestLocation = data.TerminalName,
+                 Demand = "Live", 
+                 StarSystem = data.StarSystem,
+                 LastUpdated = data.CapturedAt,
+                 LastUpdatedText = data.CapturedAt.ToString("HH:mm:ss")
+             };
+             
+             // Remove existing override for same location/mineral
+             var existing = _liveOverrides.FirstOrDefault(p => p.MineralName == displayName && p.BestLocation == priceData.BestLocation);
+             if (existing != null)
+             {
+                 _liveOverrides.Remove(existing);
+             }
+             _liveOverrides.Add(priceData);
+        }
+
+        public void SetLiveConnectionStatus(bool connected)
+        {
+            IsLiveConnected = connected;
+            LinkStatusChanged?.Invoke(this, connected);
+        }
         {
             var minerals = new HashSet<string>
             {

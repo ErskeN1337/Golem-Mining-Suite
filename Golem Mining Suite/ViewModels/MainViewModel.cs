@@ -38,7 +38,7 @@ namespace Golem_Mining_Suite.ViewModels
         public Visibility AsteroidButtonVisibility => CurrentView is AsteroidMiningView ? Visibility.Collapsed : Visibility.Visible;
         public Visibility ROCButtonVisibility => CurrentView is ROCMiningView ? Visibility.Collapsed : Visibility.Visible;
 
-        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService)
+        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM)
         {
             _miningDataService = miningDataService;
             _windowService = windowService;
@@ -69,14 +69,11 @@ namespace Golem_Mining_Suite.ViewModels
             if (rocVM != null) _rocMiningView.DataContext = rocVM;
 
             _settingsView = new SettingsView();
-            var liveDataVM = new LiveDataViewModel();
+            // var liveDataVM = new LiveDataViewModel(); // Injected
             _settingsView.DataContext = liveDataVM;
 
             // Set initial view
             CurrentView = _mainMenuView;
-
-            // Register messenger
-            WeakReferenceMessenger.Default.RegisterAll(this);
 
             // Register messenger
             WeakReferenceMessenger.Default.RegisterAll(this);

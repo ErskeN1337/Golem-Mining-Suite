@@ -1,5 +1,8 @@
 using Golem_Mining_Suite.Models;
 using Supabase;
+using Supabase.Realtime;
+using Supabase.Realtime.Interfaces;
+using Supabase.Realtime.PostgresChanges;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +21,9 @@ namespace Golem_Mining_Suite.Services
         private readonly string _supabaseKey;
         private bool _isInitialized = false;
 
+        public event EventHandler<TerminalData>? TerminalUpdateReceived;
+        public event EventHandler<bool>? ConnectionStatusChanged;
+
         public SupabaseService(string supabaseUrl, string supabaseKey)
         {
             _supabaseUrl = supabaseUrl;
@@ -34,7 +40,7 @@ namespace Golem_Mining_Suite.Services
                 var options = new SupabaseOptions
                 {
                     AutoRefreshToken = false,
-                    AutoConnectRealtime = false  // Disable realtime for simpler initialization
+                    AutoConnectRealtime = true
                 };
 
                 _client = new Client(_supabaseUrl, _supabaseKey, options);
@@ -128,6 +134,68 @@ namespace Golem_Mining_Suite.Services
             catch (Exception)
             {
                 return new List<TerminalData>();
+            }
+        }
+
+        /// <summary>
+        /// Subscribe to real-time updates for terminal_prices
+        /// </summary>
+        public async Task SubscribeToTerminalUpdatesAsync()
+        {
+            if (!_isInitialized || _client == null) return;
+
+            try
+            {
+                await _client.Realtime.ConnectAsync();
+
+                var channel = _client.Realtime.Channel("public:terminal_prices");
+
+                // Listen for INSERTs
+                channel.On(ChannelEventType.PostgresChanges, (sender, args) =>
+                {
+                    try
+                    {
+                         if (args is PostgresChangesResponse change)
+                         {
+                            var record = change.Payload?.Record;
+                            if (record != null)
+                            {
+                                // Helper to convert dynamic/object to typed object via JSON
+                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(record);
+                                var dataRecord = Newtonsoft.Json.JsonConvert.DeserializeObject<TerminalPriceRecord>(json);
+                                
+                                if (dataRecord != null)
+                                {
+                                     var termData = new TerminalData
+                                     {
+                                         CommodityName = dataRecord.commodity_name ?? "",
+                                         TerminalName = dataRecord.terminal_name ?? "",
+                                         StarSystem = dataRecord.star_system ?? "",
+                                         PriceBuy = dataRecord.price_buy,
+                                         PriceSell = dataRecord.price_sell,
+                                         InventorySCU = dataRecord.inventory_scu,
+                                         InventoryMax = dataRecord.inventory_max,
+                                         CapturedAt = dataRecord.captured_at
+                                     };
+                                     
+                                     TerminalUpdateReceived?.Invoke(this, termData);
+                                }
+                            }
+                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Supabase] Error processing update: {ex.Message}");
+                    }
+                });
+
+                await channel.Subscribe();
+                ConnectionStatusChanged?.Invoke(this, true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Supabase] Subscribe failed: {ex.Message}");
+                ConnectionStatusChanged?.Invoke(this, false);
             }
         }
 
