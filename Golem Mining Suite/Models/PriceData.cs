@@ -2,11 +2,11 @@
 {
     public class PriceData
     {
-        public string MineralName { get; set; }
-        public string Price { get; set; }
+        public required string MineralName { get; set; }
+        public required string Price { get; set; }
         public double NumericPrice { get; set; } // Added for easier sorting
-        public string BestLocation { get; set; }
-        public string Demand { get; set; }
-        public string StarSystem { get; set; }
+        public required string BestLocation { get; set; }
+        public required string Demand { get; set; }
+        public required string StarSystem { get; set; }
     }
 }

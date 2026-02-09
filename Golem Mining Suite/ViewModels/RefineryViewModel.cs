@@ -14,19 +14,19 @@ namespace Golem_Mining_Suite.ViewModels
     public partial class RefineryViewModel : ObservableObject
     {
         private readonly IRefineryService _refineryService;
-        private Dictionary<string, double> _mineralPrices;
+        // private Dictionary<string, double> _mineralPrices; // Removed unused field
 
         [ObservableProperty]
         private ObservableCollection<string> _refineries = new();
 
         [ObservableProperty]
-        private string _selectedRefinery;
+        private string _selectedRefinery = default!;
 
         [ObservableProperty]
         private ObservableCollection<string> _methods = new();
 
         [ObservableProperty]
-        private string _selectedMethod;
+        private string _selectedMethod = default!;
 
         [ObservableProperty]
         private ObservableCollection<RefineryMineralRowViewModel> _mineralRows = new();
@@ -53,7 +53,7 @@ namespace Golem_Mining_Suite.ViewModels
         private bool _canAddMineral = true;
 
         private const int MAX_MINERALS = 10;
-        private List<RefineryMethod> _allMethods;
+        private List<RefineryMethod> _allMethods = new();
 
         public static readonly Dictionary<string, double> MineralPrices = new Dictionary<string, double>
             {

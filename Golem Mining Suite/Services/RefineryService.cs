@@ -97,9 +97,9 @@ namespace Golem_Mining_Suite.Services
 
         private void LoadFallbackRefineryData()
         {
-            _refineryMethods["Dinyx Solvents"] = new RefineryMethod { Name = "Dinyx Solvents", YieldBonus = 70, CostPercent = 15 };
-            _refineryMethods["Cormack Method"] = new RefineryMethod { Name = "Cormack Method", YieldBonus = 50, CostPercent = 10 };
-            _refineryMethods["XCR Reaction"] = new RefineryMethod { Name = "XCR Reaction", YieldBonus = 30, CostPercent = 7 };
+            _refineryMethods["Dinyx Solvents"] = new RefineryMethod { Name = "Dinyx Solvents", Code = "DIN", YieldBonus = 70, CostPercent = 15 };
+            _refineryMethods["Cormack Method"] = new RefineryMethod { Name = "Cormack Method", Code = "COR", YieldBonus = 50, CostPercent = 10 };
+            _refineryMethods["XCR Reaction"] = new RefineryMethod { Name = "XCR Reaction", Code = "XCR", YieldBonus = 30, CostPercent = 7 };
         }
     }
 }

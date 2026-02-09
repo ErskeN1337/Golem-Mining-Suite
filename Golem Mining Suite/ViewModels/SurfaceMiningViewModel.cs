@@ -17,10 +17,10 @@ namespace Golem_Mining_Suite.ViewModels
         private readonly IWindowService _windowService;
 
         [ObservableProperty]
-        private string _versionText;
+        private string _versionText = "";
 
         [ObservableProperty]
-        private ObservableCollection<MineralData> _featuredMinerals;
+        private ObservableCollection<MineralData> _featuredMinerals = new();
 
         [ObservableProperty]
         private string _searchText = "Search mineral...";
@@ -29,12 +29,12 @@ namespace Golem_Mining_Suite.ViewModels
         private bool _isSearchActive;
 
         [ObservableProperty]
-        private ObservableCollection<string> _suggestions;
+        private ObservableCollection<string> _suggestions = new();
 
         [ObservableProperty]
         private bool _showSuggestions;
 
-        private List<MineralData> _allMiningData;
+        private List<MineralData> _allMiningData = new();
 
         // Constructor injection
         public SurfaceMiningViewModel(IMiningDataService miningDataService, IWindowService windowService)
@@ -156,9 +156,9 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [ObservableProperty]
-        private string _selectedSuggestion;
+        private string? _selectedSuggestion; // Nullable
 
-        partial void OnSelectedSuggestionChanged(string value)
+        partial void OnSelectedSuggestionChanged(string? value)
         {
             if (value != null)
             {
