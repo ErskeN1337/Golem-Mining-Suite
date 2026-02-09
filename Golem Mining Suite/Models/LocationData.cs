@@ -2,14 +2,14 @@
 {
 	public class LocationData
 	{
-		public required string LocationName { get; set; }
-		public required string Chance { get; set; }
-		public required string DepositChance { get; set; }
-		public required string MineralChance { get; set; }
-		public required string System { get; set; }
+		public string LocationName { get; set; } = "";
+		public string Chance { get; set; } = "";
+		public string? DepositChance { get; set; }
+		public string? MineralChance { get; set; }
+		public string System { get; set; } = "";
 		public double SortValue { get; set; }
-		public required string Signature { get; set; }
-		public required string DepositType { get; set; }
+		public string Signature { get; set; } = "";
+		public string? DepositType { get; set; }
 	}
 
 	public class ClusterRockInfo
