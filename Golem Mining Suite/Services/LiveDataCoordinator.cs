@@ -165,10 +165,17 @@ namespace Golem_Mining_Suite.Services
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine("[LiveData] Starting capture attempt...");
+                
                 // Get game window bounds
                 var bounds = _gameDetection.GetWindowBounds();
                 if (!bounds.HasValue)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] Failed to get window bounds");
                     return null;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[LiveData] Window bounds: {bounds.Value.Width}x{bounds.Value.Height} at ({bounds.Value.X}, {bounds.Value.Y})");
 
                 // Estimate terminal region
                 var terminalRegion = _ocrService.EstimateTerminalRegion(
@@ -179,7 +186,12 @@ namespace Golem_Mining_Suite.Services
                 );
 
                 if (!terminalRegion.HasValue)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] Failed to estimate terminal region");
                     return null;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[LiveData] Terminal region: {terminalRegion.Value.Width}x{terminalRegion.Value.Height} at ({terminalRegion.Value.X}, {terminalRegion.Value.Y})");
 
                 // Capture and extract text
                 var ocrText = _ocrService.CaptureAndExtractText(
@@ -190,13 +202,30 @@ namespace Golem_Mining_Suite.Services
                 );
 
                 if (string.IsNullOrWhiteSpace(ocrText))
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] OCR returned empty text");
                     return null;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[LiveData] OCR extracted {ocrText.Length} characters");
+                System.Diagnostics.Debug.WriteLine($"[LiveData] OCR Text Preview: {ocrText.Substring(0, Math.Min(200, ocrText.Length))}");
 
                 // Parse terminal data
-                return _parser.ParseTerminalText(ocrText);
+                var parsedData = _parser.ParseTerminalText(ocrText);
+                if (parsedData == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LiveData] Parser failed to extract terminal data");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LiveData] Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
+                }
+                
+                return parsedData;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[LiveData] Capture exception: {ex.Message}");
                 return null;
             }
         }
