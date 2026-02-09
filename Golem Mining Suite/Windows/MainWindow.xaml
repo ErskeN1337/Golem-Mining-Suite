@@ -67,10 +67,10 @@
 
                 <!-- Main Navigation -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Button Content="HOME" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="MainMenu"/>
-                    <Button Content="SURFACE" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="SurfaceMining"/>
-                    <Button Content="ASTEROID" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="AsteroidMining"/>
-                    <Button Content="ROC" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining"/>
+                    <Button Content="HOME" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="MainMenu" Visibility="{Binding HomeButtonVisibility}"/>
+                    <Button Content="SURFACE" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="SurfaceMining" Visibility="{Binding SurfaceButtonVisibility}"/>
+                    <Button Content="ASTEROID" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="AsteroidMining" Visibility="{Binding AsteroidButtonVisibility}"/>
+                    <Button Content="ROC" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining" Visibility="{Binding ROCButtonVisibility}"/>
                 </StackPanel>
 
                  <!-- Right Side - Bug Report -->

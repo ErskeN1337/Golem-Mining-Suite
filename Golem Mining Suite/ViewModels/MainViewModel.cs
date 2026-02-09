@@ -23,10 +23,19 @@ namespace Golem_Mining_Suite.ViewModels
         private ROCMiningView _rocMiningView;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HomeButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(SurfaceButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(AsteroidButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(ROCButtonVisibility))]
         private object _currentView;
 
         [ObservableProperty]
         private string _versionText;
+
+        public Visibility HomeButtonVisibility => CurrentView is MainMenuView ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility SurfaceButtonVisibility => CurrentView is SurfaceMiningView ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility AsteroidButtonVisibility => CurrentView is AsteroidMiningView ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility ROCButtonVisibility => CurrentView is ROCMiningView ? Visibility.Collapsed : Visibility.Visible;
 
         public MainViewModel(IMiningDataService miningDataService, IWindowService windowService)
         {
