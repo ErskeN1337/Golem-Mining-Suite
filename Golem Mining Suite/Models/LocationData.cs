@@ -2,27 +2,27 @@
 {
 	public class LocationData
 	{
-		public string LocationName { get; set; }
-		public string Chance { get; set; }
-		public string DepositChance { get; set; }
-		public string MineralChance { get; set; }
-		public string System { get; set; }
+		public required string LocationName { get; set; }
+		public required string Chance { get; set; }
+		public required string DepositChance { get; set; }
+		public required string MineralChance { get; set; }
+		public required string System { get; set; }
 		public double SortValue { get; set; }
-		public string Signature { get; set; }
-		public string DepositType { get; set; }
+		public required string Signature { get; set; }
+		public required string DepositType { get; set; }
 	}
 
 	public class ClusterRockInfo
 	{
-		public string Size { get; set; }
-		public string Percentage { get; set; }
+		public required string Size { get; set; }
+		public required string Percentage { get; set; }
 	}
 
 	// NEW: Better model for asteroid locations
 	public class AsteroidLocationData
 	{
-		public string LocationName { get; set; }
-		public string System { get; set; }
+		public required string LocationName { get; set; }
+		public required string System { get; set; }
 		public Dictionary<string, string> OreTypeSpawnRates { get; set; } // "C-Type" -> "12%"
 
 		public AsteroidLocationData()

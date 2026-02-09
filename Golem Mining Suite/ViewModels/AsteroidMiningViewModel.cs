@@ -23,7 +23,7 @@ namespace Golem_Mining_Suite.ViewModels
         private readonly IWindowService _windowService;
 
         [ObservableProperty]
-        private string _versionText;
+        private string _versionText = "";
 
         [ObservableProperty]
         private string _searchText = "Search mineral...";
@@ -32,13 +32,13 @@ namespace Golem_Mining_Suite.ViewModels
         private bool _isSearchActive;
 
         [ObservableProperty]
-        private ObservableCollection<string> _suggestions;
+        private ObservableCollection<string> _suggestions = new();
 
         [ObservableProperty]
         private bool _showSuggestions;
 
-        private List<AsteroidMineralData> _allMiningData;
-        private List<AsteroidMineralGroup> _groupedMinerals;
+        private List<AsteroidMineralData> _allMiningData = new();
+        private List<AsteroidMineralGroup> _groupedMinerals = new();
 
         public AsteroidMiningViewModel(IMiningDataService miningDataService, IWindowService windowService)
         {
@@ -53,7 +53,7 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [ObservableProperty]
-        private ObservableCollection<AsteroidMineralGroup> _minerals;
+        private ObservableCollection<AsteroidMineralGroup> _minerals = new();
 
         private void LoadData()
         {
@@ -140,9 +140,9 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [ObservableProperty]
-        private string _selectedSuggestion;
+        private string? _selectedSuggestion;
 
-        partial void OnSelectedSuggestionChanged(string value)
+        partial void OnSelectedSuggestionChanged(string? value)
         {
             if (value != null)
             {

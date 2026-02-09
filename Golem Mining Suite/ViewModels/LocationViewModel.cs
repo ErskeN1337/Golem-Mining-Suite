@@ -14,11 +14,11 @@ namespace Golem_Mining_Suite.ViewModels
     {
         private readonly IMiningDataService _miningDataService;
 
-        private List<LocationData> _allLocations;
-        private string _targetName;
+        private List<LocationData> _allLocations = new();
+        private string _targetName = "";
 
         [ObservableProperty]
-        private string _title;
+        private string _title = "";
 
         [ObservableProperty]
         private bool _isAsteroidMode;
@@ -30,14 +30,14 @@ namespace Golem_Mining_Suite.ViewModels
         private bool _isMineral;
 
         [ObservableProperty]
-        private ObservableCollection<LocationData> _locations;
+        private ObservableCollection<LocationData> _locations = new();
 
         // Filter Lists
         [ObservableProperty]
-        private ObservableCollection<string> _planets;
+        private ObservableCollection<string> _planets = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _oreTypes;
+        private ObservableCollection<string> _oreTypes = new();
 
         // Selected Filters
         [ObservableProperty]
@@ -47,10 +47,10 @@ namespace Golem_Mining_Suite.ViewModels
         private string _selectedLocationType = "All"; // All, MiningBase, Lagrange, Belt
 
         [ObservableProperty]
-        private string _selectedPlanet;
+        private string? _selectedPlanet;
 
         [ObservableProperty]
-        private string _selectedOreType;
+        private string? _selectedOreType;
 
         [ObservableProperty]
         private string _searchText = "";
@@ -63,10 +63,10 @@ namespace Golem_Mining_Suite.ViewModels
         
         // Cluster Rock Popup
         [ObservableProperty]
-        private List<ClusterRockInfo> _clusterRocks;
+        private List<ClusterRockInfo> _clusterRocks = new();
         
         [ObservableProperty]
-        private string _popupTitle;
+        private string _popupTitle = "";
         
         [ObservableProperty]
         private bool _isPopupOpen;
@@ -325,8 +325,8 @@ namespace Golem_Mining_Suite.ViewModels
         // OnProperty methods to trigger filters
         partial void OnSelectedSystemChanged(string value) => ApplyFilter();
         partial void OnSelectedLocationTypeChanged(string value) => ApplyFilter();
-        partial void OnSelectedPlanetChanged(string value) => ApplyFilter();
-        partial void OnSelectedOreTypeChanged(string value) => ApplyFilter();
+        partial void OnSelectedPlanetChanged(string? value) => ApplyFilter();
+        partial void OnSelectedOreTypeChanged(string? value) => ApplyFilter();
         partial void OnSearchTextChanged(string value) => ApplyFilter();
         partial void OnMinDepositPercentTextChanged(string value) => ApplyFilter();
         partial void OnMinMineralPercentTextChanged(string value) => ApplyFilter();
