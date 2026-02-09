@@ -63,12 +63,19 @@ namespace Golem_Mining_Suite.Services
         /// </summary>
         public async Task<bool> StartAsync()
         {
+            LogDebug("StartAsync called");
+            
             if (_isEnabled)
+            {
+                LogDebug("Already enabled, returning true");
                 return true;
+            }
 
             // Initialize OCR engine
+            LogDebug("Initializing OCR engine...");
             if (!_ocrService.Initialize())
             {
+                LogDebug("OCR initialization failed!");
                 ErrorOccurred?.Invoke(this, "Failed to initialize OCR engine. Ensure tessdata folder exists.");
                 return false;
             }
@@ -76,10 +83,15 @@ namespace Golem_Mining_Suite.Services
             // Initialize Supabase if available
             if (_supabaseService != null)
             {
+                LogDebug("Initializing Supabase...");
                 var supabaseInitialized = await _supabaseService.InitializeAsync();
                 if (!supabaseInitialized)
                 {
-                    System.Diagnostics.Debug.WriteLine("[LiveData] Supabase initialization failed - continuing without backend");
+                    LogDebug("Supabase initialization failed (non-critical)");
+                }
+                else
+                {
+                    LogDebug("Supabase initialized successfully");
                 }
             }
 
@@ -87,6 +99,7 @@ namespace Golem_Mining_Suite.Services
             _cancellationTokenSource = new CancellationTokenSource();
             _monitoringTask = Task.Run(() => MonitoringLoop(_cancellationTokenSource.Token));
             
+            LogDebug("Monitoring started successfully");
             return true;
         }
 
