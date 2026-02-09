@@ -73,33 +73,8 @@ namespace Golem_Mining_Suite.ViewModels
             // Register messenger
             WeakReferenceMessenger.Default.RegisterAll(this);
 
-            // Check for updates
-            CheckForUpdatesAsync();
-        }
-
-        private async void CheckForUpdatesAsync()
-        {
-            try
-            {
-                var updateInfo = await UpdateChecker.CheckForUpdateAsync();
-                if (updateInfo != null && updateInfo.IsUpdateAvailable)
-                {
-                    // Use WindowService to show update window?
-                    // Ideally yes, but UpdateAvailableWindow is a specific dialog.
-                    // For now, let's open it directly or add method to IWindowService.
-                    // Adding simple dispatch for now to avoid breaking UI thread.
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        var updateWindow = new Golem_Mining_Suite.UpdateAvailableWindow(updateInfo);
-                        updateWindow.Owner = Application.Current.MainWindow;
-                        updateWindow.ShowDialog();
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Update check failed: {ex.Message}");
-            }
+            // Register messenger
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
         public void Receive(NavigationMessage message)
