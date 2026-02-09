@@ -9,13 +9,20 @@ namespace Golem_Mining_Suite.Services
     /// </summary>
     public class TerminalParser
     {
-        // Common mineral names to look for
+        // Common commodity names to look for (minerals, gases, agricultural products)
         private static readonly string[] KNOWN_MINERALS = new[]
         {
+            // Refined minerals
             "Quantanium", "Bexalite", "Taranite", "Laranite", "Agricium",
             "Hephaestanite", "Beryl", "Gold", "Borase", "Tungsten",
             "Titanium", "Iron", "Quartz", "Copper", "Corundum", "Aluminum",
-            "Diamond", "Hadanite", "Dolivine", "Aphorite", "Janalite", "Beradom", "Feynmaline"
+            "Diamond", "Hadanite", "Dolivine", "Aphorite", "Janalite", "Beradom", "Feynmaline",
+            
+            // Agricultural/Organic
+            "Revenant Tree Pollen", "Maze", "Wheat", "Stims", "Medical Supplies",
+            
+            // Gases
+            "Hydrogen", "Quantanium Gas", "Pressurized Ice"
         };
 
         /// <summary>
@@ -68,18 +75,30 @@ namespace Golem_Mining_Suite.Services
 
         private int ExtractPrice(string text, string priceType)
         {
-            // Look for patterns like "Sell: 88,000" or "Buy: 85,000"
-            string pattern = priceType.Equals("sell", StringComparison.OrdinalIgnoreCase)
-                ? @"(?:sell|price)[\s:]+(\d{1,3}(?:,\d{3})*)"
-                : @"buy[\s:]+(\d{1,3}(?:,\d{3})*)";
-
-            var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-            if (match.Success)
+            // Star Citizen terminals show prices like:
+            // "£11.06200003K/SCU" or "r12.00900006K/SCU" or "OUT OF STOCK"
+            
+            // Look for price patterns with currency symbols and /SCU or K/SCU suffix
+            // Match patterns like: £11.06, r12.00, 88.50K/SCU, etc.
+            var pricePatterns = new[]
             {
-                string priceStr = match.Groups[1].Value.Replace(",", "");
-                if (int.TryParse(priceStr, out int price))
+                @"[£r€$]?\s*(\d+(?:\.\d+)?)\s*(?:K)?/SCU",  // £11.06/SCU or 88K/SCU
+                @"[£r€$]\s*(\d+(?:\.\d+)?)",                 // £11.06 or r12.00
+                @"(\d{1,3}(?:,\d{3})*)\s*(?:aUEC|UEC)",     // 88,000 aUEC
+                @"(?:sell|price)[\s:]+(\d{1,3}(?:,\d{3})*)" // Sell: 88,000 (fallback)
+            };
+
+            foreach (var pattern in pricePatterns)
+            {
+                var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
+                if (match.Success)
                 {
-                    return price;
+                    string priceStr = match.Groups[1].Value.Replace(",", "").Replace("K", "000");
+                    if (double.TryParse(priceStr, out double price))
+                    {
+                        // Convert to integer (aUEC)
+                        return (int)Math.Round(price);
+                    }
                 }
             }
 
