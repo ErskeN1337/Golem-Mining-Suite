@@ -60,10 +60,8 @@ jobs:
           ## Golem Mining Suite ${{ github.ref_name }}
           
           ### New Features & Improvements
-          - **Enhanced Dashboard**: Quick access to Prices, Calculator, and Refinery tools.
-          - **Header Clean-up**: Streamlined navigation and layout.
-          - **UI Polish**: Fixed text clarity in mining cards and improved dropdown styling.
-          - **Internal Refactoring**: Major codebase improvements for better performance and maintainability.
+          - **Navigation Menu**: Optimized navigation bar to hide the button for the currently active page.
+          - **Maintenance**: General stability improvements and version bump.
 
           Download the ZIP file below, extract it, and run `Golem Mining Suite.exe`.
           
