@@ -52,3 +52,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 *Built with ❤️ for the Star Citizen Community*
+
+
+![image alt].(https://github.com/ErskeN1337/Golem-Mining-Suite/blob/47661279c46602aef7fb3b715f76e93b34229077/Menu.png).
