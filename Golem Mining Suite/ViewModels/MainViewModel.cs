@@ -130,7 +130,13 @@ namespace Golem_Mining_Suite.ViewModels
             _priceService = priceService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText = "v1.0.0";
+            
+            // Initialize HaulingRoutesView to avoid null warning
+            _haulingRoutesView = new HaulingRoutesView();
 
             // Register popup request handler
             _liveDataCoordinator.LocationRequired += OnLocationRequired;
@@ -263,10 +269,6 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void OpenHaulingRoutes()
         {
-             if (_haulingRoutesView == null)
-             {
-                 _haulingRoutesView = new HaulingRoutesView();
-             }
              CurrentView = _haulingRoutesView;
         }
 

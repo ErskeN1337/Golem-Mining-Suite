@@ -43,7 +43,10 @@ namespace Golem_Mining_Suite.ViewModels
             _windowService = windowService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText = "v1.0.0";
 
             LoadData();
             Suggestions = new ObservableCollection<string>();

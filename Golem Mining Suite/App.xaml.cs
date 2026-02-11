@@ -21,6 +21,7 @@ namespace Golem_Mining_Suite
         {
             InitializeComponent();
             // Services initialized in OnStartup to ensure Resources are loaded
+            Services = new ServiceCollection().BuildServiceProvider(); // Default empty provider to satisfy non-nullable
         }
 
         private static IServiceProvider ConfigureServices()

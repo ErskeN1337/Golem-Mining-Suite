@@ -13,8 +13,8 @@ namespace Golem_Mining_Suite.ViewModels
 {
     public class AsteroidMineralGroup
     {
-        public string MineralName { get; set; }
-        public string OreTypesDisplay { get; set; }
+        public required string MineralName { get; set; }
+        public required string OreTypesDisplay { get; set; }
     }
 
     public partial class AsteroidMiningViewModel : ObservableObject
@@ -46,9 +46,13 @@ namespace Golem_Mining_Suite.ViewModels
             _windowService = windowService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText = "v1.0.0";
 
             Suggestions = new ObservableCollection<string>();
+            _allMiningData = new List<AsteroidMineralData>();
             LoadData();
         }
 

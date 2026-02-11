@@ -38,7 +38,13 @@ namespace Golem_Mining_Suite.ViewModels
             _windowService = windowService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText = "v1.0.0";
+
+            _allRockTypes = new List<string>();
+            RockTypes = new ObservableCollection<string>();
 
             LoadData();
             Suggestions = new ObservableCollection<string>();
@@ -119,9 +125,9 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [ObservableProperty]
-        private string _selectedSuggestion;
+        private string? _selectedSuggestion;
 
-        partial void OnSelectedSuggestionChanged(string value)
+        partial void OnSelectedSuggestionChanged(string? value)
         {
             if (value != null)
             {

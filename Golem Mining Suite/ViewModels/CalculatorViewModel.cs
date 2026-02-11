@@ -103,6 +103,10 @@ namespace Golem_Mining_Suite.ViewModels
 
             InitializeData();
 
+            // Ensure selections are not null
+            SelectedShip = Ships.FirstOrDefault() ?? "Prospector";
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Prices";
+
             // Initialize with 1 empty row
             AddMineralRow();
         }
@@ -111,7 +115,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             // Ships
             foreach (var ship in _shipCapacities.Keys.OrderBy(s => s)) Ships.Add(ship);
-            SelectedShip = Ships.FirstOrDefault();
+            SelectedShip = Ships.FirstOrDefault() ?? "Prospector";
 
             // Stations
             Stations.Add("Default Prices");
@@ -120,7 +124,7 @@ namespace Golem_Mining_Suite.ViewModels
             Stations.Add("Everus Harbor (Standard)");
             Stations.Add("Baijini Point (Standard)");
             Stations.Add("Seraphim Station (Standard)");
-            SelectedStation = Stations.FirstOrDefault();
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Prices";
 
             // Minerals
             Minerals.Add("None");

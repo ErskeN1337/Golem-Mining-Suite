@@ -81,6 +81,10 @@ namespace Golem_Mining_Suite.ViewModels
             _priceService = priceService;
 
             InitializeData();
+            
+            // Ensure selections are not null
+            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault() ?? "C2 Hercules";
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
 
             // Initialize 1 row
             AddCommodityRow();
@@ -90,7 +94,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             // Ships
             foreach (var ship in _shipCapacities.Keys.OrderBy(s => s)) Ships.Add(ship);
-            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault();
+            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault() ?? "C2 Hercules";
 
             // Load Commodities & Prices
             var prices = await _priceService.GetAllCommodityPricesAsync();
@@ -145,7 +149,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
             
             // Default station
-            SelectedStation = Stations.FirstOrDefault();
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
 
             // Populate Commodities List (All available commodities)
             foreach (var c in _commodityPrices.Keys.OrderBy(k => k))

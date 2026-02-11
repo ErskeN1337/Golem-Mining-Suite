@@ -48,7 +48,7 @@ namespace Golem_Mining_Suite.Data.AsteroidLocations
 					locations.Add(location);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				// Silently fail if CSV can't be loaded
 				return new List<AsteroidLocationData>();

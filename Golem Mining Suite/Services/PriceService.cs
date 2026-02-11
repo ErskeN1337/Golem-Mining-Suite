@@ -48,11 +48,12 @@ namespace Golem_Mining_Suite.Services
 
                         // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
                         string name = "";
-                        if (terminal.TryGetProperty("displayname", out var dnElement) && !string.IsNullOrWhiteSpace(dnElement.GetString()))
+                        if (terminal.TryGetProperty("displayname", out var dnElement))
                         {
-                            name = dnElement.GetString()!;
+                            name = dnElement.GetString() ?? "";
                         }
-                        else
+                        
+                        if (string.IsNullOrWhiteSpace(name))
                         {
                              name = terminal.GetProperty("name").GetString() ?? "";
                         }
@@ -98,8 +99,9 @@ namespace Golem_Mining_Suite.Services
                     foreach (var terminal in terminals.EnumerateArray())
                     {
                         int id = terminal.GetProperty("id").GetInt32();
-                        string starSystem = terminal.GetProperty("star_system_name").GetString();
-                        mapping[id] = starSystem;
+                        string? starSystem = terminal.GetProperty("star_system_name").GetString();
+                        if (starSystem != null)
+                            mapping[id] = starSystem;
                     }
                 }
             }
