@@ -148,7 +148,17 @@ namespace Golem_Mining_Suite.Services
                     {
                         var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
                         var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
-                        var priceSell = priceEntry.GetProperty("price_sell").GetInt32();
+                        
+                        // Price Sell = Terminal SELLS to us (Cost)
+                        // Price Buy = Terminal BUYS from us (Value)
+                        double priceSell = 0;
+                        double priceBuy = 0;
+
+                        if (priceEntry.TryGetProperty("price_sell", out var psVal)) 
+                            priceSell = psVal.ValueKind == JsonValueKind.Number ? psVal.GetDouble() : 0;
+                            
+                        if (priceEntry.TryGetProperty("price_buy", out var pbVal)) 
+                            priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
 
                         int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
                         string starSystem = _terminalToSystem.ContainsKey(terminalId) ? _terminalToSystem[terminalId] : "Unknown";
@@ -161,7 +171,8 @@ namespace Golem_Mining_Suite.Services
                         if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
                              scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
 
-                        if (priceSell <= 0)
+                        // Include if there is ANY activity (Buy OR Sell)
+                        if (priceSell <= 0 && priceBuy <= 0)
                             continue;
 
                         var displayName = MapCommodityName(commodityName);
@@ -180,11 +191,18 @@ namespace Golem_Mining_Suite.Services
                         }
                         else
                         {
+                            // Determine primary "Price" text based on context
+                            // For Market view, usually "Sell" (Cost) is primary, or show range?
+                            // Let's stick to "Sell" (Cost) for numeric sort if available, else "Buy"
+                            double primaryPrice = priceSell > 0 ? priceSell : priceBuy;
+
                             priceList.Add(new PriceData
                             {
                                 MineralName = displayName,
-                                Price = $"{priceSell:N0} aUEC",
-                                NumericPrice = priceSell,
+                                Price = $"{primaryPrice:N2} aUEC",
+                                NumericPrice = primaryPrice,
+                                UnitBuyPrice = priceBuy,
+                                UnitSellPrice = priceSell,
                                 BestLocation = terminalName,
                                 Demand = demand,
                                 StarSystem = starSystem,
@@ -199,7 +217,7 @@ namespace Golem_Mining_Suite.Services
                 {
                     if (onlyMinerals && !IsMineralName(live.MineralName)) continue;
 
-                    if (!priceList.Contains(live))
+                    if (!priceList.Any(p => p.MineralName == live.MineralName && p.BestLocation == live.BestLocation))
                     {
                         priceList.Add(live);
                     }

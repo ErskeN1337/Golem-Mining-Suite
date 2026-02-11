@@ -15,8 +15,9 @@ namespace Golem_Mining_Suite.ViewModels
         private readonly IWindowService _windowService;
         private readonly IPriceService _priceService;
         
-        // Cache of prices: CommodityName -> (StationName -> Price)
-        private Dictionary<string, Dictionary<string, double>> _commodityPrices = new Dictionary<string, Dictionary<string, double>>();
+        // Cache of prices: CommodityName -> (StationName -> PriceData)
+        // Storing PriceData instead of double to access both Buy/Sell prices
+        private Dictionary<string, Dictionary<string, PriceData>> _commodityPrices = new Dictionary<string, Dictionary<string, PriceData>>();
 
         // Initialization Data
         public ObservableCollection<string> Ships { get; } = new ObservableCollection<string>();
@@ -101,27 +102,25 @@ namespace Golem_Mining_Suite.ViewModels
 
             var allStations = new HashSet<string>();
 
-            // Organize data: Commodity -> Station -> Price
+            // Organize data: Commodity -> Station -> PriceData
             foreach (var p in prices)
             {
                 if (!string.IsNullOrEmpty(p.BestLocation))
                 {
                     if (!_commodityPrices.ContainsKey(p.MineralName))
-                        _commodityPrices[p.MineralName] = new Dictionary<string, double>();
+                        _commodityPrices[p.MineralName] = new Dictionary<string, PriceData>();
 
-                    // Check if we already have this station for this commodity (avoid dups if API returns multiple)
+                    // Avoid dups
                     if (!_commodityPrices[p.MineralName].ContainsKey(p.BestLocation))
                     {
-                        _commodityPrices[p.MineralName][p.BestLocation] = p.NumericPrice;
+                        _commodityPrices[p.MineralName][p.BestLocation] = p;
+                        allStations.Add(p.BestLocation);
                     }
                     else
                     {
-                        // Keep highest if duplicate?
-                        if (p.NumericPrice > _commodityPrices[p.MineralName][p.BestLocation])
-                             _commodityPrices[p.MineralName][p.BestLocation] = p.NumericPrice;
+                        // Already exists - maybe check if this one has better data?
+                        // For now we assume first is fine or API deduplicates
                     }
-
-                    allStations.Add(p.BestLocation);
                 }
             }
 
@@ -131,8 +130,7 @@ namespace Golem_Mining_Suite.ViewModels
                 Stations.Add(s);
             }
             
-            // Should we set a default station? Maybe the one with the most commodities?
-            // or just the first one alphabetically?
+            // Default station
             SelectedStation = Stations.FirstOrDefault();
 
             // Populate Commodities List (All available commodities)
@@ -204,16 +202,17 @@ namespace Golem_Mining_Suite.ViewModels
                     if (row.SelectedCommodity != "None" && _commodityPrices.ContainsKey(row.SelectedCommodity))
                     {
                         // Check if this station buys/sells this commodity
-                        var stationPrices = _commodityPrices[row.SelectedCommodity];
-                        if (stationPrices.ContainsKey(SelectedStation))
+                        var stationData = _commodityPrices[row.SelectedCommodity];
+                        if (stationData.ContainsKey(SelectedStation))
                         {
-                            double price = stationPrices[SelectedStation];
-                            totalValue += price * row.SCU;
-                        }
-                        else
-                        {
-                            // Station does not trade this commodity? Or we don't have data.
-                            // Value is 0 for this part.
+                            var priceData = stationData[SelectedStation];
+                            
+                            // Haul Value = How much the station PAYS (UnitBuyPrice)
+                            // Multiplier: 1 SCU = 100 Units
+                            // If UnitBuyPrice is 0 (Station doesn't buy), then value is 0.
+                            double unitPrice = priceData.UnitBuyPrice;
+                            
+                            totalValue += unitPrice * row.SCU * 100; 
                         }
                     }
                 }
