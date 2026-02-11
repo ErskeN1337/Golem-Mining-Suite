@@ -110,16 +110,30 @@ namespace Golem_Mining_Suite.ViewModels
                     if (!_commodityPrices.ContainsKey(p.MineralName))
                         _commodityPrices[p.MineralName] = new Dictionary<string, PriceData>();
 
-                    // Avoid dups
-                    if (!_commodityPrices[p.MineralName].ContainsKey(p.BestLocation))
+                    var stationDict = _commodityPrices[p.MineralName];
+
+                    if (!stationDict.ContainsKey(p.BestLocation))
                     {
-                        _commodityPrices[p.MineralName][p.BestLocation] = p;
+                        stationDict[p.BestLocation] = p;
                         allStations.Add(p.BestLocation);
                     }
                     else
                     {
-                        // Already exists - maybe check if this one has better data?
-                        // For now we assume first is fine or API deduplicates
+                        // META-FIX: Merge data if we have multiple entries for the same station name
+                        // (e.g. multiple terminals at same location, or API artifacts)
+                        // We want the BEST prices available to the user.
+                        var existing = stationDict[p.BestLocation];
+                        
+                        if (p.UnitBuyPrice > existing.UnitBuyPrice) 
+                            existing.UnitBuyPrice = p.UnitBuyPrice; // Found a terminal that pays more
+                            
+                        if (p.UnitSellPrice < existing.UnitSellPrice && p.UnitSellPrice > 0)
+                             existing.UnitSellPrice = p.UnitSellPrice; // Found a terminal that sells cheaper? (Actually we want max for availability usually, but min for cost)
+                        else if (existing.UnitSellPrice == 0 && p.UnitSellPrice > 0)
+                             existing.UnitSellPrice = p.UnitSellPrice;
+
+                        // Also update numeric price for sorting if needed
+                        existing.NumericPrice = Math.Max(existing.NumericPrice, p.NumericPrice);
                     }
                 }
             }
