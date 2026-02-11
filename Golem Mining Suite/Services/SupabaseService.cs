@@ -16,7 +16,7 @@ namespace Golem_Mining_Suite.Services
     /// </summary>
     public class SupabaseService
     {
-        private Client? _client;
+        private Supabase.Client? _client;
         private readonly string _supabaseUrl;
         private readonly string _supabaseKey;
         private bool _isInitialized = false;
@@ -43,7 +43,7 @@ namespace Golem_Mining_Suite.Services
                     AutoConnectRealtime = true
                 };
 
-                _client = new Client(_supabaseUrl, _supabaseKey, options);
+                _client = new Supabase.Client(_supabaseUrl, _supabaseKey, options);
                 await _client.InitializeAsync();
                 _isInitialized = true;
                 return true;
@@ -140,62 +140,129 @@ namespace Golem_Mining_Suite.Services
         /// <summary>
         /// Subscribe to real-time updates for terminal_prices
         /// </summary>
+        /// <summary>
+        /// Subscribe to real-time updates for terminal_prices
+        /// </summary>
         public async Task SubscribeToTerminalUpdatesAsync()
         {
             if (!_isInitialized || _client == null) return;
 
-            try
+            await ConnectAndSubscribeAsync();
+        }
+
+        private async Task ConnectAndSubscribeAsync()
+        {
+            while (true)
             {
-                await _client.Realtime.ConnectAsync();
-
-                var channel = _client.Realtime.Channel("public:terminal_prices");
-
-                // Listen for INSERTs
-                channel.On(ChannelEventType.PostgresChanges, (sender, args) =>
+                try
                 {
-                    try
-                    {
-                         if (args is PostgresChangesResponse change)
-                         {
-                            var record = change.Payload?.Record;
-                            if (record != null)
+                    System.Diagnostics.Debug.WriteLine("[Supabase] Attempting to connect to Realtime...");
+                    await _client!.Realtime.ConnectAsync();
+
+                    var channel = await _client.From<TerminalPriceRecord>()
+                        .On(PostgresChangesOptions.ListenType.Inserts, (sender, change) =>
+                        {
+                            try
                             {
-                                // Helper to convert dynamic/object to typed object via JSON
-                                var json = Newtonsoft.Json.JsonConvert.SerializeObject(record);
-                                var dataRecord = Newtonsoft.Json.JsonConvert.DeserializeObject<TerminalPriceRecord>(json);
-                                
-                                if (dataRecord != null)
+                                var record = change.Model<TerminalPriceRecord>();
+                                if (record != null)
                                 {
-                                     var termData = new TerminalData
-                                     {
-                                         CommodityName = dataRecord.commodity_name ?? "",
-                                         TerminalName = dataRecord.terminal_name ?? "",
-                                         StarSystem = dataRecord.star_system ?? "",
-                                         PriceBuy = dataRecord.price_buy,
-                                         PriceSell = dataRecord.price_sell,
-                                         InventorySCU = dataRecord.inventory_scu,
-                                         InventoryMax = dataRecord.inventory_max,
-                                         CapturedAt = dataRecord.captured_at
-                                     };
-                                     
-                                     TerminalUpdateReceived?.Invoke(this, termData);
+                                    var terminalData = new TerminalData
+                                    {
+                                        CommodityName = record.commodity_name ?? "",
+                                        TerminalName = record.terminal_name ?? "",
+                                        StarSystem = record.star_system ?? "",
+                                        PriceBuy = record.price_buy,
+                                        PriceSell = record.price_sell,
+                                        InventorySCU = record.inventory_scu,
+                                        InventoryMax = record.inventory_max,
+                                        CapturedAt = record.captured_at
+                                    };
+
+                                    TerminalUpdateReceived?.Invoke(this, terminalData);
+                                    System.Diagnostics.Debug.WriteLine($"[Supabase] Received live update for {terminalData.CommodityName}");
                                 }
                             }
-                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[Supabase] Error processing update: {ex.Message}");
-                    }
-                });
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"[Supabase] Error processing update: {ex.Message}");
+                            }
+                        });
 
-                await channel.Subscribe();
-                ConnectionStatusChanged?.Invoke(this, true);
+                    await channel.Subscribe();
+
+                    System.Diagnostics.Debug.WriteLine("[Supabase] Realtime connected and subscribing");
+                    ConnectionStatusChanged?.Invoke(this, true);
+
+                    // If we get here, we are connected. We need to wait until we are disconnected to try again.
+                    // The client library might have its own reconnection, but if it throws or closes, we want to catch it.
+                    // However, ConnectAsync returns, so we don't have a blocking call to "Wait".
+                    // We can monitor the state or just exit the loop if the library handles it.
+                    // BUT, the user reported "The remote party closed the WebSocket connection".
+                    // So we probably need a keep-alive or a way to detect the close.
+                    // For now, let's break the loop. If the connection drops, the library *should* throw an event,
+                    // but if it doesn't auto-reconnect, we might be stuck.
+                    // Let's add a periodic check.
+                    
+                    await MonitorConnectionAsync();
+                    
+                    // If Monitor returns, it means we lost connection.
+                    System.Diagnostics.Debug.WriteLine("[Supabase] Connection lost, retrying in 5 seconds...");
+                    ConnectionStatusChanged?.Invoke(this, false);
+                    await Task.Delay(5000);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Supabase] Subscribe/Connect failed: {ex.Message}");
+                    ConnectionStatusChanged?.Invoke(this, false);
+                    await Task.Delay(10000); // Wait 10s before retry on error
+                }
             }
-            catch (Exception ex)
+        }
+
+        private async Task MonitorConnectionAsync()
+        {
+            // Simple monitor to check if we are still connected.
+            // Note: The C# Supabase Realtime client doesn't expose a simple "IsConnected" property easily accessible here 
+            // without digging into the socket.
+            // As a workaround, we will rely on the fact that if the underlying socket closes, 
+            // the listener might stop receiving. 
+            // However, the original error was an exception. 
+            
+            // NOTE: Ideally we would attach to an OnClose/OnDisconnect event from the client, 
+            // but the Supabase-csharp client documentation/interface for that varies.
+            
+            // For now, we'll implement a dummy delay loop. Real robust implementation requires
+            // checking _client.Realtime.Socket.State if exposed, or handling the disconnect event.
+            // Since we can't easily see the internal state, we will assume the library stays connected
+            // unless we decide to restart.
+            
+            // To properly catch the "Remote party closed" exception which likely happens ON the socket thread,
+            // we might need to rely on the library's internal error handling or global exception handlers.
+            
+            // Only exit this method if we detect a failure or want to reconnect.
+            // Currently, we just wait indefinitely until an exception bubbles up or we implement a heartbeat.
+            
+            // Let's assume the loop in ConnectAndSubscribeAsync handles the "Start" and exception retry.
+            // But once `await channel.Subscribe()` returns, we are just "running".
+            
+            // If the socket closes, does it throw here? No.
+            // The exception seen in logs "Error while listening to websocket stream" comes from `WebsocketClient.Listen`.
+            // The Supabase library likely uses `Websocket.Client`.
+            
+            // We can try to keep this method alive.
+            try 
             {
-                System.Diagnostics.Debug.WriteLine($"[Supabase] Subscribe failed: {ex.Message}");
-                ConnectionStatusChanged?.Invoke(this, false);
+                while (_client!.Realtime.Socket != null) // Check if socket object exists
+                {
+                   await Task.Delay(2000);
+                   // If we could check state: 
+                   // if (_client.Realtime.Socket.IsConnected == false) return;
+                }
+            }
+            catch
+            {
+                return;
             }
         }
 

@@ -4,6 +4,8 @@ namespace Golem_Mining_Suite.Services.Interfaces
     {
         void ShowPricesWindow();
         void ShowCalculatorWindow();
+        void ShowHaulingPricesWindow();
+        void ShowHaulingCalculatorWindow();
         void ShowRefineryCalculatorWindow();
         void ShowLocationWindow(string name, bool isMineral, bool isAsteroid, bool isRoc);
     }

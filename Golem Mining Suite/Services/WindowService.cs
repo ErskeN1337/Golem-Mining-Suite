@@ -39,6 +39,22 @@ namespace Golem_Mining_Suite.Services
             PositionAndShow(window);
         }
 
+        public void ShowHaulingPricesWindow()
+        {
+            var window = new HaulingPricesWindow();
+            var vm = _serviceProvider.GetService<HaulingPricesViewModel>();
+            if (vm != null) window.DataContext = vm;
+            PositionAndShow(window);
+        }
+
+        public void ShowHaulingCalculatorWindow()
+        {
+            var window = new HaulingCalculatorWindow();
+            var vm = _serviceProvider.GetService<HaulingCalculatorViewModel>();
+            if (vm != null) window.DataContext = vm;
+            PositionAndShow(window);
+        }
+
         public void ShowLocationWindow(string name, bool isMineral, bool isAsteroid, bool isRoc)
         {
             // LocationWindow resolves its VM internally or we can do it here if we refactor it further

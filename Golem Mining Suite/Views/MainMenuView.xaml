@@ -10,9 +10,9 @@
 
     <UserControl.Resources>
         <Style x:Key="DashboardTile" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource SecondaryBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SecondaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Padding" Value="20"/>
@@ -32,7 +32,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#3D3528"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="border" Property="Effect">
                                     <Setter.Value>
                                         <DropShadowEffect Color="#FF8C42" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
@@ -40,7 +40,7 @@
                                 </Setter>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter Property="Foreground" Value="#1E1E1E"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -58,120 +58,247 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,40">
-            <TextBlock Text="Welcome to Golem Mining Suite" 
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,30">
+            <TextBlock Text="{Binding WelcomeText}" 
                        FontSize="28" 
                        FontWeight="Bold" 
-                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"/>
             <TextBlock Text="Select a module to begin operation" 
                        FontSize="16" 
-                       Foreground="{StaticResource TextSecondaryBrush}" 
+                       Foreground="{DynamicResource TextSecondaryBrush}" 
                        HorizontalAlignment="Center"
                        Margin="0,5,0,0"/>
+
+            <!-- Mode Switcher -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <Button Command="{Binding SwitchToMiningCommand}"
+                        Content="⛏️ Mining"
+                        Padding="15,8"
+                        Margin="0,0,20,0">
+                     <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMiningMode}" Value="True">
+                                    <Setter Property="Background" Value="#FF8C42"/>
+                                    <Setter Property="Foreground" Value="Black"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMiningMode}" Value="False">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                     </Button.Style>
+                </Button>
+
+                <Button Command="{Binding SwitchToHaulingCommand}"
+                        Content="📦 Hauling"
+                        Padding="15,8">
+                     <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsHaulingMode}" Value="True">
+                                    <Setter Property="Background" Value="#2980B9"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsHaulingMode}" Value="False">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                     </Button.Style>
+                </Button>
+            </StackPanel>
         </StackPanel>
 
-        <!-- Dashboard Tiles -->
-        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="1000">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- Scrollable Content Area -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- Mining Dashboard Tiles -->
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="1000" Visibility="{Binding IsMiningMode, Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <!-- Row 0: Mining Modes -->
-            <!-- Surface Mining -->
-            <Button Grid.Row="0" Grid.Column="0" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding NavigateCommand}" 
-                    CommandParameter="SurfaceMining"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="💎" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Surface Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Planetary deposits" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    <!-- Row 0: Mining Modes -->
+                    <!-- Surface Mining -->
+                    <Button Grid.Row="0" Grid.Column="0" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding NavigateCommand}" 
+                            CommandParameter="SurfaceMining"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="💎" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Surface Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Planetary deposits" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- Asteroid Mining -->
-            <Button Grid.Row="0" Grid.Column="1" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding NavigateCommand}" 
-                    CommandParameter="AsteroidMining"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="☄️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Asteroid Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Space belt deposits" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    <!-- Asteroid Mining -->
+                    <Button Grid.Row="0" Grid.Column="1" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding NavigateCommand}" 
+                            CommandParameter="AsteroidMining"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="☄️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Asteroid Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Space belt deposits" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- ROC Mining -->
-            <Button Grid.Row="0" Grid.Column="2" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding NavigateCommand}" 
-                    CommandParameter="ROCMining"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="🪨" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="ROC / FPS Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Gems and small nodes" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    <!-- ROC Mining -->
+                    <Button Grid.Row="0" Grid.Column="2" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding NavigateCommand}" 
+                            CommandParameter="ROCMining"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="🪨" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="ROC / FPS Mining" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Gems and small nodes" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- Row 1: Tools -->
-            <!-- Prices -->
-            <Button Grid.Row="1" Grid.Column="0" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding OpenPricesCommand}"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="💰" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Market Prices" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Live trading data" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    <!-- Row 1: Tools -->
+                    <!-- Prices -->
+                    <Button Grid.Row="1" Grid.Column="0" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenPricesCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="💰" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Market Prices" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Live trading data" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- Cargo Calculator -->
-            <Button Grid.Row="1" Grid.Column="1" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding OpenCalculatorCommand}"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="🧮" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Cargo Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Estimate cargo value" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
+                    <!-- Cargo Calculator -->
+                    <Button Grid.Row="1" Grid.Column="1" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenCalculatorCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="🧮" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Cargo Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Estimate cargo value" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
 
-            <!-- Refinery Calculator -->
-            <Button Grid.Row="1" Grid.Column="2" 
-                    Style="{StaticResource DashboardTile}" 
-                    Command="{Binding OpenRefineryCalculatorCommand}"
-                    Height="150"
-                    Margin="10">
-                <StackPanel>
-                    <TextBlock Text="🏭" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="Refinery Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Calculate yields &amp; costs" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Button>
-        </Grid>
+                    <!-- Refinery Calculator -->
+                    <Button Grid.Row="1" Grid.Column="2" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenRefineryCalculatorCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="🏭" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Refinery Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Calculate yields &amp; costs" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- Hauling Dashboard Tiles -->
+                <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="1000" Visibility="{Binding IsHaulingMode, Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Market Prices -->
+                    <Button Grid.Column="0" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenHaulingPricesCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="💰" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Market Prices" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Commodity prices" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Cargo Calculator -->
+                    <Button Grid.Column="1" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenHaulingCalculatorCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="🧮" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Cargo Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Estimate payload value" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Hauling Routes -->
+                    <Button Grid.Column="2" 
+                            Style="{DynamicResource DashboardTile}" 
+                            Command="{Binding OpenHaulingRoutesCommand}"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="🛣️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Hauling Routes" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Plan your route" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
 
         <!-- Footer -->
         <Grid Grid.Row="2" Margin="0,20,0,0">
             <TextBlock Name="VersionText"
                        Text="{Binding VersionText}"
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        FontSize="12"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Bottom"/>

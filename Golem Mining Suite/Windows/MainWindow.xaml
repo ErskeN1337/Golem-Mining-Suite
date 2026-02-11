@@ -7,16 +7,16 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="Golem Mining Suite" 
-        Height="700" 
-        Width="1100"
-        Background="{StaticResource PrimaryBackgroundBrush}"
+        Height="800" 
+        Width="1200"
+        Background="{DynamicResource PrimaryBackgroundBrush}"
         ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <Style x:Key="NavButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -31,12 +31,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Foreground" Value="#1E1E1E"/>
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,9 +51,14 @@
             <RowDefinition Height="*"/>  <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!-- Header Bar -->
-        <Border Grid.Row="0" Background="{StaticResource SecondaryBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid>
+        <!-- Main Content Area -->
+        <Border Grid.Row="1" Margin="20" Panel.ZIndex="1" Background="{DynamicResource SecondaryBackgroundBrush}" CornerRadius="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+            <ContentControl Content="{Binding CurrentView}" Margin="10"/>
+        </Border>
+
+        <!-- Header Bar (Moved to bottom to ensure Z-Order Top) -->
+        <Border Grid.Row="0" Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Panel.ZIndex="1000" ClipToBounds="False">
+            <Grid ClipToBounds="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/> <!-- Logo -->
                     <ColumnDefinition Width="*"/>    <!-- Navigation -->
@@ -61,16 +66,16 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Logo Area -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
-                    <Image Source="/Assets/Images/GolemMiningSuite_Logo.png" Height="40" Margin="0,0,15,0"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,30,-50" ClipToBounds="False">
+                    <Image Source="{Binding LogoSource}" Height="{Binding LogoHeight}" Stretch="Uniform" Margin="{Binding LogoMargin}" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <!-- Main Navigation -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Button Content="HOME" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="MainMenu" Visibility="{Binding HomeButtonVisibility}"/>
-                    <Button Content="SURFACE" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="SurfaceMining" Visibility="{Binding SurfaceButtonVisibility}"/>
-                    <Button Content="ASTEROID" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="AsteroidMining" Visibility="{Binding AsteroidButtonVisibility}"/>
-                    <Button Content="ROC" Style="{StaticResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining" Visibility="{Binding ROCButtonVisibility}"/>
+                    <Button Content="HOME" Style="{DynamicResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="MainMenu" Visibility="{Binding HomeButtonVisibility}"/>
+                    <Button Content="SURFACE" Style="{DynamicResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="SurfaceMining" Visibility="{Binding SurfaceButtonVisibility}"/>
+                    <Button Content="ASTEROID" Style="{DynamicResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="AsteroidMining" Visibility="{Binding AsteroidButtonVisibility}"/>
+                    <Button Content="ROC" Style="{DynamicResource NavButton}" Command="{Binding NavigateCommand}" CommandParameter="ROCMining" Visibility="{Binding ROCButtonVisibility}"/>
                 </StackPanel>
 
                  <!-- Right Side - Settings & Bug Report -->
@@ -78,20 +83,57 @@
                     <Button Content="⚙️ Settings" 
                             Command="{Binding NavigateCommand}"
                             CommandParameter="Settings"
-                            Style="{StaticResource NavButton}"
+                            Style="{DynamicResource NavButton}"
                             Margin="0,0,10,0"/>
                     <Button Content="Report a Bug 🐛" 
                             Command="{Binding OpenBugReportCommand}"
-                            Style="{StaticResource NavButton}"
-                            Foreground="{StaticResource AccentBrush}"
+                            Style="{DynamicResource NavButton}"
+                            Foreground="{DynamicResource AccentBrush}"
                             FontWeight="Bold"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Main Content Area -->
-        <Border Grid.Row="1" Margin="20" Background="{StaticResource SecondaryBackgroundBrush}" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-            <ContentControl Content="{Binding CurrentView}" Margin="10"/>
-        </Border>
+        <!-- Location Prompt Overlay -->
+        <Grid Grid.RowSpan="2" Background="#AA000000" Visibility="{Binding IsLocationPromptVisible, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}" Panel.ZIndex="1000">
+            <Border Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="8" Width="400" Height="250" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="📍 Location Detected!" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="1" Text="We found commodity data, but we don't know where you are. Please select your current terminal:" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,20"/>
+
+                    <ComboBox Grid.Row="2" 
+                              ItemsSource="{Binding LocationPromptTerminals}" 
+                              SelectedItem="{Binding SelectedLocationPromptTerminal}"
+                              DisplayMemberPath="DisplayName"
+                              Height="40"
+                              VerticalContentAlignment="Center"
+                              Margin="0,0,0,20"/>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Confirm" Command="{Binding ConfirmLocationCommand}" Width="100" Height="35" Background="{DynamicResource AccentBrush}" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button Content="Ignore" Command="{Binding CancelLocationCommand}" Width="100" Height="35" Background="Transparent" Foreground="{DynamicResource TextSecondaryBrush}" BorderBrush="{DynamicResource TextSecondaryBrush}" BorderThickness="1" Cursor="Hand">
+                             <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

@@ -22,7 +22,12 @@ namespace Golem_Mining_Suite.Services
             "Cobalt", "Atlasium", "Dymantium", "Riccite",
             
             // Gases
-            "Hydrogen", "Nitrogen", "Methane", "Quantanium Gas", "Pressurized Ice"
+            "Hydrogen", "Nitrogen", "Methane", "Quantanium Gas", "Pressurized Ice",
+            
+            // Grim Hex / Illegal Goods
+            "Widow", "Slam", "E'tam", "Neon", "Altruciatoxin", 
+            "Distilled Spirits", "Stims", "Medical Supplies", "Waste", "Scrap",
+            "WiDoW", "Etam", "Maze" // Common OCR misreads or alt spellings
         };
 
         /// <summary>
@@ -71,16 +76,9 @@ namespace Golem_Mining_Suite.Services
             data.TerminalName = ExtractTerminalName(ocrText);
             try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Terminal: {data.TerminalName}\n"); } catch { }
 
-            // Validate before returning
-            bool isValid = data.IsValid();
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] IsValid: {isValid}\n"); } catch { }
-            
-            if (!isValid)
-            {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Validation failed - Commodity: '{data.CommodityName}', Terminal: '{data.TerminalName}', PriceSell: {data.PriceSell}, PriceBuy: {data.PriceBuy}, Inv: {data.InventorySCU}/{data.InventoryMax}\n"); } catch { }
-            }
-            
-            return isValid ? data : null;
+            // Validation is now handled in LiveDataCoordinator after manual overrides are applied
+             // But we still return null if no base commodity was found
+            return data;
         }
 
         private string ExtractCommodityContext(string text, string commodityName)
@@ -154,7 +152,8 @@ namespace Golem_Mining_Suite.Services
                 if (match.Success)
                 {
                     string priceStr = match.Groups[1].Value.Replace(",", "");
-                    if (double.TryParse(priceStr, out double price))
+                    // Use InvariantCulture to handle '.' as decimal separator correctly regardless of system locale
+                    if (double.TryParse(priceStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double price))
                     {
                         // If the pattern includes K, multiply by 1000
                         if (match.Value.Contains("K/", StringComparison.OrdinalIgnoreCase) || 

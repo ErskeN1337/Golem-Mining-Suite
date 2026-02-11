@@ -27,21 +27,20 @@ namespace Golem_Mining_Suite.Models
         /// <summary>
         /// Validate that the data is reasonable
         /// </summary>
-        public bool IsValid()
+        public bool IsValid(bool ignoreTerminalName = false)
         {
             // Basic validation
             if (string.IsNullOrEmpty(CommodityName)) return false;
-            if (string.IsNullOrEmpty(TerminalName)) return false;
+            
+            // Allow ignoring terminal name check for the "Prompt User" phase
+            if (!ignoreTerminalName && (string.IsNullOrEmpty(TerminalName) || TerminalName == "Unknown Terminal")) return false;
             
             // Allow PriceSell to be 0 (OUT OF STOCK), but must have at least one price
             if (PriceSell == 0 && PriceBuy == 0) return false;
-            if (PriceSell < 0 || PriceSell > 1000000) return false;
-            if (PriceBuy < 0 || PriceBuy > 1000000) return false;
             
-            // Allow uploads even if Max Inventory wasn't found (it's often outside capture area)
-            if (InventorySCU < 0) return false;
-            if (InventoryMax > 0 && InventorySCU > InventoryMax) return false;
-            
+            // Inventory validation (optional, but good to have sane values)
+            if (InventorySCU < 0 || InventoryMax < 0) return false;
+
             return true;
         }
     }

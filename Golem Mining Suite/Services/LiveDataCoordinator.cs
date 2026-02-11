@@ -22,12 +22,15 @@ namespace Golem_Mining_Suite.Services
         private Task? _monitoringTask;
         private bool _isEnabled = false;
         private DateTime _lastCapture = DateTime.MinValue;
+        private string _manualTerminalName = "";
+        private string _manualStarSystem = "";
         
         private const int CAPTURE_INTERVAL_SECONDS = 30; // Rate limit: 1 capture per 30 seconds
         private const int MONITORING_INTERVAL_MS = 5000; // Check every 5 seconds
 
         public event EventHandler<TerminalData>? TerminalDataCaptured;
         public event EventHandler<string>? ErrorOccurred;
+        public event EventHandler? LocationRequired;
 
         public bool IsEnabled => _isEnabled;
         public bool IsGameRunning => _gameDetection.IsStarCitizenRunning();
@@ -103,6 +106,13 @@ namespace Golem_Mining_Suite.Services
             return true;
         }
 
+        public void SetManualLocation(string terminalName, string starSystem)
+        {
+            _manualTerminalName = terminalName;
+            _manualStarSystem = starSystem;
+            LogDebug($"Manual location set to: {terminalName} ({starSystem})");
+        }
+
         /// <summary>
         /// Stop monitoring
         /// </summary>
@@ -131,6 +141,24 @@ namespace Golem_Mining_Suite.Services
                         // Check if game is running
                         if (!_gameDetection.IsStarCitizenRunning())
                         {
+                            // Only log transition to avoid spam
+                            LogDebug("Game not running. Monitoring game status...");
+                            await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
+                            continue;
+                        }
+
+                        if (!_gameDetection.IsGameWindowVisible())
+                        {
+                            LogDebug("Game running but window not visible. Monitoring visibility...");
+                            // Game running but not visible (rendering paused?)
+                            await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
+                            continue;
+                        }
+
+                        // Ensure game is in foreground to avoid capturing the App itself or other windows
+                        if (!_gameDetection.IsGameForeground())
+                        {
+                            // LogDebug("Game in background. Waiting for user to switch to game...");
                             await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
                             continue;
                         }
@@ -139,39 +167,50 @@ namespace Golem_Mining_Suite.Services
                         var timeSinceLastCapture = DateTime.Now - _lastCapture;
                         if (timeSinceLastCapture.TotalSeconds < CAPTURE_INTERVAL_SECONDS)
                         {
+                            LogDebug($"Rate limited. Next capture in {CAPTURE_INTERVAL_SECONDS - (int)timeSinceLastCapture.TotalSeconds}s.");
                             await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
                             continue;
                         }
+                        
+                        // If we get here, we are capturing!
+                        LogDebug("Attempting capture (Game Running & Visible)...");
 
                         // Attempt to capture terminal data
                         var terminalData = CaptureTerminalData();
-                        if (terminalData != null && terminalData.IsValid())
+                        if (terminalData != null)
                         {
-                            _lastCapture = DateTime.Now;
-                            TerminalDataCaptured?.Invoke(this, terminalData);
-                            
-                            // Upload to Supabase if available
-                            if (_supabaseService != null)
+                            if (terminalData.IsValid())
                             {
-                                _ = Task.Run(async () =>
+                                _lastCapture = DateTime.Now;
+                                TerminalDataCaptured?.Invoke(this, terminalData);
+                                
+                                // Upload to Supabase if available
+                                if (_supabaseService != null)
                                 {
-                                    try
+                                    _ = Task.Run(async () =>
                                     {
-                                        var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
-                                        if (uploaded)
+                                        try
                                         {
-                                            LogDebugCritical($"✅ Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName} - Price: {terminalData.PriceSell} aUEC");
+                                            var uploaded = await _supabaseService.UploadTerminalDataAsync(terminalData);
+                                            if (uploaded)
+                                            {
+                                                LogDebugCritical($"✅ Uploaded: {terminalData.CommodityName} at {terminalData.TerminalName} - Price: {terminalData.PriceSell} aUEC");
+                                            }
+                                            else
+                                            {
+                                                LogDebugCritical($"❌ Upload failed for {terminalData.CommodityName} (Terminal: {terminalData.TerminalName}, Price: {terminalData.PriceSell})");
+                                            }
                                         }
-                                        else
+                                        catch (Exception ex)
                                         {
-                                            LogDebugCritical($"❌ Upload failed for {terminalData.CommodityName} (Terminal: {terminalData.TerminalName}, Price: {terminalData.PriceSell})");
+                                            LogDebugCritical($"❌ Upload exception for {terminalData.CommodityName}: {ex.Message}");
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogDebugCritical($"❌ Upload exception for {terminalData.CommodityName}: {ex.Message}");
-                                    }
-                                });
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                LogDebug($"❌ Data validation failed - Commodity: {terminalData.CommodityName}, Terminal: {terminalData.TerminalName}, Prices: {terminalData.PriceSell}/{terminalData.PriceBuy}");
                             }
                         }
                     }
@@ -252,6 +291,25 @@ namespace Golem_Mining_Suite.Services
                 }
                 else
                 {
+                    // Apply manual location override if available
+                    if (!string.IsNullOrEmpty(_manualTerminalName))
+                    {
+                        parsedData.TerminalName = _manualTerminalName;
+                    }
+                    if (!string.IsNullOrEmpty(_manualStarSystem))
+                    {
+                        parsedData.StarSystem = _manualStarSystem;
+                    }
+
+                    // If terminal is still unknown, request manual input
+                    if (parsedData.TerminalName == "Unknown Terminal" && parsedData.IsValid(ignoreTerminalName: true))
+                    {
+                         // Basic validity check passed (has commodity), but no terminal.
+                         // Fire event to prompt user.
+                         LogDebugCritical("⚠️ Unknown Terminal detected with valid data. Requesting user input...");
+                         LocationRequired?.Invoke(this, EventArgs.Empty);
+                    }
+
                     LogDebugCritical($"Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
                 }
                 

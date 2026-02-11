@@ -1,4 +1,4 @@
-﻿<Window x:Class="Golem_Mining_Suite.LocationWindow"
+<Window x:Class="Golem_Mining_Suite.LocationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,16 +8,16 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:LocationViewModel}"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="700" Width="1100"
-        Background="{StaticResource PrimaryBackgroundBrush}"
+        Background="{DynamicResource PrimaryBackgroundBrush}"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize">
 
     <Window.Resources>
         <!-- Filter Button Style -->
         <Style x:Key="FilterButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="15,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -34,12 +34,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource SecondaryBackgroundBrush}"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource SecondaryBackgroundBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter Property="Foreground" Value="#1E1E1E"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -65,13 +65,13 @@
         <TextBlock x:Name="WindowTitle" Grid.Row="0" 
            Text="{Binding Title}"
            FontSize="24" FontWeight="Bold" 
-           Foreground="{StaticResource AccentBrush}" 
+           Foreground="{DynamicResource AccentBrush}" 
            Margin="20,20,20,10"
            HorizontalAlignment="Left"/>
 
         <!-- Filter Panel -->
-        <Border Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}" 
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1"
+        <Border Grid.Row="1" Background="{DynamicResource SecondaryBackgroundBrush}" 
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1"
                 Padding="20,15">
             <Grid>
                 <Grid.RowDefinitions>
@@ -86,7 +86,7 @@
 
                 <!-- System Filter (Row 0) -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="System:" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="System:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
                     
                     <Button Content="All" Width="100" Height="35" Margin="5,0"
@@ -95,8 +95,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedSystem}" Value="All">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -110,8 +110,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedSystem}" Value="Stanton">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -125,8 +125,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedSystem}" Value="Pyro">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -139,7 +139,7 @@
                 <StackPanel x:Name="LocationTypePanel" Grid.Row="2" 
                             Orientation="Horizontal" HorizontalAlignment="Center" 
                             Visibility="{Binding IsAsteroidMode, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Type:" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="Type:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
 
                     <Button Content="All" Width="120" Height="35" Margin="5,0"
@@ -148,8 +148,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedLocationType}" Value="All">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -163,8 +163,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedLocationType}" Value="MiningBase">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -178,8 +178,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedLocationType}" Value="Lagrange">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -193,8 +193,8 @@
                             <Style TargetType="Button" BasedOn="{StaticResource FilterButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedLocationType}" Value="Belt">
-                                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter Property="Foreground" Value="#1E1E1E"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -207,7 +207,7 @@
                 <StackPanel x:Name="OreTypePanel" Grid.Row="4" 
                             Orientation="Horizontal" HorizontalAlignment="Center" 
                             Visibility="{Binding IsAsteroidMode, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Ore Type:" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="Ore Type:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="OreTypeComboBox" Width="150" Height="35"
                               ItemsSource="{Binding OreTypes}"
@@ -227,7 +227,7 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="Planet:" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="Planet:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="PlanetComboBox" Width="200" Height="35"
                               ItemsSource="{Binding Planets}"
@@ -245,7 +245,7 @@
                     <!-- Search Box -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" 
                                 HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock Text="Search:" Foreground="{StaticResource TextSecondaryBrush}" 
+                        <TextBlock Text="Search:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox x:Name="LocationSearchBox" Width="200" Height="35"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
@@ -255,22 +255,22 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" 
             HorizontalAlignment="Right" VerticalAlignment="Center" 
             Margin="10,0">
-                        <TextBlock Text="Min Deposit:" Foreground="{StaticResource TextSecondaryBrush}" 
+                        <TextBlock Text="Min Deposit:" Foreground="{DynamicResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox x:Name="MinDepositBox" Width="60" Height="35" 
               Text="{Binding MinDepositPercentText, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="%" Foreground="{StaticResource TextSecondaryBrush}" 
+                        <TextBlock Text="%" Foreground="{DynamicResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
 
                     <!-- Min Mineral % -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" 
             HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="Min Mineral:" Foreground="{StaticResource TextSecondaryBrush}" 
+                        <TextBlock Text="Min Mineral:" Foreground="{DynamicResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox x:Name="MinMineralBox" Width="50" Height="35" 
               Text="{Binding MinMineralPercentText, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="%" Foreground="{StaticResource TextSecondaryBrush}" 
+                        <TextBlock Text="%" Foreground="{DynamicResource TextSecondaryBrush}" 
                VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Grid>
@@ -281,12 +281,12 @@
         <DataGrid x:Name="LocationsGrid" Grid.Row="2"
                   ItemsSource="{Binding Locations}"
                   AutoGenerateColumns="False"
-                  Background="{StaticResource SecondaryBackgroundBrush}"
-                  Foreground="{StaticResource TextPrimaryBrush}"
-                  BorderBrush="{StaticResource BorderBrush}"
+                  Background="{DynamicResource SecondaryBackgroundBrush}"
+                  Foreground="{DynamicResource TextPrimaryBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}"
                   GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="#333333"
-                  RowBackground="{StaticResource SecondaryBackgroundBrush}"
+                  RowBackground="{DynamicResource SecondaryBackgroundBrush}"
                   AlternatingRowBackground="#252525"
                   HeadersVisibility="Column"
                   IsReadOnly="True"
@@ -296,11 +296,11 @@
 
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="FontWeight" Value="Bold"/>
                     <Setter Property="Padding" Value="10,8"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                     <Setter Property="BorderThickness" Value="0,0,1,1"/>
                     <Setter Property="HorizontalContentAlignment" Value="Left"/>
                 </Style>
@@ -322,7 +322,7 @@
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="#3D3528"/>
-                            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -340,7 +340,7 @@
                                      CommandParameter="{Binding}"
                                      Background="Transparent"
                                      BorderThickness="0"
-                                     Foreground="{StaticResource AccentBrush}"
+                                     Foreground="{DynamicResource AccentBrush}"
                                      Cursor="Hand"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -354,8 +354,8 @@
                Placement="Center"
                PlacementTarget="{Binding ElementName=LocationsGrid}"
                StaysOpen="False">
-            <Border Background="{StaticResource SecondaryBackgroundBrush}" 
-                    BorderBrush="{StaticResource AccentBrush}" 
+            <Border Background="{DynamicResource SecondaryBackgroundBrush}" 
+                    BorderBrush="{DynamicResource AccentBrush}" 
                     BorderThickness="2" 
                     CornerRadius="4"
                     Padding="15">
@@ -364,9 +364,9 @@
                          <TextBlock Text="{Binding PopupTitle}" 
                                 FontSize="16" 
                                 FontWeight="Bold" 
-                                Foreground="{StaticResource AccentBrush}"/>
-                         <Button Content="✖" HorizontalAlignment="Right" 
-                                 Foreground="{StaticResource TextSecondaryBrush}" Background="Transparent" BorderThickness="0"
+                                Foreground="{DynamicResource AccentBrush}"/>
+                         <Button Content="?" HorizontalAlignment="Right" 
+                                 Foreground="{DynamicResource TextSecondaryBrush}" Background="Transparent" BorderThickness="0"
                                  Command="{Binding CloseSignatureCommand}"/>
                     </Grid>
                    
@@ -375,10 +375,10 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,2">
                                     <TextBlock Text="{Binding Size}" 
-                                               Foreground="{StaticResource TextSecondaryBrush}" 
+                                               Foreground="{DynamicResource TextSecondaryBrush}" 
                                                Width="80"/>
                                     <TextBlock Text="{Binding Percentage}" 
-                                               Foreground="{StaticResource AccentBrush}" 
+                                               Foreground="{DynamicResource AccentBrush}" 
                                                FontWeight="Bold"/>
                                 </StackPanel>
                             </DataTemplate>

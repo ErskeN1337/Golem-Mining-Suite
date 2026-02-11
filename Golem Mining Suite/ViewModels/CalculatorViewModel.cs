@@ -101,13 +101,10 @@ namespace Golem_Mining_Suite.ViewModels
 
             InitializeData();
 
-            // Initialize 5 rows
-            for (int i = 0; i < 5; i++)
-            {
-                var row = new MineralRowViewModel(this);
-                row.PropertyChanged += Row_PropertyChanged;
-                MineralRows.Add(row);
-            }
+            InitializeData();
+
+            // Initialize with 1 empty row
+            AddMineralRow();
         }
 
         private void InitializeData()
@@ -128,6 +125,34 @@ namespace Golem_Mining_Suite.ViewModels
             // Minerals
             Minerals.Add("None");
             foreach (var m in _basePrices.Keys.OrderBy(m => m)) Minerals.Add(m);
+        }
+
+        [ObservableProperty]
+        private bool _canAddRow = true;
+
+        [RelayCommand]
+        private void AddMineralRow()
+        {
+            if (MineralRows.Count >= 10) return;
+
+            var row = new MineralRowViewModel(this);
+            row.PropertyChanged += Row_PropertyChanged;
+            MineralRows.Add(row);
+            UpdateCanAdd();
+            CalculateTotals();
+        }
+
+        [RelayCommand]
+        private void RemoveMineralRow(MineralRowViewModel row)
+        {
+             MineralRows.Remove(row);
+             UpdateCanAdd();
+             CalculateTotals();
+        }
+
+        private void UpdateCanAdd()
+        {
+            CanAddRow = MineralRows.Count < 10;
         }
 
         partial void OnSelectedShipChanged(string value) => CalculateTotals();
@@ -223,10 +248,16 @@ namespace Golem_Mining_Suite.ViewModels
         partial void OnScuTextChanged(string value) => _parent.CalculateTotals();
 
         [RelayCommand]
-        private void Clear()
+        private void Clear() // Still useful to clear inputs
         {
             SelectedMineral = "None";
             ScuText = "0";
+        }
+
+        [RelayCommand]
+        private void Remove()
+        {
+            _parent.RemoveMineralRowCommand.Execute(this);
         }
     }
 }

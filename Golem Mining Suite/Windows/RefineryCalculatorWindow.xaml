@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:RefineryViewModel}"
         Title="Refinery Calculator" Height="750" Width="650"
-        Background="{StaticResource PrimaryBackgroundBrush}"
+        Background="{DynamicResource PrimaryBackgroundBrush}"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize">
 
@@ -31,11 +31,11 @@
         <!-- Header -->
         <TextBlock Grid.Row="0" Text="Refinery Calculator" 
                    FontSize="24" FontWeight="Bold" 
-                   Foreground="{StaticResource AccentBrush}" 
+                   Foreground="{DynamicResource AccentBrush}" 
                    Margin="0,0,0,20"/>
 
         <!-- Refinery Selection -->
-        <Border Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" 
+        <Border Grid.Row="1" Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" 
                 BorderThickness="1" CornerRadius="4" Padding="15" Margin="0,0,0,15">
             <Grid>
                 <Grid.RowDefinitions>
@@ -51,7 +51,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Text="Refinery Location:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Grid.Column="0" Text="Refinery Location:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <ComboBox x:Name="RefineryComboBox" Grid.Column="2"
                               ItemsSource="{Binding Refineries}"
                               SelectedItem="{Binding SelectedRefinery}"/>
@@ -64,7 +64,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" Text="Refinery Method:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Grid.Column="0" Text="Refinery Method:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <ComboBox x:Name="MethodComboBox" Grid.Column="2"
                               ItemsSource="{Binding Methods}"
                               SelectedItem="{Binding SelectedMethod}"/>
@@ -75,7 +75,7 @@
         <!-- Status Text -->
         <TextBlock x:Name="StatusText" Grid.Row="2"
                    Text="{Binding StatusText}"
-                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
                    Margin="0,0,0,15"/>
 
         <!-- Mineral Input Grid (Dynamic) -->
@@ -83,7 +83,7 @@
              <ItemsControl ItemsSource="{Binding MineralRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{StaticResource SecondaryBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" 
+                        <Border Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" 
                                 BorderThickness="1" CornerRadius="4" Padding="15" Margin="0,0,0,10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -99,12 +99,12 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Mineral:" Margin="0,0,0,5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Mineral:" Margin="0,0,0,5" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <ComboBox Grid.Row="2" Grid.Column="0"
                                           ItemsSource="{Binding Minerals}"
                                           SelectedItem="{Binding SelectedMineral}"/>
                                 
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="SCU Amount:" Margin="0,0,0,5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="SCU Amount:" Margin="0,0,0,5" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBox Grid.Row="2" Grid.Column="2"
                                          Text="{Binding ScuText, UpdateSourceTrigger=PropertyChanged}"/>
                                 
@@ -131,33 +131,33 @@
                 Width="200"/>
 
         <!-- Summary Panel -->
-        <Border Grid.Row="5" Background="{StaticResource SecondaryBackgroundBrush}" BorderBrush="{StaticResource AccentBrush}" 
+        <Border Grid.Row="5" Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" 
                 BorderThickness="1" CornerRadius="6" Padding="20">
             <StackPanel>
                 <Grid Margin="0,0,0,8">
-                    <TextBlock Text="Total Raw Value:" Foreground="{StaticResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding RawValueText}" HorizontalAlignment="Right" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Total Raw Value:" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding RawValueText}" HorizontalAlignment="Right" Foreground="{DynamicResource TextPrimaryBrush}"/>
                 </Grid>
                 
                 <Grid Margin="0,0,0,8">
-                     <TextBlock Text="Estimated Cost:" Foreground="{StaticResource TextSecondaryBrush}"/>
+                     <TextBlock Text="Estimated Cost:" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding RefineryCostText}" HorizontalAlignment="Right" Foreground="#F44336"/>
                 </Grid>
                 
                 <Grid Margin="0,0,0,8">
-                     <TextBlock Text="Yield Bonus:" Foreground="{StaticResource TextSecondaryBrush}"/>
+                     <TextBlock Text="Yield Bonus:" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding YieldBonusText}" HorizontalAlignment="Right" Foreground="#4CAF50"/>
                 </Grid>
                 
-                <Separator Background="{StaticResource BorderBrush}" Margin="0,5,0,10"/>
+                <Separator Background="{DynamicResource BorderBrush}" Margin="0,5,0,10"/>
                 
                 <Grid Margin="0,0,0,10">
-                     <TextBlock Text="Refined Value:" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                     <TextBlock Text="Refined Value:" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding RefinedValueText}" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#FFC107"/>
                 </Grid>
                 
                 <Grid>
-                     <TextBlock Text="Net Profit:" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                     <TextBlock Text="Net Profit:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding NetProfitText}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#4CAF50"/>
                 </Grid>
             </StackPanel>

@@ -2,16 +2,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Golem_Mining_Suite.Services;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Golem_Mining_Suite.Services;
-
 namespace Golem_Mining_Suite.ViewModels
 {
-    public partial class PricesViewModel : ObservableObject
+    public partial class HaulingPricesViewModel : ObservableObject
     {
         private readonly IPriceService _priceService;
         private List<PriceData> _allPrices;
@@ -20,13 +19,13 @@ namespace Golem_Mining_Suite.ViewModels
         private ObservableCollection<PriceData> _prices;
 
         [ObservableProperty]
-        private ObservableCollection<string> _minerals;
+        private ObservableCollection<string> _commodities; // Renamed from Minerals
 
         [ObservableProperty]
         private string _selectedSystem = "All";
 
         [ObservableProperty]
-        private string _selectedMineral = "All Minerals";
+        private string _selectedCommodity = "All Commodities"; // Renamed
 
         [ObservableProperty]
         private string _statusText = "Loading...";
@@ -34,16 +33,16 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private bool _isLiveConnected;
 
-        public PricesViewModel(IPriceService priceService)
+        public HaulingPricesViewModel(IPriceService priceService)
         {
             _priceService = priceService;
             Prices = new ObservableCollection<PriceData>();
-            Minerals = new ObservableCollection<string>();
+            Commodities = new ObservableCollection<string>();
             
-            // Subscribe to live events
+            // Subscribe to live events (casting if needed, similar to PricesViewModel)
             if (_priceService is PriceService ps)
             {
-                 IsLiveConnected = ps.IsLiveConnected; // Init
+                 IsLiveConnected = ps.IsLiveConnected;
                  
                  ps.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() => 
                  {
@@ -63,34 +62,35 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private async Task LoadData()
         {
-            StatusText = "Loading prices from UEX Corp API...";
-            _allPrices = await _priceService.GetMineralPricesAsync();
+            StatusText = "Loading commodities from UEX Corp API..."; // Updated text
+            _allPrices = await _priceService.GetAllCommodityPricesAsync(); // Use new method
 
-            if (_allPrices.Count > 0)
+            if (_allPrices != null && _allPrices.Count > 0)
             {
-                StatusText = $"Loaded {_allPrices.Count} prices (waiting for live...)";
+                StatusText = $"Loaded {_allPrices.Count} commodities";
             }
             else
             {
-                StatusText = "Failed to load prices or using fallback data";
+                StatusText = "Failed to load commodities or using fallback data";
             }
 
-            PopulateMineralFilter();
+            PopulateCommodityFilter();
             ApplyFilter();
         }
 
-        private void PopulateMineralFilter()
+        private void PopulateCommodityFilter()
         {
             if (_allPrices == null) return;
-            var minerals = _allPrices.Select(p => p.MineralName).Distinct().OrderBy(m => m).ToList();
-            Minerals.Clear();
-            Minerals.Add("All Minerals");
-            foreach (var m in minerals) Minerals.Add(m);
-            SelectedMineral = "All Minerals";
+            // Use MineralName as the display name (it holds the commodity name now)
+            var commodities = _allPrices.Select(p => p.MineralName).Distinct().OrderBy(m => m).ToList();
+            Commodities.Clear();
+            Commodities.Add("All Commodities");
+            foreach (var c in commodities) Commodities.Add(c);
+            SelectedCommodity = "All Commodities";
         }
 
         partial void OnSelectedSystemChanged(string value) => ApplyFilter();
-        partial void OnSelectedMineralChanged(string value) => ApplyFilter();
+        partial void OnSelectedCommodityChanged(string value) => ApplyFilter();
 
         [RelayCommand]
         private void SetSystemFilter(string system)
@@ -109,15 +109,15 @@ namespace Golem_Mining_Suite.ViewModels
                 filtered = filtered.Where(p => p.StarSystem != null && p.StarSystem.Contains(SelectedSystem));
             }
 
-            if (SelectedMineral == "All Minerals" || string.IsNullOrEmpty(SelectedMineral))
+            if (SelectedCommodity == "All Commodities" || string.IsNullOrEmpty(SelectedCommodity))
             {
-                // Group by mineral and take the best price for each
+                // Group by commodity and take the best price for each
                 filtered = filtered.GroupBy(p => p.MineralName)
                                    .Select(g => g.OrderByDescending(p => p.NumericPrice).First());
             }
             else
             {
-                filtered = filtered.Where(p => p.MineralName == SelectedMineral);
+                filtered = filtered.Where(p => p.MineralName == SelectedCommodity);
             }
 
             var sorted = filtered.OrderByDescending(p => p.NumericPrice).ToList();

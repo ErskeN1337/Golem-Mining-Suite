@@ -15,11 +15,12 @@ namespace Golem_Mining_Suite
     public partial class App : Application
     {
         public new static App Current => (App)Application.Current;
-        public IServiceProvider Services { get; }
+        public IServiceProvider Services { get; private set; }
 
         public App()
         {
-            Services = ConfigureServices();
+            InitializeComponent();
+            // Services initialized in OnStartup to ensure Resources are loaded
         }
 
         private static IServiceProvider ConfigureServices()
@@ -53,18 +54,27 @@ namespace Golem_Mining_Suite
             services.AddSingleton<IPriceService, PriceService>();
             services.AddSingleton<IRefineryService, RefineryService>();
             services.AddSingleton<IWindowService, WindowService>();
-            services.AddSingleton<LiveDataCoordinator>(p => new LiveDataCoordinator(p.GetService<SupabaseService>())); // Register Coordinator with factory
+            services.AddSingleton<LiveDataCoordinator>(p => new LiveDataCoordinator(p.GetService<SupabaseService>()));
+            
+            // New Services for Hauling
+            services.AddSingleton<UEXService>();
+            services.AddSingleton<ICommodityDataService, CommodityDataService>();
 
             // ViewModels
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<SurfaceMiningViewModel>();
             services.AddSingleton<AsteroidMiningViewModel>();
             services.AddSingleton<ROCMiningViewModel>();
-            services.AddSingleton<LiveDataViewModel>(); // Register LiveDataVM
+            services.AddSingleton<HaulingDashboardViewModel>(); // Register new VM
+            services.AddSingleton<LiveDataViewModel>(p => new LiveDataViewModel(
+                p.GetRequiredService<LiveDataCoordinator>(),
+                p.GetRequiredService<IPriceService>()));
             services.AddTransient<LocationViewModel>();
             services.AddTransient<PricesViewModel>();
             services.AddTransient<CalculatorViewModel>();
             services.AddTransient<RefineryViewModel>();
+            services.AddTransient<HaulingPricesViewModel>();
+            services.AddTransient<HaulingCalculatorViewModel>();
 
             // Windows
             services.AddSingleton<MainWindow>();
@@ -81,6 +91,11 @@ namespace Golem_Mining_Suite
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // Global exception handling
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+
+            Services = ConfigureServices();
             base.OnStartup(e);
 
             // Wire up Live Data events
@@ -100,11 +115,31 @@ namespace Golem_Mining_Suite
                 };
                 
                 // Start listening if configured
-                _ = supabase.SubscribeToTerminalUpdatesAsync();
+                // DISABLED FOR RELEASE: Feature Flagged off until ready
+                // _ = supabase.SubscribeToTerminalUpdatesAsync();
             }
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
+        }
+
+        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            Log.Error(e.Exception, "Unhandled Dispatcher Exception");
+            
+            // Prevent crash for non-critical UI errors if desired, but for now let's just log and maybe alert
+            // e.Handled = true; 
+            
+            MessageBox.Show($"An unhandled error occurred: {e.Exception.Message}\n\nCheck logs for details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                Log.Fatal(ex, "Unhandled AppDomain Exception");
+                MessageBox.Show($"A fatal error occurred: {ex.Message}\n\nCheck logs for details.", "Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

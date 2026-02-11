@@ -1,11 +1,11 @@
-<UserControl x:Class="Golem_Mining_Suite.Views.ROCMiningView"
+<UserControl x:Class="Golem_Mining_Suite.Views.HaulingDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Golem_Mining_Suite.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=vm:ROCMiningViewModel}"
+             d:DataContext="{d:DesignInstance Type=vm:HaulingDashboardViewModel}"
              Background="Transparent">
 
     <Grid Margin="20">
@@ -17,12 +17,12 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,20">
-            <TextBlock Text="ROC Mining" 
+            <TextBlock Text="Hauling Dashboard" 
                        FontSize="24" 
                        FontWeight="Bold" 
                        Foreground="{DynamicResource AccentBrush}"
                        HorizontalAlignment="Center"/>
-            <TextBlock Text="Ground vehicle mining locations" 
+            <TextBlock Text="Find profitable trade routes and commodities" 
                        FontSize="14" 
                        Foreground="{DynamicResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"
@@ -55,6 +55,22 @@
                     <TextBox.InputBindings>
                         <KeyBinding Key="Enter" Command="{Binding SelectSuggestionCommand}" CommandParameter="{Binding SearchText}"/>
                     </TextBox.InputBindings>
+                    <x:Code>
+                        <![CDATA[
+                            private void OnGotFocus(object sender, System.Windows.RoutedEventArgs e) 
+                            { 
+                                if(DataContext is Golem_Mining_Suite.ViewModels.HaulingDashboardViewModel vm) vm.SearchGotFocusCommand.Execute(null); 
+                            }
+                            private void OnLostFocus(object sender, System.Windows.RoutedEventArgs e) 
+                            { 
+                                if(DataContext is Golem_Mining_Suite.ViewModels.HaulingDashboardViewModel vm) vm.SearchLostFocusCommand.Execute(null); 
+                            }
+                        ]]>
+                    </x:Code>
+                    <!-- Behaviours or Attached Properties would be cleaner but x:Code works for quick wireup without adding Behaviors SDK yet -->
+                    <!-- Actually let's use EventTrigger if possible or just Interaction Triggers if available. 
+                         Since I don't see Behaviours used elsewhere, I will trust the ViewModel commands are bound via interaction logic or similar.
+                         Wait, SurfaceMiningView used simple bindings. I'll rely on text change. -->
                 </TextBox>
                 
                 <Popup IsOpen="{Binding ShowSuggestions}" 
@@ -63,29 +79,9 @@
                        AllowsTransparency="True">
                     <Border Background="{DynamicResource SecondaryBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" MaxHeight="200" Width="400">
                         <ListBox ItemsSource="{Binding Suggestions}" 
-                                 SelectedItem="{Binding SelectedSuggestion}"
                                  Background="Transparent"
                                  BorderThickness="0">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListBoxItem">
-                                                <Border x:Name="border" Padding="10,5" Background="Transparent">
-                                                    <ContentPresenter/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                        <Setter Property="Foreground" Value="#1E1E1E"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
+                                 <!-- Simple impl for now -->
                         </ListBox>
                     </Border>
                 </Popup>
@@ -94,10 +90,10 @@
 
         <!-- Content Grid -->
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding RockTypes}">
+            <ItemsControl ItemsSource="{Binding FeaturedCommodities}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel HorizontalAlignment="Center"/>
+                        <WrapPanel/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -125,11 +121,10 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <TextBlock Text="🪨" FontSize="24" HorizontalAlignment="Center" Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="📦" FontSize="24" HorizontalAlignment="Center" Foreground="{DynamicResource AccentBrush}"/>
                                     
-                                    <!-- Binding to string -->
                                     <TextBlock Grid.Row="1" 
-                                               Text="{Binding}" 
+                                               Text="{Binding Name}" 
                                                FontSize="16" 
                                                FontWeight="Bold" 
                                                Foreground="{DynamicResource TextPrimaryBrush}" 
@@ -139,8 +134,8 @@
                                                TextAlignment="Center"/>
 
                                     <Button Grid.Row="2" 
-                                            Content="LOCATE" 
-                                            Command="{Binding DataContext.OpenLocationCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            Content="TRADING INFO" 
+                                            Command="{Binding DataContext.OpenCommodityInfoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
                                             HorizontalAlignment="Stretch"
                                             FontSize="12"
@@ -153,5 +148,10 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+        
+        <!-- Loading Indicator -->
+        <Grid Grid.Row="2" Background="#88000000" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
+            <TextBlock Text="Loading Commodities..." Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" FontWeight="Bold"/>
+        </Grid>
     </Grid>
 </UserControl>

@@ -142,5 +142,20 @@ namespace Golem_Mining_Suite.Services
             // In Phase 1, we'll improve this with OCR detection
             return IsStarCitizenRunning() && IsGameWindowVisible();
         }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        /// <summary>
+        /// Check if Star Citizen is the currently active window
+        /// </summary>
+        public bool IsGameForeground()
+        {
+            var gameWnd = GetStarCitizenWindow();
+            if (gameWnd == IntPtr.Zero) return false;
+            
+            var foreground = GetForegroundWindow();
+            return gameWnd == foreground;
+        }
     }
 }

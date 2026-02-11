@@ -1,33 +1,17 @@
-<Window x:Class="Golem_Mining_Suite.Windows.PricesWindow"
+<Window x:Class="Golem_Mining_Suite.Windows.HaulingPricesWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Golem_Mining_Suite.ViewModels"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=vm:PricesViewModel}"
-        Title="Mineral Prices" Height="600" Width="900"
+        d:DataContext="{d:DesignInstance Type=vm:HaulingPricesViewModel}"
+        Title="Commodity Prices" Height="600" Width="900"
         Background="{DynamicResource PrimaryBackgroundBrush}"
         BorderBrush="{DynamicResource BorderBrush}"
         BorderThickness="1"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterScreen">
         
-    <d:Window.DataContext>
-        <vm:PricesViewModel/>
-    </d:Window.DataContext>
-
-    <x:Code>
-        <![CDATA[
-            private void Window_Loaded(object sender, System.Windows.RoutedEventArgs e)
-            {
-                if (DataContext is Golem_Mining_Suite.ViewModels.PricesViewModel vm)
-                {
-                    vm.LoadDataCommand.Execute(null);
-                }
-            }
-        ]]>
-    </x:Code>
-
     <Window.Resources>
         <Style x:Key="FilterButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Padding" Value="10,2"/>
@@ -93,11 +77,11 @@
                     </Button.Style>
                 </Button>
 
-                <TextBlock Text="Mineral:" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="20,0,10,0" FontWeight="Bold"/>
+                <TextBlock Text="Commodity:" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="20,0,10,0" FontWeight="Bold"/>
                 
-                <ComboBox Width="150"
-                          ItemsSource="{Binding Minerals}"
-                          SelectedItem="{Binding SelectedMineral}"/>
+                <ComboBox Width="180"
+                          ItemsSource="{Binding Commodities}"
+                          SelectedItem="{Binding SelectedCommodity}"/>
             </StackPanel>
         </Border>
 
@@ -147,7 +131,7 @@
             </DataGrid.Resources>
             
             <DataGrid.Columns>
-                <DataGridTextColumn Header="MINERAL" Binding="{Binding MineralName}" Width="150" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="COMMODITY" Binding="{Binding MineralName}" Width="150" FontWeight="SemiBold"/>
                 <DataGridTextColumn Header="PRICE (SELL)" Binding="{Binding Price}" Width="120"/>
                 <DataGridTextColumn Header="BEST LOCATION" Binding="{Binding BestLocation}" Width="*"/>
                 <DataGridTextColumn Header="DEMAND" Binding="{Binding Demand}" Width="100">
@@ -192,7 +176,6 @@
                                     <DataTrigger Binding="{Binding IsLiveConnected}" Value="True">
                                         <Setter Property="Fill" Value="#4CAF50"/> <!-- Green -->
                                     </DataTrigger>
-                                    <!-- Fallback/Pulse animation could go here -->
                                 </Style.Triggers>
                             </Style>
                         </Ellipse.Style>

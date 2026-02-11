@@ -58,7 +58,36 @@ namespace Golem_Mining_Suite.Services
         }
 
         /// <summary>
-        /// Capture a region of the screen
+        /// Capture a region relative to a specific window
+        /// </summary>
+        public Bitmap? CaptureWindowRegion(IntPtr hWnd, int x, int y, int width, int height)
+        {
+            try
+            {
+                Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    IntPtr hdcDest = graphics.GetHdc();
+                    // Get DC for the specific window
+                    IntPtr hdcSrc = GetDC(hWnd);
+
+                    // BitBlt from the window DC
+                    BitBlt(hdcDest, 0, 0, width, height, hdcSrc, x, y, CopyPixelOperation.SourceCopy);
+
+                    graphics.ReleaseHdc(hdcDest);
+                    ReleaseDC(hWnd, hdcSrc);
+                }
+
+                return bitmap;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Capture a region of the screen (Legacy/Desktop fallback)
         /// </summary>
         public Bitmap? CaptureScreenRegion(int x, int y, int width, int height)
         {
@@ -69,13 +98,10 @@ namespace Golem_Mining_Suite.Services
                 {
                     IntPtr hdcDest = graphics.GetHdc();
                     IntPtr hdcSrc = GetDC(IntPtr.Zero);
-
                     BitBlt(hdcDest, 0, 0, width, height, hdcSrc, x, y, CopyPixelOperation.SourceCopy);
-
                     graphics.ReleaseHdc(hdcDest);
                     ReleaseDC(IntPtr.Zero, hdcSrc);
                 }
-
                 return bitmap;
             }
             catch (Exception)
@@ -123,6 +149,13 @@ namespace Golem_Mining_Suite.Services
             using (var bitmap = CaptureScreenRegion(x, y, width, height))
             {
                 if (bitmap == null) return null;
+                
+                // DEBUG: Save image to check what we are seeing
+                try {
+                    string debugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ocr_debug.png");
+                    bitmap.Save(debugPath, System.Drawing.Imaging.ImageFormat.Png);
+                } catch {}
+
                 return ExtractText(bitmap);
             }
         }
