@@ -1,8 +1,8 @@
 using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Golem_Mining_Suite.ViewModels; // Added this
 using Golem_Mining_Suite.Windows;
+using Golem_Mining_Suite.ViewModels;
 
 namespace Golem_Mining_Suite.Services
 {
@@ -35,6 +35,22 @@ namespace Golem_Mining_Suite.Services
         {
             var window = new RefineryCalculatorWindow();
             var vm = _serviceProvider.GetService<RefineryViewModel>();
+            if (vm != null) window.DataContext = vm;
+            PositionAndShow(window);
+        }
+
+        public void ShowHaulingPricesWindow()
+        {
+            var window = new HaulingPricesWindow();
+            var vm = _serviceProvider.GetService<HaulingPricesViewModel>();
+            if (vm != null) window.DataContext = vm;
+            PositionAndShow(window);
+        }
+
+        public void ShowHaulingCalculatorWindow()
+        {
+            var window = new HaulingCalculatorWindow();
+            var vm = _serviceProvider.GetService<HaulingCalculatorViewModel>();
             if (vm != null) window.DataContext = vm;
             PositionAndShow(window);
         }

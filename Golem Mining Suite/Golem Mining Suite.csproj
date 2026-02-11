@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
-		<Version>1.1.11</Version>
+		<Version>1.2.3</Version>
 		<ApplicationIcon>Assets\Images\Golem.ico</ApplicationIcon>
 	</PropertyGroup>
 
@@ -39,6 +39,9 @@
 		<Resource Include="Assets\images\GolemMiningSuite_Logo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Resource>
+		<Content Include="Assets\images\GolemHaulingSuite_Logo.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Resource Include="Assets\images\uex-logo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Resource>
@@ -51,10 +54,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- Tesseract OCR Training Data -->
+		<None Include="tessdata\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		
+		<!-- Supabase Configuration -->
+		<None Include="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
 	  <PackageReference Include="Serilog" Version="4.3.0" />
 	  <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
 	  <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+	  <PackageReference Include="supabase-csharp" Version="0.16.2" />
+	  <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
+	  <PackageReference Include="Tesseract" Version="5.2.0" />
 	</ItemGroup>
 </Project>

@@ -3,24 +3,41 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Golem_Mining_Suite.Messages;
 using Golem_Mining_Suite.Views;
+using Golem_Mining_Suite.Services;
 using Golem_Mining_Suite.Services.Interfaces;
+using Golem_Mining_Suite.Models;
 using System;
 using System.Diagnostics;
 using System.Windows;
-using Golem_Mining_Suite.Windows; // For RefineryCalculatorWindow
+// using Golem_Mining_Suite.Windows; // Removed unused
+
 
 namespace Golem_Mining_Suite.ViewModels
 {
+    public enum AppMode
+    {
+        Mining,
+        Hauling
+    }
+
     public partial class MainViewModel : ObservableObject, IRecipient<NavigationMessage>
     {
         private readonly IMiningDataService _miningDataService;
         private readonly IWindowService _windowService;
 
-        // Cache views
-        private MainMenuView _mainMenuView;
-        private SurfaceMiningView _surfaceMiningView;
-        private AsteroidMiningView _asteroidMiningView;
-        private ROCMiningView _rocMiningView;
+
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HomeButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(SurfaceButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(AsteroidButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(ROCButtonVisibility))]
+        [NotifyPropertyChangedFor(nameof(IsMiningMode))]
+        [NotifyPropertyChangedFor(nameof(IsHaulingMode))]
+        private AppMode _currentMode = AppMode.Mining;
+
+        public bool IsMiningMode => CurrentMode == AppMode.Mining;
+        public bool IsHaulingMode => CurrentMode == AppMode.Hauling;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HomeButtonVisibility))]
@@ -33,29 +50,95 @@ namespace Golem_Mining_Suite.ViewModels
         private string _versionText;
 
         public Visibility HomeButtonVisibility => CurrentView is MainMenuView ? Visibility.Collapsed : Visibility.Visible;
-        public Visibility SurfaceButtonVisibility => CurrentView is SurfaceMiningView ? Visibility.Collapsed : Visibility.Visible;
-        public Visibility AsteroidButtonVisibility => CurrentView is AsteroidMiningView ? Visibility.Collapsed : Visibility.Visible;
-        public Visibility ROCButtonVisibility => CurrentView is ROCMiningView ? Visibility.Collapsed : Visibility.Visible;
+        
+        public Visibility SurfaceButtonVisibility => IsMiningMode && !(CurrentView is SurfaceMiningView) ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility AsteroidButtonVisibility => IsMiningMode && !(CurrentView is AsteroidMiningView) ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ROCButtonVisibility => IsMiningMode && !(CurrentView is ROCMiningView) ? Visibility.Visible : Visibility.Collapsed;
 
-        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService)
+        [ObservableProperty]
+        private string _welcomeText = "Welcome to Golem Mining Suite";
+
+        [ObservableProperty]
+        private string _logoSource = "/Assets/Images/GolemMiningSuite_Logo.png";
+
+        [ObservableProperty]
+        private double _logoHeight = 40;
+
+        [RelayCommand]
+        private void SwitchToMining()
+        {
+            CurrentMode = AppMode.Mining;
+            CurrentView = _mainMenuView;
+            UpdateBranding();
+        }
+
+        [RelayCommand]
+        private void SwitchToHauling()
+        {
+            CurrentMode = AppMode.Hauling;
+            CurrentView = _mainMenuView;
+            UpdateBranding();
+        }
+
+        private void UpdateBranding()
+        {
+            if (IsMiningMode)
+            {
+                WelcomeText = "Welcome to Golem Mining Suite";
+                LogoSource = "/Assets/Images/GolemMiningSuite_Logo.png";
+                LogoHeight = 40;
+                //LogoMargin = new Thickness(0, 10, 30, 0); // Center vertically in 60px header
+            }
+            else
+            {
+                WelcomeText = "Welcome to Golem Hauling Suite";
+                LogoSource = "pack://siteoforigin:,,,/Assets/Images/GolemHaulingSuite_Logo.png";
+                LogoHeight = 110; 
+                //LogoMargin = new Thickness(0, 0, 30, -50); // Top: -45, Bottom: 20
+            }
+        }
+
+        [ObservableProperty]
+        private Thickness _logoMargin = new Thickness(0, 10, 15, 0);
+
+        private readonly LiveDataCoordinator _liveDataCoordinator;
+        private readonly IPriceService _priceService;
+
+        // Cache views
+        private MainMenuView _mainMenuView;
+        private SurfaceMiningView _surfaceMiningView;
+        private AsteroidMiningView _asteroidMiningView;
+        private ROCMiningView _rocMiningView;
+        private SettingsView _settingsView;
+        private HaulingDashboardView _haulingDashboardView; // Cached view
+        private HaulingRoutesView _haulingRoutesView;
+
+        [ObservableProperty]
+        private bool _isLocationPromptVisible;
+        
+        [ObservableProperty]
+        private System.Collections.ObjectModel.ObservableCollection<TerminalInfo> _locationPromptTerminals = new();
+
+        [ObservableProperty]
+        private TerminalInfo? _selectedLocationPromptTerminal;
+
+        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM, LiveDataCoordinator coordinator, IPriceService priceService)
         {
             _miningDataService = miningDataService;
             _windowService = windowService;
+            _liveDataCoordinator = coordinator;
+            _priceService = priceService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
 
+            // Register popup request handler
+            _liveDataCoordinator.LocationRequired += OnLocationRequired;
+
             // Initialize views
             _mainMenuView = new MainMenuView { DataContext = this };
             
-            // SurfaceMiningView now has its own VM, resolved via DI ideally, or set manually here if not refactored fully yet.
-            // But wait, if I want to set DataContext to SurfaceMiningViewModel, I need to resolve it.
-            // For now, let's keep it simple: Resolve it from App.Services? Or inject IServiceProvider?
-            // To avoid circular dependency MainVM <-> SurfaceVM if I injected SurfaceVM here, 
-            // I should just use ServiceLocator pattern here temporarily or refactor SurfaceVM creation.
-            // Creating SurfaceMiningView here:
             _surfaceMiningView = new SurfaceMiningView();
-            // Resolve VM:
             var surfaceVM = App.Current.Services.GetService(typeof(SurfaceMiningViewModel));
             if (surfaceVM != null) _surfaceMiningView.DataContext = surfaceVM;
             
@@ -66,40 +149,57 @@ namespace Golem_Mining_Suite.ViewModels
             _rocMiningView = new ROCMiningView();
             var rocVM = App.Current.Services.GetService(typeof(ROCMiningViewModel));
             if (rocVM != null) _rocMiningView.DataContext = rocVM;
+            
+            _haulingDashboardView = new HaulingDashboardView();
+            var haulingVM = App.Current.Services.GetService(typeof(HaulingDashboardViewModel));
+            if (haulingVM != null) _haulingDashboardView.DataContext = haulingVM;
+
+            _settingsView = new SettingsView();
+            // var liveDataVM = new LiveDataViewModel(); // Injected
+            _settingsView.DataContext = liveDataVM;
 
             // Set initial view
             CurrentView = _mainMenuView;
 
             // Register messenger
             WeakReferenceMessenger.Default.RegisterAll(this);
-
-            // Check for updates
-            CheckForUpdatesAsync();
         }
 
-        private async void CheckForUpdatesAsync()
+        private void OnLocationRequired(object? sender, EventArgs e)
         {
-            try
+            // Marshal to UI thread
+            Application.Current.Dispatcher.Invoke(async () =>
             {
-                var updateInfo = await UpdateChecker.CheckForUpdateAsync();
-                if (updateInfo != null && updateInfo.IsUpdateAvailable)
+                if (IsLocationPromptVisible) return; // Already showing
+
+                // Load terminals if empty
+                if (LocationPromptTerminals.Count == 0)
                 {
-                    // Use WindowService to show update window?
-                    // Ideally yes, but UpdateAvailableWindow is a specific dialog.
-                    // For now, let's open it directly or add method to IWindowService.
-                    // Adding simple dispatch for now to avoid breaking UI thread.
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        var updateWindow = new Golem_Mining_Suite.UpdateAvailableWindow(updateInfo);
-                        updateWindow.Owner = Application.Current.MainWindow;
-                        updateWindow.ShowDialog();
-                    });
+                    var terminals = await _priceService.GetTerminalsAsync();
+                    foreach (var t in terminals) LocationPromptTerminals.Add(t);
                 }
-            }
-            catch (Exception ex)
+
+                IsLocationPromptVisible = true;
+                
+                // Bring app to front if possible? 
+                // Application.Current.MainWindow.Activate();
+            });
+        }
+
+        [RelayCommand]
+        private void ConfirmLocation()
+        {
+            if (SelectedLocationPromptTerminal != null)
             {
-                Debug.WriteLine($"Update check failed: {ex.Message}");
+                _liveDataCoordinator.SetManualLocation(SelectedLocationPromptTerminal.Name, SelectedLocationPromptTerminal.StarSystem);
+                IsLocationPromptVisible = false;
             }
+        }
+
+        [RelayCommand]
+        private void CancelLocation()
+        {
+            IsLocationPromptVisible = false;
         }
 
         public void Receive(NavigationMessage message)
@@ -124,6 +224,9 @@ namespace Golem_Mining_Suite.ViewModels
                 case "ROCMining":
                     CurrentView = _rocMiningView;
                     break;
+                case "Settings":
+                    CurrentView = _settingsView;
+                    break;
             }
         }
 
@@ -134,15 +237,37 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [RelayCommand]
+        private void OpenCalculator()
+        {
+            _windowService.ShowCalculatorWindow();
+        }
+
+        [RelayCommand]
+        private void OpenHaulingCalculator()
+        {
+            _windowService.ShowHaulingCalculatorWindow();
+        }
+
+        [RelayCommand]
         private void OpenPrices()
         {
             _windowService.ShowPricesWindow();
         }
 
         [RelayCommand]
-        private void OpenCalculator()
+        private void OpenHaulingPrices()
         {
-            _windowService.ShowCalculatorWindow();
+            _windowService.ShowHaulingPricesWindow();
+        }
+
+        [RelayCommand]
+        private void OpenHaulingRoutes()
+        {
+             if (_haulingRoutesView == null)
+             {
+                 _haulingRoutesView = new HaulingRoutesView();
+             }
+             CurrentView = _haulingRoutesView;
         }
 
         [RelayCommand]
