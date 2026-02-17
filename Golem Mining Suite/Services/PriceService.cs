@@ -16,6 +16,14 @@ namespace Golem_Mining_Suite.Services
         public bool IsLiveConnected { get; private set; }
         private List<PriceData> _liveOverrides = new List<PriceData>();
 
+        // Some terminals (e.g. Maker's Point) are in price data but missing from the terminals API endpoint.
+        // We map them manually to ensure they have a valid Star System.
+        private static readonly Dictionary<string, string> _knownMissingTerminals = new Dictionary<string, string>
+        {
+            { "Maker's Point", "Stanton" }
+            // Add other missing terminals here as needed
+        };
+
         private Dictionary<int, string> _terminalToSystem = new Dictionary<int, string>();
         private List<TerminalInfo> _cachedTerminals = new List<TerminalInfo>();
 
@@ -163,7 +171,25 @@ namespace Golem_Mining_Suite.Services
                             priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
 
                         int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
-                        string starSystem = _terminalToSystem.ContainsKey(terminalId) ? _terminalToSystem[terminalId] : "Unknown";
+                        string starSystem;
+                        
+                        if (_terminalToSystem.ContainsKey(terminalId))
+                        {
+                            starSystem = _terminalToSystem[terminalId];
+                        }
+                        else if (_knownMissingTerminals.TryGetValue(terminalName, out var knownSystem))
+                        {
+                            starSystem = knownSystem;
+                        }
+                        else if (terminalId == 21) starSystem = "Stanton"; // Likely TDD Area18
+                        else if (terminalId == 89) starSystem = "Stanton"; // TDD New Babbage
+                        else if (terminalId == 90) starSystem = "Stanton"; // TDD Orison
+                        else if (terminalId == 436) starSystem = "Stanton"; // Checkmate
+                        else if (terminalId == 443) starSystem = "Stanton"; // Orbituary
+                        else
+                        {
+                            starSystem = $"Unknown ({terminalId})";
+                        }
 
                         int scuMax = 100;
                         int scu = 0;

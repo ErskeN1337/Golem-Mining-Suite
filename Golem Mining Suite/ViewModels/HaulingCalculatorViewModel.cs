@@ -62,17 +62,24 @@ namespace Golem_Mining_Suite.ViewModels
         // Ship Capacities
         private readonly Dictionary<string, double> _shipCapacities = new Dictionary<string, double>
         {
+            { "Anvil Carrack", 456 },
+            { "ARGO RAFT", 96 },
             { "C2 Hercules", 696 },
             { "Caterpillar", 576 },
-            { "M2 Hercules", 522 },
-            { "Carrack", 456 },
-            { "Starfarer", 291 },
+            { "Constellation Andromeda", 96 },
             { "Constellation Taurus", 174 },
-            { "Freelancer MAX", 120 },
+            { "Crusader Spirit C1", 64 },
             { "Cutlass Black", 46 },
-            { "Hull C", 4608 }, 
+            { "Drake Corsair", 72 },
+            { "Drake Cutter", 4 },
+            { "Freelancer MAX", 120 },
             { "Hull A", 64 },
-            { "Raft", 96 }
+            { "Hull B", 384 },
+            { "Hull C", 4608 },
+            { "Mercury Star Runner", 114 },
+            { "MISC Starlancer MAX", 224 },
+            { "Origin 400i", 42 },
+            { "RSI Zeus Mk II CL", 128 }
         };
 
         public HaulingCalculatorViewModel(IWindowService windowService, IPriceService priceService)
@@ -196,6 +203,8 @@ namespace Golem_Mining_Suite.ViewModels
 
         public void CalculateTotals()
         {
+            if (_isUpdatingStations) return; // Prevent re-entrancy loop
+            
             if (string.IsNullOrEmpty(SelectedShip)) return;
 
             // Capacity
@@ -209,6 +218,9 @@ namespace Golem_Mining_Suite.ViewModels
 
             CapacityText = $"{UsedCapacity:F1} / {CargoCapacity:F1} SCU";
             IsOverCapacity = UsedCapacity > CargoCapacity;
+
+            // Update Available Stations based on selected commodities
+            UpdateAvailableStations();
 
             // Update price display for all rows (in case station changed)
             foreach (var row in Rows)
@@ -252,6 +264,90 @@ namespace Golem_Mining_Suite.ViewModels
             else
             {
                 PricePerSCUText = "Average: 0 aUEC/SCU";
+            }
+        }
+
+        private bool _isUpdatingStations = false;
+
+        private void UpdateAvailableStations()
+        {
+            if (_isUpdatingStations) return;
+
+            try 
+            {
+                _isUpdatingStations = true;
+
+                // Collect all selected commodities that aren't "None"
+                var activeCommodities = Rows
+                    .Select(r => r.SelectedCommodity)
+                    .Where(c => !string.IsNullOrEmpty(c) && c != "None")
+                    .Distinct()
+                    .ToList();
+
+                // If no commodities selected, show ALL stations (default behavior)
+                if (!activeCommodities.Any())
+                {
+                    var allKnownStations = _commodityPrices.Values
+                        .SelectMany(d => d.Keys)
+                        .Distinct()
+                        .OrderBy(s => s)
+                        .ToList();
+
+                    if (Stations.Count != allKnownStations.Count) 
+                    {
+                        var current = SelectedStation;
+                        Stations.Clear();
+                        foreach (var s in allKnownStations) Stations.Add(s);
+                        
+                        if (Stations.Contains(current)) SelectedStation = current;
+                        else SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
+                    }
+                    return;
+                }
+
+                // Filter stations
+                var validStations = new HashSet<string>();
+
+                foreach (var commodity in activeCommodities)
+                {
+                    if (_commodityPrices.ContainsKey(commodity))
+                    {
+                        var stationDict = _commodityPrices[commodity];
+                        foreach (var kvp in stationDict)
+                        {
+                            if (kvp.Value.UnitBuyPrice > 0)
+                            {
+                                validStations.Add(kvp.Key);
+                            }
+                        }
+                    }
+                }
+
+                // Update the Stations list
+                var currentSelection = SelectedStation;
+                bool isSame = Stations.Count == validStations.Count && Stations.All(s => validStations.Contains(s));
+                
+                if (!isSame)
+                {
+                    Stations.Clear();
+                    foreach (var s in validStations.OrderBy(n => n))
+                    {
+                        Stations.Add(s);
+                    }
+
+                    if (Stations.Contains(currentSelection))
+                    {
+                        SelectedStation = currentSelection;
+                    }
+                    else
+                    {
+                        SelectedStation = Stations.FirstOrDefault() ?? "";
+                    }
+                }
+            }
+            finally
+            {
+                _isUpdatingStations = false;
             }
         }
 

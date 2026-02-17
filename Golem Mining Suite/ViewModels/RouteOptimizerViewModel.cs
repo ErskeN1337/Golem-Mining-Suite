@@ -45,6 +45,9 @@ namespace Golem_Mining_Suite.ViewModels
         private double? _minProfit = 0;
 
         [ObservableProperty]
+        private double? _maxBudget = 0;
+
+        [ObservableProperty]
         private string _statusText = "Ready";
 
         [ObservableProperty]
@@ -61,17 +64,36 @@ namespace Golem_Mining_Suite.ViewModels
 
         private void InitializeShips()
         {
-            Ships.Add("C2 Hercules (696 SCU)");
-            Ships.Add("Caterpillar (576 SCU)");
-            Ships.Add("Freelancer MAX (120 SCU)");
-            Ships.Add("ARGO RAFT (96 SCU)");
-            Ships.Add("Cutlass Black (46 SCU)");
-            Ships.Add("Constellation Taurus (174 SCU)");
-            Ships.Add("Hull A (64 SCU)");
-            Ships.Add("Hull B (384 SCU)");
-            Ships.Add("Hull C (4608 SCU)");
+            // Alphabetical list of flyable cargo ships
+            var shipList = new List<string>
+            {
+                "Anvil Carrack (456 SCU)",
+                "ARGO RAFT (96 SCU)",
+                "C2 Hercules (696 SCU)",
+                "Caterpillar (576 SCU)",
+                "Constellation Andromeda (96 SCU)",
+                "Constellation Taurus (174 SCU)",
+                "Crusader Spirit C1 (64 SCU)",
+                "Cutlass Black (46 SCU)",
+                "Drake Corsair (72 SCU)",
+                "Drake Cutter (4 SCU)",
+                "Freelancer MAX (120 SCU)",
+                "Hull A (64 SCU)",
+                "Hull B (384 SCU)",
+                "Hull C (4608 SCU)",
+                "Mercury Star Runner (114 SCU)",
+                "MISC Starlancer MAX (224 SCU)",
+                "Origin 400i (42 SCU)",
+                "RSI Zeus Mk II CL (128 SCU)"
+            };
 
-            SelectedShip = Ships[3]; // Default to ARGO RAFT
+            foreach (var ship in shipList)
+            {
+                Ships.Add(ship);
+            }
+
+            // Default to a common starter/mid-range hauler
+            SelectedShip = Ships.FirstOrDefault(s => s.Contains("Cutlass Black")) ?? Ships[0];
         }
 
         partial void OnSelectedShipChanged(string value)
@@ -109,6 +131,12 @@ namespace Golem_Mining_Suite.ViewModels
             _ = ApplyFiltersAsync();
         }
 
+        partial void OnMaxBudgetChanged(double? value)
+        {
+             // Auto-refresh when budget changes
+             _ = ApplyFiltersAsync();
+        }
+
         [RelayCommand]
         private async Task RefreshRoutesAsync()
         {
@@ -137,7 +165,7 @@ namespace Golem_Mining_Suite.ViewModels
                 }
 
                 // Calculate ALL routes
-                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity);
+                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0);
 
                 // Apply filters FIRST
                 var filteredRoutes = ApplyFilters(allRoutes);
@@ -177,7 +205,7 @@ namespace Golem_Mining_Suite.ViewModels
                 var priceData = await _priceService.GetAllCommodityPricesAsync();
 
                 // Calculate ALL routes
-                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity);
+                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0);
 
                 // Apply filters FIRST
                 var filteredRoutes = ApplyFilters(allRoutes);

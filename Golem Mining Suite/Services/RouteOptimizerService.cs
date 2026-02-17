@@ -6,7 +6,7 @@ namespace Golem_Mining_Suite.Services
 {
     public class RouteOptimizerService
     {
-        public List<TradeRoute> CalculateRoutes(List<PriceData> priceData, int cargoCapacity)
+        public List<TradeRoute> CalculateRoutes(List<PriceData> priceData, int cargoCapacity, double maxBudget = 0)
         {
             var routes = new List<TradeRoute>();
 
@@ -45,10 +45,25 @@ namespace Golem_Mining_Suite.Services
                         if (profitPerSCU <= 0)
                             continue;
 
-                        // Calculate total profit based on cargo capacity
-                        // ProfitPerSCU is derived from API prices which are already per SCU (e.g. 7000 aUEC)
-                        // So we just multiply by capacity, NOT by 100 units.
-                        double totalProfit = profitPerSCU * cargoCapacity;
+                        // Calculate how much we can actually buy
+                        // 1. Limited by Cargo Capacity
+                        int scuByCapacity = cargoCapacity;
+
+                        // 2. Limited by Budget (if set)
+                        int scuByBudget = int.MaxValue;
+                        if (maxBudget > 0 && buyStation.UnitSellPrice > 0)
+                        {
+                            // Floor to nearest whole SCU
+                            scuByBudget = (int)(maxBudget / buyStation.UnitSellPrice);
+                        }
+
+                        // Take the smaller limit
+                        int scuTraded = System.Math.Min(scuByCapacity, scuByBudget);
+
+                        if (scuTraded <= 0) continue; // Can't afford even 1 SCU
+
+                        double totalProfit = profitPerSCU * scuTraded;
+                        double investment = scuTraded * buyStation.UnitSellPrice;
 
                         routes.Add(new TradeRoute
                         {
@@ -61,7 +76,9 @@ namespace Golem_Mining_Suite.Services
                             SellPrice = sellStation.UnitBuyPrice,
                             ProfitPerSCU = profitPerSCU,
                             TotalProfit = totalProfit,
-                            Demand = sellStation.Demand
+                            Demand = sellStation.Demand,
+                            SCUTraded = scuTraded,
+                            InvestmentCost = investment
                         });
                     }
                 }

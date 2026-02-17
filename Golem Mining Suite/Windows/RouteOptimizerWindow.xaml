@@ -43,12 +43,13 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Ship Selection -->
@@ -57,12 +58,13 @@
                            VerticalAlignment="Center" 
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            FontWeight="Bold"
-                           Margin="0,0,10,0"/>
+                           Margin="0,0,10,10"/>
                 <ComboBox Grid.Row="0" Grid.Column="1"
                           ItemsSource="{Binding Ships}"
                           SelectedItem="{Binding SelectedShip}"
-                          Width="200"
-                          HorizontalAlignment="Left"/>
+                          Width="180"
+                          HorizontalAlignment="Left"
+                          Margin="0,0,0,10"/>
 
                 <!-- System Filter -->
                 <!-- From System -->
@@ -71,32 +73,31 @@
                            VerticalAlignment="Center" 
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            FontWeight="Bold"
-                           Margin="0,0,10,0"/>
+                           Margin="0,0,10,10"/>
                 <ComboBox Grid.Row="0" Grid.Column="4"
                           ItemsSource="{Binding Systems}"
-                          SelectedItem="{Binding SelectedSourceSystem}"/>
+                          SelectedItem="{Binding SelectedSourceSystem}"
+                          Margin="0,0,0,10"/>
 
                 <!-- To System -->
-                <TextBlock Grid.Row="0" Grid.Column="5" 
-                           Text=" To:" 
-                           VerticalAlignment="Center" 
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           FontWeight="Bold"
-                           Margin="10,0,10,0"
-                           HorizontalAlignment="Left"/>
-                <ComboBox Grid.Row="0" Grid.Column="5"
-                          ItemsSource="{Binding Systems}"
-                          SelectedItem="{Binding SelectedTargetSystem}"
-                          Width="120"
-                          HorizontalAlignment="Left"
-                          Margin="40,0,0,0"/>
-
-                <!-- Refresh Button -->
-                <Button Grid.Row="0" Grid.Column="6"
-                        Content="🔄 Refresh Routes"
-                        Command="{Binding RefreshRoutesCommand}"
-                        Padding="15,8"
-                        FontWeight="Bold"/>
+                <StackPanel Grid.Row="0" Grid.Column="5" Orientation="Horizontal" Margin="10,0,10,10">
+                    <TextBlock Text="To: " 
+                               VerticalAlignment="Center" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontWeight="Bold"
+                               Margin="0,0,5,0"/>
+                    <ComboBox ItemsSource="{Binding Systems}"
+                              SelectedItem="{Binding SelectedTargetSystem}"
+                              Width="100"/>
+                    
+                    <!-- Refresh Button -->
+                    <Button Content="Refresh Routes"
+                            Command="{Binding RefreshRoutesCommand}"
+                            Padding="10,6"
+                            FontWeight="Bold"
+                            Width="140"
+                            Margin="20,0,0,0"/>
+                </StackPanel>
 
                 <!-- Cargo Capacity Display -->
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
@@ -126,15 +127,34 @@
                               VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Min Profit Filter -->
-                <StackPanel Grid.Row="1" Grid.Column="6" 
+                <!-- Min Profit and Max Budget Filters -->
+                <StackPanel Grid.Row="1" Grid.Column="5" 
                             Orientation="Horizontal" 
                             Margin="0,10,0,0">
+                    
+                     <!-- Max Budget Filter (Left) -->
+                    <TextBlock Text="Max Budget: " 
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Margin="0,0,5,0"/>
+                    <TextBox Width="70" 
+                             Text="{Binding MaxBudget, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                             VerticalAlignment="Center">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding ApplyFiltersCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBlock Text=" aUEC" 
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Margin="2,0,10,0"/>
+
+                    <!-- Min Profit Filter (Right) -->
                     <TextBlock Text="Min Profit: " 
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
-                               Margin="0,0,10,0"/>
-                    <TextBox Width="100" 
+                               Margin="0,0,5,0"/>
+                    <TextBox Width="70" 
                              Text="{Binding MinProfit, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
                              VerticalAlignment="Center">
                         <TextBox.InputBindings>
@@ -144,7 +164,7 @@
                     <TextBlock Text=" aUEC" 
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
-                               Margin="5,0,0,0"/>
+                               Margin="2,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -197,12 +217,14 @@
             </DataGrid.Resources>
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="COMMODITY" Binding="{Binding CommodityName}" Width="150" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="COMMODITY" Binding="{Binding CommodityName}" Width="140" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="AMOUNT" Binding="{Binding SCUTradedFormatted}" Width="80"/>
                 <DataGridTextColumn Header="BUY FROM" Binding="{Binding BuyStation}" Width="*"/>
-                <DataGridTextColumn Header="BUY PRICE" Binding="{Binding BuyPriceFormatted}" Width="120"/>
+                <DataGridTextColumn Header="BUY PRICE" Binding="{Binding BuyPriceFormatted}" Width="110"/>
                 <DataGridTextColumn Header="SELL TO" Binding="{Binding SellStation}" Width="*"/>
-                <DataGridTextColumn Header="SELL PRICE" Binding="{Binding SellPriceFormatted}" Width="120"/>
-                <DataGridTextColumn Header="PROFIT/SCU" Binding="{Binding ProfitPerSCUFormatted}" Width="130">
+                <DataGridTextColumn Header="SELL PRICE" Binding="{Binding SellPriceFormatted}" Width="110"/>
+                <DataGridTextColumn Header="INVESTMENT" Binding="{Binding InvestmentFormatted}" Width="120"/>
+                <DataGridTextColumn Header="PROFIT/SCU" Binding="{Binding ProfitPerSCUFormatted}" Width="120">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
@@ -210,7 +232,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="TOTAL PROFIT" Binding="{Binding TotalProfitFormatted}" Width="150">
+                <DataGridTextColumn Header="TOTAL PROFIT" Binding="{Binding TotalProfitFormatted}" Width="140">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="#4CAF50"/>
