@@ -17,7 +17,7 @@ namespace Golem_Mining_Suite.ViewModels
         
         // Cache of prices: CommodityName -> (StationName -> PriceData)
         // Storing PriceData instead of double to access both Buy/Sell prices
-        private Dictionary<string, Dictionary<string, PriceData>> _commodityPrices = new Dictionary<string, Dictionary<string, PriceData>>();
+        internal Dictionary<string, Dictionary<string, PriceData>> _commodityPrices = new Dictionary<string, Dictionary<string, PriceData>>();
 
         // Initialization Data
         public ObservableCollection<string> Ships { get; } = new ObservableCollection<string>();
@@ -81,6 +81,10 @@ namespace Golem_Mining_Suite.ViewModels
             _priceService = priceService;
 
             InitializeData();
+            
+            // Ensure selections are not null
+            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault() ?? "C2 Hercules";
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
 
             // Initialize 1 row
             AddCommodityRow();
@@ -90,7 +94,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             // Ships
             foreach (var ship in _shipCapacities.Keys.OrderBy(s => s)) Ships.Add(ship);
-            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault();
+            SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault() ?? "C2 Hercules";
 
             // Load Commodities & Prices
             var prices = await _priceService.GetAllCommodityPricesAsync();
@@ -145,7 +149,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
             
             // Default station
-            SelectedStation = Stations.FirstOrDefault();
+            SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
 
             // Populate Commodities List (All available commodities)
             foreach (var c in _commodityPrices.Keys.OrderBy(k => k))
@@ -206,6 +210,12 @@ namespace Golem_Mining_Suite.ViewModels
             CapacityText = $"{UsedCapacity:F1} / {CargoCapacity:F1} SCU";
             IsOverCapacity = UsedCapacity > CargoCapacity;
 
+            // Update price display for all rows (in case station changed)
+            foreach (var row in Rows)
+            {
+                row.UpdatePriceDisplay();
+            }
+
             // Value Calculation based on Selected Station
             double totalValue = 0;
             
@@ -262,6 +272,18 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private string _scuText = "0";
 
+        [ObservableProperty]
+        private string _pricePerUnit = "";
+
+        [ObservableProperty]
+        private string _rowValue = "";
+
+        [ObservableProperty]
+        private string _priceWarning = "";
+
+        [ObservableProperty]
+        private bool _hasPriceWarning = false;
+
         public double SCU 
         { 
             get 
@@ -278,8 +300,66 @@ namespace Golem_Mining_Suite.ViewModels
             _parent = parent;
         }
 
-        partial void OnSelectedCommodityChanged(string value) => _parent.CalculateTotals();
-        partial void OnScuTextChanged(string value) => _parent.CalculateTotals();
+        partial void OnSelectedCommodityChanged(string value)
+        {
+            UpdatePriceDisplay();
+            _parent.CalculateTotals();
+        }
+
+        partial void OnScuTextChanged(string value)
+        {
+            UpdatePriceDisplay();
+            _parent.CalculateTotals();
+        }
+
+        public void UpdatePriceDisplay()
+        {
+            if (string.IsNullOrEmpty(_parent.SelectedStation) || SelectedCommodity == "None")
+            {
+                PricePerUnit = "";
+                RowValue = "";
+                PriceWarning = "";
+                HasPriceWarning = false;
+                return;
+            }
+
+            // Check if we have price data for this commodity at the selected station
+            if (_parent._commodityPrices.ContainsKey(SelectedCommodity))
+            {
+                var stationData = _parent._commodityPrices[SelectedCommodity];
+                if (stationData.ContainsKey(_parent.SelectedStation))
+                {
+                    var priceData = stationData[_parent.SelectedStation];
+                    double unitPrice = priceData.UnitBuyPrice;
+
+                    // Always show the price, even if it's 0
+                    double pricePerSCU = unitPrice * 100;
+                    PricePerUnit = $"{pricePerSCU:N0} aUEC/SCU";
+                    
+                    double rowVal = unitPrice * SCU * 100;
+                    RowValue = $"Value: {rowVal:N0} aUEC";
+                    
+                    PriceWarning = "";
+                    HasPriceWarning = false;
+                }
+                else
+                {
+                    // No price data for this specific station - show 0
+                    PricePerUnit = "0 aUEC/SCU";
+                    RowValue = "Value: 0 aUEC";
+                    PriceWarning = "";
+                    HasPriceWarning = false;
+                }
+            }
+            else
+            {
+                // Commodity not in price list
+                PricePerUnit = "";
+                RowValue = "";
+                PriceWarning = "";
+                HasPriceWarning = false;
+            }
+        }
 
         [RelayCommand]
         private void Clear()

@@ -21,6 +21,7 @@ namespace Golem_Mining_Suite
         {
             InitializeComponent();
             // Services initialized in OnStartup to ensure Resources are loaded
+            Services = new ServiceCollection().BuildServiceProvider(); // Default empty provider to satisfy non-nullable
         }
 
         private static IServiceProvider ConfigureServices()
@@ -59,6 +60,7 @@ namespace Golem_Mining_Suite
             // New Services for Hauling
             services.AddSingleton<UEXService>();
             services.AddSingleton<ICommodityDataService, CommodityDataService>();
+            services.AddSingleton<ISettingsService, SettingsService>();
 
             // ViewModels
             services.AddSingleton<MainViewModel>();
@@ -75,6 +77,8 @@ namespace Golem_Mining_Suite
             services.AddTransient<RefineryViewModel>();
             services.AddTransient<HaulingPricesViewModel>();
             services.AddTransient<HaulingCalculatorViewModel>();
+            services.AddTransient<RouteOptimizerViewModel>();
+            services.AddSingleton<SettingsViewModel>();
 
             // Windows
             services.AddSingleton<MainWindow>();

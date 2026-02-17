@@ -39,6 +39,7 @@ namespace Golem_Mining_Suite.ViewModels
             _priceService = priceService;
             Prices = new ObservableCollection<PriceData>();
             Minerals = new ObservableCollection<string>();
+            _allPrices = new List<PriceData>(); // Initialize to avoid null warning
             
             // Subscribe to live events
             if (_priceService is PriceService ps)

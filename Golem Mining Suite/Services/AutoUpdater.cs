@@ -87,8 +87,9 @@ namespace Golem_Mining_Suite
         private static void CreateAdvancedUpdaterScript(string extractPath)
         {
             // Get current app directory
-            string currentExePath = Process.GetCurrentProcess().MainModule.FileName;
-            string currentAppDir = Path.GetDirectoryName(currentExePath);
+            var mainModule = Process.GetCurrentProcess().MainModule;
+            string currentExePath = mainModule?.FileName ?? Environment.ProcessPath ?? throw new InvalidOperationException("Could not determine process path");
+            string currentAppDir = Path.GetDirectoryName(currentExePath) ?? AppDomain.CurrentDomain.BaseDirectory;
             string exeName = Path.GetFileName(currentExePath);
             
             // Create a PowerShell script for better file handling

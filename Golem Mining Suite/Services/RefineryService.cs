@@ -28,8 +28,11 @@ namespace Golem_Mining_Suite.Services
 
                     foreach (var method in methods.EnumerateArray())
                     {
-                        string name = method.GetProperty("name").GetString();
-                        string code = method.GetProperty("code").GetString();
+                        string? name = method.GetProperty("name").GetString();
+                        string? code = method.GetProperty("code").GetString();
+                        
+                        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(code)) continue;
+
                         int yieldRating = method.GetProperty("rating_yield").GetInt32();
                         int costRating = method.GetProperty("rating_cost").GetInt32();
                         int speedRating = method.GetProperty("rating_speed").GetInt32();
@@ -74,9 +77,11 @@ namespace Golem_Mining_Suite.Services
 
                     foreach (var yieldData in yields.EnumerateArray())
                     {
-                        string terminal = yieldData.GetProperty("terminal_name").GetString();
-                        string commodity = yieldData.GetProperty("commodity_name").GetString();
+                        string? terminal = yieldData.GetProperty("terminal_name").GetString();
+                        string? commodity = yieldData.GetProperty("commodity_name").GetString();
                         int value = yieldData.GetProperty("value").GetInt32();
+
+                        if (string.IsNullOrEmpty(terminal) || string.IsNullOrEmpty(commodity)) continue;
 
                         if (!_refineryYields.ContainsKey(terminal))
                         {

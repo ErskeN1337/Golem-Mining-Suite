@@ -23,31 +23,35 @@ namespace Golem_Mining_Suite
 					var jsonDoc = JsonDocument.Parse(response);
 					var root = jsonDoc.RootElement;
 
-					string latestVersion = root.GetProperty("tag_name").GetString().Replace("v", "");
+					string latestVersion = root.GetProperty("tag_name").GetString()?.Replace("v", "") ?? "0.0.0";
 					string downloadUrl = "";
 					string releaseNotes = "";
 
 					// Try to get release notes
 					if (root.TryGetProperty("body", out var bodyElement))
 					{
-						releaseNotes = bodyElement.GetString();
+						releaseNotes = bodyElement.GetString() ?? "";
 					}
 
 					// Get the ZIP file download URL
-					var assets = root.GetProperty("assets");
-					foreach (var asset in assets.EnumerateArray())
+					if (root.TryGetProperty("assets", out var assetsElement))
 					{
-						string assetName = asset.GetProperty("name").GetString();
-						if (assetName.EndsWith(".zip"))
+						foreach (var asset in assetsElement.EnumerateArray())
 						{
-							downloadUrl = asset.GetProperty("browser_download_url").GetString();
-							break;
+							string? assetName = asset.GetProperty("name").GetString();
+							if (assetName != null && assetName.EndsWith(".zip"))
+							{
+								downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+								break;
+							}
 						}
 					}
 
 					// Get current version
 					var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-					string currentVersionString = $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}";
+					string currentVersionString = currentVersion != null 
+						? $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}"
+						: "1.0.0";
 
 					// Compare versions
 					bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
@@ -57,14 +61,14 @@ namespace Golem_Mining_Suite
 						IsUpdateAvailable = isNewer,
 						LatestVersion = latestVersion,
 						CurrentVersion = currentVersionString,
-						DownloadUrl = downloadUrl,
-						ReleaseNotes = releaseNotes
+						DownloadUrl = downloadUrl ?? "",
+						ReleaseNotes = releaseNotes ?? ""
 					};
 				}
 			}
 			catch (Exception)
 			{
-				return null;
+				return new UpdateInfo { IsUpdateAvailable = false, CurrentVersion = "0.0.0", LatestVersion = "0.0.0", DownloadUrl = "", ReleaseNotes = "" };
 			}
 		}
 

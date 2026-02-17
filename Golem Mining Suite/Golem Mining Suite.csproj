@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
-		<Version>1.2.3</Version>
+		<Version>1.2.7</Version>
 		<ApplicationIcon>Assets\Images\Golem.ico</ApplicationIcon>
 	</PropertyGroup>
 
@@ -36,10 +36,10 @@
 		<Resource Include="Assets\Images\Golem.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Resource>
-		<Resource Include="Assets\images\GolemMiningSuite_Logo.png">
+		<Resource Include="Assets\images\Golem Mining Suite Logo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Resource>
-		<Content Include="Assets\images\GolemHaulingSuite_Logo.png">
+		<Content Include="Assets\images\Golem Hauling Suite Logo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Resource Include="Assets\images\uex-logo.png">

@@ -1,0 +1,229 @@
+Checking Fallow Field -> Reclamation Orinth. P_SCU: 7148. Buy: 19866, Sell: 27014
+Checking Fallow Field -> CRU-L4 Locker. P_SCU: 6891. Buy: 19866, Sell: 26757
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Devlin Scrap. P_SCU: 5880. Buy: 19866, Sell: 25746
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> Brio's Breaker. P_SCU: 5889. Buy: 19229, Sell: 25118
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Devlin Scrap. P_SCU: 6517. Buy: 19229, Sell: 25746
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997
+Checking Fallow Field -> Reclamation Orinth. P_SCU: 7148. Buy: 19866, Sell: 27014
+Checking Fallow Field -> CRU-L4 Locker. P_SCU: 6891. Buy: 19866, Sell: 26757
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Devlin Scrap. P_SCU: 5880. Buy: 19866, Sell: 25746
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking The Golden Riviera -> Devlin Scrap. P_SCU: 6517. Buy: 19229, Sell: 25746
+Checking The Golden Riviera -> Brio's Breaker. P_SCU: 5889. Buy: 19229, Sell: 25118
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997
+Checking Fallow Field -> Reclamation Orinth. P_SCU: 7148. Buy: 19866, Sell: 27014
+Checking Fallow Field -> CRU-L4 Locker. P_SCU: 6891. Buy: 19866, Sell: 26757
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Devlin Scrap. P_SCU: 5880. Buy: 19866, Sell: 25746
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking The Golden Riviera -> Devlin Scrap. P_SCU: 6517. Buy: 19229, Sell: 25746
+Checking The Golden Riviera -> Brio's Breaker. P_SCU: 5889. Buy: 19229, Sell: 25118
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997
+Checking Fallow Field -> Reclamation Orinth. P_SCU: 7148. Buy: 19866, Sell: 27014
+Checking Fallow Field -> CRU-L4 Locker. P_SCU: 6891. Buy: 19866, Sell: 26757
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Devlin Scrap. P_SCU: 5880. Buy: 19866, Sell: 25746
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking The Golden Riviera -> Devlin Scrap. P_SCU: 6517. Buy: 19229, Sell: 25746
+Checking The Golden Riviera -> Brio's Breaker. P_SCU: 5889. Buy: 19229, Sell: 25118
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997
+Checking Fallow Field -> Reclamation Orinth. P_SCU: 7148. Buy: 19866, Sell: 27014
+Checking Fallow Field -> CRU-L4 Locker. P_SCU: 6891. Buy: 19866, Sell: 26757
+Checking Fallow Field -> Samson & Son's. P_SCU: 6710. Buy: 19866, Sell: 26576
+Checking Fallow Field -> Devlin Scrap. P_SCU: 5880. Buy: 19866, Sell: 25746
+Checking Fallow Field -> Brio's Breaker. P_SCU: 5252. Buy: 19866, Sell: 25118
+Checking Fallow Field -> Rod's Fuel. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Patch City. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Starlight Service. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Endgame. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Gaslight. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Rat's Nest. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> Dudley and Daughters. P_SCU: 3289. Buy: 19866, Sell: 23155
+Checking Fallow Field -> GrimHEX. P_SCU: 2131. Buy: 19866, Sell: 21997
+Checking The Golden Riviera -> Reclamation Orinth. P_SCU: 7785. Buy: 19229, Sell: 27014
+Checking The Golden Riviera -> CRU-L4 Locker. P_SCU: 7528. Buy: 19229, Sell: 26757
+Checking The Golden Riviera -> Samson & Son's. P_SCU: 7347. Buy: 19229, Sell: 26576
+Checking The Golden Riviera -> Devlin Scrap. P_SCU: 6517. Buy: 19229, Sell: 25746
+Checking The Golden Riviera -> Brio's Breaker. P_SCU: 5889. Buy: 19229, Sell: 25118
+Checking The Golden Riviera -> Rod's Fuel. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Patch City. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Starlight Service. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Endgame. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Gaslight. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Rat's Nest. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> Dudley and Daughters. P_SCU: 3926. Buy: 19229, Sell: 23155
+Checking The Golden Riviera -> GrimHEX. P_SCU: 2768. Buy: 19229, Sell: 21997
+Checking Ashland -> Reclamation Orinth. P_SCU: 8577. Buy: 18437, Sell: 27014
+Checking Ashland -> CRU-L4 Locker. P_SCU: 8320. Buy: 18437, Sell: 26757
+Checking Ashland -> Samson & Son's. P_SCU: 8139. Buy: 18437, Sell: 26576
+Checking Ashland -> Devlin Scrap. P_SCU: 7309. Buy: 18437, Sell: 25746
+Checking Ashland -> Brio's Breaker. P_SCU: 6681. Buy: 18437, Sell: 25118
+Checking Ashland -> Rod's Fuel. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Patch City. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Starlight Service. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Endgame. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Gaslight. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Rat's Nest. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> Dudley and Daughters. P_SCU: 4718. Buy: 18437, Sell: 23155
+Checking Ashland -> GrimHEX. P_SCU: 3560. Buy: 18437, Sell: 21997

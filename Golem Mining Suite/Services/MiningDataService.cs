@@ -238,5 +238,10 @@ namespace Golem_Mining_Suite.Services
         {
             return ROCMiningData.GetAllRockTypes();
         }
+
+        public Dictionary<string, List<LocationData>> GetROCLocationMapping()
+        {
+            return ROCMiningData.GetRockTypeLocations();
+        }
     }
 }

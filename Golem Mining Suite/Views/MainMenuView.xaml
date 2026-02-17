@@ -35,7 +35,7 @@
                                 <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="border" Property="Effect">
                                     <Setter.Value>
-                                        <DropShadowEffect Color="#FF8C42" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -95,7 +95,7 @@
                             </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsMiningMode}" Value="True">
-                                    <Setter Property="Background" Value="#FF8C42"/>
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                     <Setter Property="Foreground" Value="Black"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
@@ -278,16 +278,16 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Hauling Routes -->
+                    <!-- Route Optimizer -->
                     <Button Grid.Column="2" 
                             Style="{DynamicResource DashboardTile}" 
-                            Command="{Binding OpenHaulingRoutesCommand}"
+                            Command="{Binding OpenRouteOptimizerCommand}"
                             Height="140"
                             Margin="10">
                         <StackPanel>
-                            <TextBlock Text="🛣️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            <TextBlock Text="Hauling Routes" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Plan your route" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBlock Text="🗺️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Route Optimizer" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Find profitable routes" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Button>
                 </Grid>

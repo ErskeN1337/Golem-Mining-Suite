@@ -38,10 +38,17 @@ namespace Golem_Mining_Suite.ViewModels
             _windowService = windowService;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText = "v1.0.0";
 
-            LoadData();
+            _allRockTypes = new List<string>();
+            RockTypes = new ObservableCollection<string>();
             Suggestions = new ObservableCollection<string>();
+
+            // Load data after all properties are initialized
+            LoadData();
         }
 
         [ObservableProperty]
@@ -49,8 +56,22 @@ namespace Golem_Mining_Suite.ViewModels
 
         private void LoadData()
         {
-            _allRockTypes = _miningDataService.GetROCRockTypes();
-            RockTypes = new ObservableCollection<string>(_allRockTypes);
+            try
+            {
+                _allRockTypes = _miningDataService.GetROCRockTypes();
+                RockTypes = new ObservableCollection<string>(_allRockTypes);
+                
+                // Debug output to verify data loading
+                System.Diagnostics.Debug.WriteLine($"ROC Mining Data Loaded: {_allRockTypes.Count} rock types");
+                foreach (var rock in _allRockTypes)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - {rock}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading ROC mining data: {ex.Message}");
+            }
         }
 
         [RelayCommand]
@@ -119,9 +140,9 @@ namespace Golem_Mining_Suite.ViewModels
         }
 
         [ObservableProperty]
-        private string _selectedSuggestion;
+        private string? _selectedSuggestion;
 
-        partial void OnSelectedSuggestionChanged(string value)
+        partial void OnSelectedSuggestionChanged(string? value)
         {
             if (value != null)
             {

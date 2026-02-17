@@ -21,5 +21,6 @@ namespace Golem_Mining_Suite.Services.Interfaces
 
         // ROC Mining
         List<string> GetROCRockTypes();
+        Dictionary<string, List<LocationData>> GetROCLocationMapping();
     }
 }

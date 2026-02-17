@@ -7,7 +7,7 @@ namespace Golem_Mining_Suite.Views
 {
     public partial class MainMenuView : UserControl
     {
-        public event EventHandler<string> NavigationRequested;
+        public event EventHandler<string>? NavigationRequested;
 
         public MainMenuView()
         {
@@ -15,7 +15,10 @@ namespace Golem_Mining_Suite.Views
             
             // Set version from assembly
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+            if (version != null)
+                VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+            else
+                VersionText.Text = "v1.0.0";
         }
 
         private void SurfaceMining_Click(object sender, RoutedEventArgs e)

@@ -227,7 +227,7 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="Planet:" Foreground="{DynamicResource TextSecondaryBrush}" 
+                    <TextBlock Text="Planet / Moon:" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <ComboBox x:Name="PlanetComboBox" Width="200" Height="35"
                               ItemsSource="{Binding Planets}"

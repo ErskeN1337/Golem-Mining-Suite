@@ -48,11 +48,12 @@ namespace Golem_Mining_Suite.Services
 
                         // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
                         string name = "";
-                        if (terminal.TryGetProperty("displayname", out var dnElement) && !string.IsNullOrWhiteSpace(dnElement.GetString()))
+                        if (terminal.TryGetProperty("displayname", out var dnElement))
                         {
-                            name = dnElement.GetString()!;
+                            name = dnElement.GetString() ?? "";
                         }
-                        else
+                        
+                        if (string.IsNullOrWhiteSpace(name))
                         {
                              name = terminal.GetProperty("name").GetString() ?? "";
                         }
@@ -98,8 +99,9 @@ namespace Golem_Mining_Suite.Services
                     foreach (var terminal in terminals.EnumerateArray())
                     {
                         int id = terminal.GetProperty("id").GetInt32();
-                        string starSystem = terminal.GetProperty("star_system_name").GetString();
-                        mapping[id] = starSystem;
+                        string? starSystem = terminal.GetProperty("star_system_name").GetString();
+                        if (starSystem != null)
+                            mapping[id] = starSystem;
                     }
                 }
             }
@@ -191,18 +193,23 @@ namespace Golem_Mining_Suite.Services
                         }
                         else
                         {
-                            // Determine primary "Price" text based on context
-                            // For Market view, usually "Sell" (Cost) is primary, or show range?
-                            // Let's stick to "Sell" (Cost) for numeric sort if available, else "Buy"
-                            double primaryPrice = priceSell > 0 ? priceSell : priceBuy;
+                            // API seems to use Player perspective:
+                            // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
+                            // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
+
+                            double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
+                            double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
+                            
+                            // Determine primary "Price" text for display
+                            double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
 
                             priceList.Add(new PriceData
                             {
                                 MineralName = displayName,
                                 Price = $"{primaryPrice:N2} aUEC",
                                 NumericPrice = primaryPrice,
-                                UnitBuyPrice = priceBuy,
-                                UnitSellPrice = priceSell,
+                                UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
+                                UnitSellPrice = unitSellPrice,   // We Buy (Cost)
                                 BestLocation = terminalName,
                                 Demand = demand,
                                 StarSystem = starSystem,

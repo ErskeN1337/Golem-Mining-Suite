@@ -143,7 +143,7 @@
                                     <Setter Property="Foreground" Value="#00BCD4"/> <!-- Cyan for Live -->
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Demand}" Value="High">
-                                    <Setter Property="Foreground" Value="#4CAF50"/> <!-- Green -->
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/> <!-- High demand -->
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Demand}" Value="Medium">
                                     <Setter Property="Foreground" Value="#FFC107"/> <!-- Amber -->
@@ -174,7 +174,7 @@
                                 <Setter Property="Fill" Value="#757575"/> <!-- Gray default -->
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsLiveConnected}" Value="True">
-                                        <Setter Property="Fill" Value="#4CAF50"/> <!-- Green -->
+                                        <Setter Property="Fill" Value="{DynamicResource AccentBrush}"/> <!-- Connected -->
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
