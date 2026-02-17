@@ -4,7 +4,7 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
-## 🆕 Latest Update (v1.2.9)
+## 🆕 Latest Update (v1.2.8)
 **The "Smoother Start" Update**
 - **Update Fixes**: Re-engineered the auto-updater to handle ZIP subfolders and improve file replacement reliability.
 - **UI Polish**: The "New Update" window now centers over the main menu.
