@@ -4,18 +4,11 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
-## 🆕 Latest Update (v1.2.8)
-**The "Polish & Performance" Update**
-- **Route Optimizer**: Added "Max Budget" filter to find routes within your means.
-- **UI Refinements**: Improved layout scaling, fixed clipping issues, and aligned controls for a cleaner look.
-- **Data Fixes**: Mapped previously unknown terminal IDs (Area18, New Babbage, Orison) to correct locations.
-- **Settings**: Persistent window preferences (size, position, opacity) and theming engine improvements.
-## 🆕 Latest Update (v1.2.7)
-**The "Quality of Life" Update**
-- **Settings Menu**: Customize your experience with "Always on Top", "Window Opacity", and "App Theme" (Orange/Blue/Purple/etc).
-- **True Transparency**: New borderless window design that allows the entire app to fade, perfect for overlays.
-- **Route Optimizer**: Enhanced with separate Source/Destination system filters and smarter profit calculations.
-- **ROC/FPS Mining**: Added missing location data and corrected terminology for Planet/Moon biomes.
+## 🆕 Latest Update (v1.2.9)
+**The "Smoother Start" Update**
+- **Update Fixes**: Re-engineered the auto-updater to handle ZIP subfolders and improve file replacement reliability.
+- **UI Polish**: The "New Update" window now centers over the main menu.
+- **Route Optimizer**: All v1.2.8 features included (Max Budget, Left Alignment, Data Mapping fixes).
 
 ## 🌟 Features
 

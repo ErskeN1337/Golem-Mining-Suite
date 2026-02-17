@@ -30,7 +30,7 @@ namespace Golem_Mining_Suite
 				if (updateInfo != null && updateInfo.IsUpdateAvailable)
 				{
 					var updateWindow = new UpdateAvailableWindow(updateInfo);
-					PositionWindowToRight(updateWindow);
+					updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 					updateWindow.Owner = this;
 					updateWindow.ShowDialog();
 				}
@@ -58,6 +58,7 @@ namespace Golem_Mining_Suite
 		{
 			Close();
 		}
+
 
 		public void PositionWindowToRight(Window window)
 		{

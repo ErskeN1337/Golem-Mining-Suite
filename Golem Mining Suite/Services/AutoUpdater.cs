@@ -97,7 +97,7 @@ namespace Golem_Mining_Suite
 # Wait for main app to close
 Start-Sleep -Seconds 2
 
-# Backup current version (optional)
+# Backup current version
 $backupDir = Join-Path $env:TEMP 'GolemMiningBackup'
 if (Test-Path $backupDir) {{ Remove-Item $backupDir -Recurse -Force }}
 New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
@@ -106,18 +106,47 @@ Write-Host 'Creating backup...'
 Copy-Item '{currentAppDir}\*' $backupDir -Recurse -Force
 
 try {{
+    Write-Host 'Preparing update source...'
+    
+    # Check if extracted ZIP contains a single subfolder (typical for GitHub releases)
+    $sourcePath = '{extractPath}'
+    $subfolders = Get-ChildItem '{extractPath}' -Directory
+    $files = Get-ChildItem '{extractPath}' -File
+    
+    if ($subfolders.Count -eq 1 -and $files.Count -eq 0) {{
+        $sourcePath = $subfolders[0].FullName
+        Write-Host ""Detected subfolder: $($subfolders[0].Name)""
+    }}
+
     Write-Host 'Installing update...'
     
-    # Copy all files from update to app directory
-    Get-ChildItem '{extractPath}' -Recurse | ForEach-Object {{
-        $targetPath = $_.FullName.Replace('{extractPath}', '{currentAppDir}')
+    # Copy all files from source to app directory using a robust method
+    # We use Get-ChildItem and Copy-Item but with better error handling for each file
+    Get-ChildItem $sourcePath -Recurse | ForEach-Object {{
+        $relativePath = $_.FullName.Substring($sourcePath.Length).TrimStart('\').TrimStart('/')
+        if ($relativePath -eq """") {{ return }}
+        
+        $targetPath = Join-Path '{currentAppDir}' $relativePath
         
         if ($_.PSIsContainer) {{
             if (!(Test-Path $targetPath)) {{
                 New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
             }}
         }} else {{
-            Copy-Item $_.FullName $targetPath -Force
+            # Retry logic for files that might be locked
+            $retries = 3
+            $success = $false
+            while (-not $success -and $retries -gt 0) {{
+                try {{
+                    Copy-Item $_.FullName $targetPath -Force -ErrorAction Stop
+                    $success = $true
+                }} catch {{
+                    Write-Host ""Waiting for file: $($_.Name)...""
+                    Start-Sleep -Seconds 1
+                    $retries--
+                }}
+            }}
+            if (-not $success) {{ throw ""Could not replace file: $targetPath"" }}
         }}
     }}
     
@@ -131,8 +160,10 @@ try {{
     Start-Process '{currentExePath}'
     
 }} catch {{
-    Write-Host 'Update failed! Restoring backup...'
-    Copy-Item '$backupDir\*' '{currentAppDir}' -Recurse -Force
+    Write-Host 'Update failed!' -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host 'Restoring backup...'
+    Copy-Item ""$backupDir\*"" '{currentAppDir}' -Recurse -Force
     Start-Process '{currentExePath}'
 }}
 ";
