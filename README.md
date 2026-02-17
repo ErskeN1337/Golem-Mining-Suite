@@ -4,17 +4,12 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
-## 🆕 Latest Update (v1.2.3)
-**Hotfix: Missing Hauling Prices & Calculator Logic**
-- **Fixed Missing Prices**: Intelligent merged data logic now captures valid prices even if the API returns mixed data for a station.
-- **Fixed Calculator**: Now correctly uses "Buy Price" (Station Pays You) and applies the correct 100x SCU multiplier.
-- **Improved UI**: Dynamic row addition for Mining/Hauling calculators.
-
-## 🆕 Latest Update (v1.2.3)
-**Hotfix: Missing Hauling Prices & Calculator Logic**
-- **Fixed Missing Prices**: Intelligent merged data logic now captures valid prices even if the API returns mixed data for a station.
-- **Fixed Calculator**: Now correctly uses "Buy Price" (Station Pays You) and applies the correct 100x SCU multiplier.
-- **Improved UI**: Dynamic row addition for Mining/Hauling calculators.
+## 🆕 Latest Update (v1.2.7)
+**The "Quality of Life" Update**
+- **Settings Menu**: Customize your experience with "Always on Top", "Window Opacity", and "App Theme" (Orange/Blue/Purple/etc).
+- **True Transparency**: New borderless window design that allows the entire app to fade, perfect for overlays.
+- **Route Optimizer**: Enhanced with separate Source/Destination system filters and smarter profit calculations.
+- **ROC/FPS Mining**: Added missing location data and corrected terminology for Planet/Moon biomes.
 
 ## 🌟 Features
 
@@ -22,8 +17,9 @@
 - **☄️ Asteroid Mining**: Navigate the belts with precision, knowing exactly where to find specific ores.
 - **🪨 ROC Mining**: Find the best spots for gem mining with ground vehicles.
 - **💰 Market Prices**: Real-time trading data to help you sell at the best price.
-- **🧮 Cargo Calculator**: Estimate the value of your haul before you even leave the site.
-- **🏭 Refinery Calculator**: Calculate yields and costs to optimize your refining process.
+- **🗺️ Route Optimizer**: Find the most profitable trade routes with customizable filters.
+- **🧮 Calculator Suite**: Calculate cargo value and refinery yields.
+- **⚙️ Custom Settings**: Tailor the app to your playstyle with themes and transparency control.
 - **🎨 Modern Dark UI**: A sleek, easy-to-read interface designed for low-light gaming environments.
 
 ## 🚀 Installation
