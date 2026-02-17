@@ -56,14 +56,27 @@ namespace Golem_Mining_Suite.ViewModels
         // Internal Data Maps
         private readonly Dictionary<string, double> _shipCapacities = new Dictionary<string, double>
         {
-            { "Prospector", 32 },
-            { "MOLE", 96 },
-            { "ROC", 1.2 },
-            { "Cutlass Black", 46 },
-            { "Freelancer MAX", 122 },
-            { "Constellation Andromeda", 96 },
+            { "Anvil Carrack", 456 },
+            { "ARGO RAFT", 96 },
+            { "C2 Hercules", 696 },
             { "Caterpillar", 576 },
-            { "C2 Hercules", 696 }
+            { "Constellation Andromeda", 96 },
+            { "Constellation Taurus", 174 },
+            { "Crusader Spirit C1", 64 },
+            { "Cutlass Black", 46 },
+            { "Drake Corsair", 72 },
+            { "Drake Cutter", 4 },
+            { "Freelancer MAX", 120 },
+            { "Hull A", 64 },
+            { "Hull B", 384 },
+            { "Hull C", 4608 },
+            { "Mercury Star Runner", 114 },
+            { "MISC Starlancer MAX", 224 },
+            { "MOLE", 96 },
+            { "Origin 400i", 42 },
+            { "Prospector", 32 },
+            { "ROC", 1.2 },
+            { "RSI Zeus Mk II CL", 128 }
         };
 
         private readonly Dictionary<string, double> _basePrices = new Dictionary<string, double>
