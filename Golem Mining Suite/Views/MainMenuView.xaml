@@ -278,16 +278,16 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- Hauling Routes -->
+                    <!-- Route Optimizer -->
                     <Button Grid.Column="2" 
                             Style="{DynamicResource DashboardTile}" 
-                            Command="{Binding OpenHaulingRoutesCommand}"
+                            Command="{Binding OpenRouteOptimizerCommand}"
                             Height="140"
                             Margin="10">
                         <StackPanel>
-                            <TextBlock Text="🛣️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                            <TextBlock Text="Hauling Routes" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Plan your route" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBlock Text="🗺️" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Route Optimizer" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Find profitable routes" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Button>
                 </Grid>

@@ -193,18 +193,23 @@ namespace Golem_Mining_Suite.Services
                         }
                         else
                         {
-                            // Determine primary "Price" text based on context
-                            // For Market view, usually "Sell" (Cost) is primary, or show range?
-                            // Let's stick to "Sell" (Cost) for numeric sort if available, else "Buy"
-                            double primaryPrice = priceSell > 0 ? priceSell : priceBuy;
+                            // API seems to use Player perspective:
+                            // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
+                            // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
+
+                            double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
+                            double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
+                            
+                            // Determine primary "Price" text for display
+                            double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
 
                             priceList.Add(new PriceData
                             {
                                 MineralName = displayName,
                                 Price = $"{primaryPrice:N2} aUEC",
                                 NumericPrice = primaryPrice,
-                                UnitBuyPrice = priceBuy,
-                                UnitSellPrice = priceSell,
+                                UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
+                                UnitSellPrice = unitSellPrice,   // We Buy (Cost)
                                 BestLocation = terminalName,
                                 Demand = demand,
                                 StarSystem = starSystem,

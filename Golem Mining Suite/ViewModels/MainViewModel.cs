@@ -90,9 +90,12 @@ namespace Golem_Mining_Suite.ViewModels
                 LogoHeight = 145;
                 LogoMargin = new Thickness(15, -40, 15, 0);
                 
-                // Set Mining theme accent color (Orange)
-                Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#FF8C42");
-                Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF8C42"));
+                // Set Mining theme accent color (Orange) if Auto
+                if (SettingsVM.SelectedTheme.Value == "Auto")
+                {
+                    Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#FF8C42");
+                    Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF8C42"));
+                }
             }
             else
             {
@@ -101,9 +104,12 @@ namespace Golem_Mining_Suite.ViewModels
                 LogoHeight = 145;
                 LogoMargin = new Thickness(15, -40, 15, 0);
                 
-                // Set Hauling theme accent color (Blue)
-                Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#4A90E2");
-                Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A90E2"));
+                // Set Hauling theme accent color (Blue) if Auto
+                if (SettingsVM.SelectedTheme.Value == "Auto")
+                {
+                    Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#4A90E2");
+                    Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A90E2"));
+                }
             }
         }
 
@@ -131,12 +137,15 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private TerminalInfo? _selectedLocationPromptTerminal;
 
-        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM, LiveDataCoordinator coordinator, IPriceService priceService)
+        public SettingsViewModel SettingsVM { get; }
+
+        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM, LiveDataCoordinator coordinator, IPriceService priceService, SettingsViewModel settingsVM)
         {
             _miningDataService = miningDataService;
             _windowService = windowService;
             _liveDataCoordinator = coordinator;
             _priceService = priceService;
+            SettingsVM = settingsVM;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if (version != null)
@@ -170,8 +179,7 @@ namespace Golem_Mining_Suite.ViewModels
             if (haulingVM != null) _haulingDashboardView.DataContext = haulingVM;
 
             _settingsView = new SettingsView();
-            // var liveDataVM = new LiveDataViewModel(); // Injected
-            _settingsView.DataContext = liveDataVM;
+            _settingsView.DataContext = settingsVM;
 
             // Set initial view
             CurrentView = _mainMenuView;
@@ -261,6 +269,12 @@ namespace Golem_Mining_Suite.ViewModels
         private void OpenHaulingCalculator()
         {
             _windowService.ShowHaulingCalculatorWindow();
+        }
+
+        [RelayCommand]
+        private void OpenRouteOptimizer()
+        {
+            _windowService.ShowRouteOptimizerWindow();
         }
 
         [RelayCommand]

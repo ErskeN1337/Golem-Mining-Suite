@@ -55,6 +55,16 @@ namespace Golem_Mining_Suite.Services
             PositionAndShow(window);
         }
 
+        public void ShowRouteOptimizerWindow()
+        {
+            var vm = _serviceProvider.GetService<RouteOptimizerViewModel>();
+            if (vm != null)
+            {
+                var window = new RouteOptimizerWindow(vm);
+                PositionAndShow(window);
+            }
+        }
+
         public void ShowLocationWindow(string name, bool isMineral, bool isAsteroid, bool isRoc)
         {
             // LocationWindow resolves its VM internally or we can do it here if we refactor it further

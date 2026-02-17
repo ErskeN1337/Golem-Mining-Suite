@@ -112,12 +112,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             if (IsROCMode)
             {
-                // ROC Logic unimplemented in interface wrapper yet? 
-                // Wait, I didn't add ROC methods to IMiningDataService!
-                // I need to add them or just skip for now. 
-                // Let's assume I will add them or handle gracefully.
-                // For now, let's create a placeholder list
-                _allLocations = new List<LocationData>(); // TODO: Add ROC support
+                LoadROCLocations(_targetName);
             }
             else if (IsAsteroidMode)
             {
@@ -294,6 +289,23 @@ namespace Golem_Mining_Suite.ViewModels
             {
                  _allLocations = new List<LocationData>();
                  ApplyFilter();
+            }
+        }
+
+        private void LoadROCLocations(string rockType)
+        {
+            var rocData = _miningDataService.GetROCLocationMapping();
+
+            if (rocData.ContainsKey(rockType))
+            {
+                _allLocations = rocData[rockType];
+                // Ensure SortValue is set if not already (it seems to be set in data, but good to be safe)
+                ApplyFilter();
+            }
+            else
+            {
+                _allLocations = new List<LocationData>();
+                ApplyFilter();
             }
         }
 
