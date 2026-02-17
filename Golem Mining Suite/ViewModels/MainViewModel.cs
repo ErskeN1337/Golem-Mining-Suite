@@ -9,6 +9,7 @@ using Golem_Mining_Suite.Models;
 using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media;
 // using Golem_Mining_Suite.Windows; // Removed unused
 
 
@@ -59,10 +60,10 @@ namespace Golem_Mining_Suite.ViewModels
         private string _welcomeText = "Welcome to Golem Mining Suite";
 
         [ObservableProperty]
-        private string _logoSource = "/Assets/Images/GolemMiningSuite_Logo.png";
+        private string _logoSource = "/Assets/Images/Golem Mining Suite Logo.png";
 
         [ObservableProperty]
-        private double _logoHeight = 40;
+        private double _logoHeight = 145;
 
         [RelayCommand]
         private void SwitchToMining()
@@ -85,21 +86,29 @@ namespace Golem_Mining_Suite.ViewModels
             if (IsMiningMode)
             {
                 WelcomeText = "Welcome to Golem Mining Suite";
-                LogoSource = "/Assets/Images/GolemMiningSuite_Logo.png";
-                LogoHeight = 40;
-                //LogoMargin = new Thickness(0, 10, 30, 0); // Center vertically in 60px header
+                LogoSource = "/Assets/Images/Golem Mining Suite Logo.png";
+                LogoHeight = 145;
+                LogoMargin = new Thickness(15, -40, 15, 0);
+                
+                // Set Mining theme accent color (Orange)
+                Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#FF8C42");
+                Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF8C42"));
             }
             else
             {
                 WelcomeText = "Welcome to Golem Hauling Suite";
-                LogoSource = "pack://siteoforigin:,,,/Assets/Images/GolemHaulingSuite_Logo.png";
-                LogoHeight = 110; 
-                //LogoMargin = new Thickness(0, 0, 30, -50); // Top: -45, Bottom: 20
+                LogoSource = "pack://siteoforigin:,,,/Assets/Images/Golem Hauling Suite Logo.png";
+                LogoHeight = 145;
+                LogoMargin = new Thickness(15, -40, 15, 0);
+                
+                // Set Hauling theme accent color (Blue)
+                Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString("#4A90E2");
+                Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A90E2"));
             }
         }
 
         [ObservableProperty]
-        private Thickness _logoMargin = new Thickness(0, 10, 15, 0);
+        private Thickness _logoMargin = new Thickness(15, -40, 15, 0);
 
         private readonly LiveDataCoordinator _liveDataCoordinator;
         private readonly IPriceService _priceService;

@@ -66,8 +66,17 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Logo Area -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,30,-50" ClipToBounds="False">
-                    <Image Source="{Binding LogoSource}" Height="{Binding LogoHeight}" Stretch="Uniform" Margin="{Binding LogoMargin}" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0" ClipToBounds="False">
+                    <Image Source="{Binding LogoSource}" 
+                           Height="{Binding LogoHeight}" 
+                           Stretch="Uniform" 
+                           Margin="{Binding LogoMargin}" 
+                           VerticalAlignment="Top" 
+                           HorizontalAlignment="Left"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"
+                           UseLayoutRounding="True"
+                           SnapsToDevicePixels="True"/>
                 </StackPanel>
 
                 <!-- Main Navigation -->

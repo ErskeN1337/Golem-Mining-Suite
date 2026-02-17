@@ -35,7 +35,7 @@
                                 <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="border" Property="Effect">
                                     <Setter.Value>
-                                        <DropShadowEffect Color="#FF8C42" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -95,7 +95,7 @@
                             </Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsMiningMode}" Value="True">
-                                    <Setter Property="Background" Value="#FF8C42"/>
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                     <Setter Property="Foreground" Value="Black"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>

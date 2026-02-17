@@ -4,6 +4,18 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
+## 🆕 Latest Update (v1.2.3)
+**Hotfix: Missing Hauling Prices & Calculator Logic**
+- **Fixed Missing Prices**: Intelligent merged data logic now captures valid prices even if the API returns mixed data for a station.
+- **Fixed Calculator**: Now correctly uses "Buy Price" (Station Pays You) and applies the correct 100x SCU multiplier.
+- **Improved UI**: Dynamic row addition for Mining/Hauling calculators.
+
+## 🆕 Latest Update (v1.2.3)
+**Hotfix: Missing Hauling Prices & Calculator Logic**
+- **Fixed Missing Prices**: Intelligent merged data logic now captures valid prices even if the API returns mixed data for a station.
+- **Fixed Calculator**: Now correctly uses "Buy Price" (Station Pays You) and applies the correct 100x SCU multiplier.
+- **Improved UI**: Dynamic row addition for Mining/Hauling calculators.
+
 ## 🌟 Features
 
 - **💎 Surface Mining**: Locate the best planetary deposits for high-value minerals.
