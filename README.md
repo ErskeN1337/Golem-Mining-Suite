@@ -10,6 +10,12 @@
 - **UI Refinements**: Improved layout scaling, fixed clipping issues, and aligned controls for a cleaner look.
 - **Data Fixes**: Mapped previously unknown terminal IDs (Area18, New Babbage, Orison) to correct locations.
 - **Settings**: Persistent window preferences (size, position, opacity) and theming engine improvements.
+## 🆕 Latest Update (v1.2.7)
+**The "Quality of Life" Update**
+- **Settings Menu**: Customize your experience with "Always on Top", "Window Opacity", and "App Theme" (Orange/Blue/Purple/etc).
+- **True Transparency**: New borderless window design that allows the entire app to fade, perfect for overlays.
+- **Route Optimizer**: Enhanced with separate Source/Destination system filters and smarter profit calculations.
+- **ROC/FPS Mining**: Added missing location data and corrected terminology for Planet/Moon biomes.
 
 ## 🌟 Features
 
