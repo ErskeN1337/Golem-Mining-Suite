@@ -61,9 +61,11 @@ namespace Golem_Mining_Suite
             services.AddSingleton<UEXService>();
             services.AddSingleton<ICommodityDataService, CommodityDataService>();
             services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<IWalletService, WalletService>(); // Wallet
 
             // ViewModels
             services.AddSingleton<MainViewModel>();
+            services.AddSingleton<WalletViewModel>(); // Wallet VM
             services.AddSingleton<SurfaceMiningViewModel>();
             services.AddSingleton<AsteroidMiningViewModel>();
             services.AddSingleton<ROCMiningViewModel>();
