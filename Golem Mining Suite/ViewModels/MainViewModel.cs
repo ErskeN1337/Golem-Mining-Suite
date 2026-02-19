@@ -127,6 +127,8 @@ namespace Golem_Mining_Suite.ViewModels
         private SettingsView _settingsView;
         private HaulingDashboardView _haulingDashboardView; // Cached view
         private HaulingRoutesView _haulingRoutesView;
+        private WalletView _walletView;
+
 
         [ObservableProperty]
         private bool _isLocationPromptVisible;
@@ -138,14 +140,16 @@ namespace Golem_Mining_Suite.ViewModels
         private TerminalInfo? _selectedLocationPromptTerminal;
 
         public SettingsViewModel SettingsVM { get; }
+        public WalletViewModel WalletVM { get; }
 
-        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM, LiveDataCoordinator coordinator, IPriceService priceService, SettingsViewModel settingsVM)
+        public MainViewModel(IMiningDataService miningDataService, IWindowService windowService, LiveDataViewModel liveDataVM, LiveDataCoordinator coordinator, IPriceService priceService, SettingsViewModel settingsVM, WalletViewModel walletVM)
         {
             _miningDataService = miningDataService;
             _windowService = windowService;
             _liveDataCoordinator = coordinator;
             _priceService = priceService;
             SettingsVM = settingsVM;
+            WalletVM = walletVM;
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if (version != null)
@@ -180,6 +184,9 @@ namespace Golem_Mining_Suite.ViewModels
 
             _settingsView = new SettingsView();
             _settingsView.DataContext = settingsVM;
+
+            _walletView = new WalletView();
+            _walletView.DataContext = walletVM;
 
             // Set initial view
             CurrentView = _mainMenuView;
@@ -249,6 +256,9 @@ namespace Golem_Mining_Suite.ViewModels
                     break;
                 case "Settings":
                     CurrentView = _settingsView;
+                    break;
+                case "Wallet":
+                    CurrentView = _walletView;
                     break;
             }
         }

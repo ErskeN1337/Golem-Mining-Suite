@@ -170,6 +170,17 @@
 
                      <!-- Right Side - Settings & Bug Report -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
+                        <Button Command="{Binding NavigateCommand}"
+                                CommandParameter="Wallet"
+                                Style="{DynamicResource NavButton}"
+                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                FontWeight="SemiBold"
+                                Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="💳" FontSize="16" Margin="0,-6,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Wallet" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         <Button Content="⚙️ Settings" 
                                 Command="{Binding NavigateCommand}"
                                 CommandParameter="Settings"
