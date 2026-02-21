@@ -31,7 +31,7 @@ jobs:
       shell: pwsh
       
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: Golem-Mining-Suite-${{ github.ref_name }}.zip
         generate_release_notes: true
