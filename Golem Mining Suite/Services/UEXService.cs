@@ -15,15 +15,17 @@ namespace Golem_Mining_Suite.Services
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly ILogger<UEXService> _logger;
-        private const string BaseUrl = "https://api.uexcorp.uk/2.0/";
+        // Kept for reference / registration; the actual base address is set on the named
+        // client "uex" in App.xaml.cs and injected through IHttpClientFactory.
+        public const string BaseUrl = "https://api.uexcorp.uk/2.0/";
 
         public bool IsConfigured => !string.IsNullOrEmpty(_apiKey);
 
-        public UEXService(ILogger<UEXService> logger, string apiKey)
+        public UEXService(ILogger<UEXService> logger, IHttpClientFactory httpClientFactory, string apiKey)
         {
             _logger = logger;
             _apiKey = apiKey ?? "";
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            _httpClient = httpClientFactory.CreateClient("uex");
         }
 
         public async Task<List<CommodityData>> GetCommoditiesAsync()

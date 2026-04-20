@@ -1,4 +1,5 @@
 using Golem_Mining_Suite.Models;
+using Golem_Mining_Suite.Services.Interfaces;
 using Supabase;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
@@ -14,7 +15,7 @@ namespace Golem_Mining_Suite.Services
     /// <summary>
     /// Service for interacting with Supabase backend for live terminal data
     /// </summary>
-    public class SupabaseService
+    public class SupabaseService : ISupabaseService
     {
         private Supabase.Client? _client;
         private readonly string _supabaseUrl;

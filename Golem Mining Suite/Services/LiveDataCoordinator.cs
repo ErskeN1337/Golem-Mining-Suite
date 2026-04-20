@@ -1,4 +1,5 @@
 using Golem_Mining_Suite.Models;
+using Golem_Mining_Suite.Services.Interfaces;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -15,7 +16,7 @@ namespace Golem_Mining_Suite.Services
         private readonly GameDetectionService _gameDetection;
         private readonly OCRService _ocrService;
         private readonly TerminalParser _parser;
-        private readonly SupabaseService? _supabaseService;
+        private readonly ISupabaseService? _supabaseService;
         private readonly string _logFilePath;
         
         private CancellationTokenSource? _cancellationTokenSource;
@@ -35,7 +36,7 @@ namespace Golem_Mining_Suite.Services
         public bool IsEnabled => _isEnabled;
         public bool IsGameRunning => _gameDetection.IsStarCitizenRunning();
 
-        public LiveDataCoordinator(SupabaseService? supabaseService)
+        public LiveDataCoordinator(ISupabaseService? supabaseService)
         {
             _gameDetection = new GameDetectionService();
             var tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");

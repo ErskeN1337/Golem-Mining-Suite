@@ -7,12 +7,14 @@ namespace Golem_Mining_Suite
 	public partial class UpdateAvailableWindow : Window
 	{
 		private UpdateInfo updateInfo;
+		private readonly AutoUpdater autoUpdater;
 		private bool isDownloading = false;
 
-		public UpdateAvailableWindow(UpdateInfo info)
+		public UpdateAvailableWindow(UpdateInfo info, AutoUpdater autoUpdater)
 		{
 			InitializeComponent();
 			updateInfo = info;
+			this.autoUpdater = autoUpdater;
 			LoadUpdateInfo();
 		}
 
@@ -71,7 +73,7 @@ namespace Golem_Mining_Suite
 				DownloadButton.Content = "Downloading... 0%";
 
 				// Download and install the update - USE THIS METHOD
-				bool success = await AutoUpdater.DownloadUpdateWithProgressAsync(
+				bool success = await autoUpdater.DownloadUpdateWithProgressAsync(
 					updateInfo,
 					(progress) =>  // This is Action<int>, not IProgress<int>
 					{

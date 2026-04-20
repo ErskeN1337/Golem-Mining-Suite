@@ -8,20 +8,31 @@ using System.Windows;
 
 namespace Golem_Mining_Suite
 {
+    /// <summary>
+    /// Downloads and applies an update ZIP. Uses an <see cref="IHttpClientFactory"/>-provided
+    /// <see cref="HttpClient"/> (named client: <c>downloads</c>) sized for large binary payloads.
+    /// Previously a static type with a module-level <c>HttpClient</c>; now instance-based so it
+    /// participates in DI like every other HTTP consumer.
+    /// </summary>
     public class AutoUpdater
     {
-        private static readonly HttpClient httpClient = new HttpClient();
+        private readonly HttpClient _httpClient;
 
-        public static async Task<bool> DownloadAndInstallUpdateAsync(UpdateInfo updateInfo, IProgress<int> progress)
+        public AutoUpdater(IHttpClientFactory httpClientFactory)
+        {
+            _httpClient = httpClientFactory.CreateClient("downloads");
+        }
+
+        public async Task<bool> DownloadAndInstallUpdateAsync(UpdateInfo updateInfo, IProgress<int> progress)
         {
             try
             {
                 // Get the download URL - should be a ZIP file
                 string downloadUrl = updateInfo.DownloadUrl;
-                
+
                 if (string.IsNullOrEmpty(downloadUrl))
                 {
-                    MessageBox.Show("No download URL found in the release.", 
+                    MessageBox.Show("No download URL found in the release.",
                         "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
@@ -29,13 +40,13 @@ namespace Golem_Mining_Suite
                 // Create temp directory for update
                 string tempPath = Path.Combine(Path.GetTempPath(), "GolemMiningUpdate_" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(tempPath);
-                
+
                 string downloadedFile = Path.Combine(tempPath, "update.zip");
                 string extractPath = Path.Combine(tempPath, "extracted");
 
                 // Download the ZIP file
                 progress?.Report(0);
-                using (var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead))
+                using (var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead))
                 {
                     response.EnsureSuccessStatusCode();
 
@@ -78,7 +89,7 @@ namespace Golem_Mining_Suite
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to download update: {ex.Message}", 
+                MessageBox.Show($"Failed to download update: {ex.Message}",
                     "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
@@ -91,7 +102,7 @@ namespace Golem_Mining_Suite
             string currentExePath = mainModule?.FileName ?? Environment.ProcessPath ?? throw new InvalidOperationException("Could not determine process path");
             string currentAppDir = Path.GetDirectoryName(currentExePath) ?? AppDomain.CurrentDomain.BaseDirectory;
             string exeName = Path.GetFileName(currentExePath);
-            
+
             // Create a PowerShell script for better file handling
             string psScript = $@"
 # Wait for main app to close
@@ -107,27 +118,27 @@ Copy-Item '{currentAppDir}\*' $backupDir -Recurse -Force
 
 try {{
     Write-Host 'Preparing update source...'
-    
+
     # Check if extracted ZIP contains a single subfolder (typical for GitHub releases)
     $sourcePath = '{extractPath}'
     $subfolders = Get-ChildItem '{extractPath}' -Directory
     $files = Get-ChildItem '{extractPath}' -File
-    
+
     if ($subfolders.Count -eq 1 -and $files.Count -eq 0) {{
         $sourcePath = $subfolders[0].FullName
         Write-Host ""Detected subfolder: $($subfolders[0].Name)""
     }}
 
     Write-Host 'Installing update...'
-    
+
     # Copy all files from source to app directory using a robust method
     # We use Get-ChildItem and Copy-Item but with better error handling for each file
     Get-ChildItem $sourcePath -Recurse | ForEach-Object {{
         $relativePath = $_.FullName.Substring($sourcePath.Length).TrimStart('\').TrimStart('/')
         if ($relativePath -eq """") {{ return }}
-        
+
         $targetPath = Join-Path '{currentAppDir}' $relativePath
-        
+
         if ($_.PSIsContainer) {{
             if (!(Test-Path $targetPath)) {{
                 New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
@@ -149,16 +160,16 @@ try {{
             if (-not $success) {{ throw ""Could not replace file: $targetPath"" }}
         }}
     }}
-    
+
     Write-Host 'Update complete!'
-    
+
     # Clean up temp files
     Start-Sleep -Seconds 1
     Remove-Item '{extractPath}' -Recurse -Force -ErrorAction SilentlyContinue
-    
+
     # Start the updated app
     Start-Process '{currentExePath}'
-    
+
 }} catch {{
     Write-Host 'Update failed!' -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
@@ -194,22 +205,22 @@ del ""%~f0""
             try
             {
                 Process.Start(psi);
-                
+
                 // Give the script a moment to start
                 System.Threading.Thread.Sleep(500);
-                
+
                 // Exit the current application
                 Application.Current.Shutdown();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to start updater: {ex.Message}\n\n" +
-                               "You may need to run as administrator.", 
+                               "You may need to run as administrator.",
                     "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        public static async Task<bool> DownloadUpdateWithProgressAsync(UpdateInfo updateInfo, Action<int> progressCallback)
+        public async Task<bool> DownloadUpdateWithProgressAsync(UpdateInfo updateInfo, Action<int> progressCallback)
         {
             var progress = new Progress<int>(progressCallback);
             return await DownloadAndInstallUpdateAsync(updateInfo, progress);

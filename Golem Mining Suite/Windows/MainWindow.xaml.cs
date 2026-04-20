@@ -3,15 +3,21 @@ using System.Threading.Tasks;
 using System.Windows;
 using Golem_Mining_Suite.ViewModels;
 using Golem_Mining_Suite.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Golem_Mining_Suite
 {
 	public partial class MainWindow : Window
 	{
-		public MainWindow(MainViewModel viewModel)
+		private readonly UpdateChecker _updateChecker;
+		private readonly AutoUpdater _autoUpdater;
+
+		public MainWindow(MainViewModel viewModel, UpdateChecker updateChecker, AutoUpdater autoUpdater)
 		{
 			InitializeComponent();
 			DataContext = viewModel;
+			_updateChecker = updateChecker;
+			_autoUpdater = autoUpdater;
 
 			// Check for updates
 			this.Loaded += Window_Loaded;
@@ -26,10 +32,10 @@ namespace Golem_Mining_Suite
 		{
 			try
 			{
-				var updateInfo = await UpdateChecker.CheckForUpdateAsync();
+				var updateInfo = await _updateChecker.CheckForUpdateAsync();
 				if (updateInfo != null && updateInfo.IsUpdateAvailable)
 				{
-					var updateWindow = new UpdateAvailableWindow(updateInfo);
+					var updateWindow = new UpdateAvailableWindow(updateInfo, _autoUpdater);
 					updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 					updateWindow.Owner = this;
 					updateWindow.ShowDialog();

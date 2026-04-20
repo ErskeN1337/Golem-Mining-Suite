@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Windows;
 using Golem_Mining_Suite.Services;
 using Golem_Mining_Suite.Services.Configuration;
@@ -38,10 +40,35 @@ namespace Golem_Mining_Suite
             // Configuration — layered: env vars > %APPDATA%\Golem Mining Suite\appsettings.json > shipped appsettings.json
             var secrets = SecretResolver.Resolve();
 
+            // HTTP — one named client per consumer so headers, base addresses, and timeouts
+            // live with service registration rather than being reset inside each call.
+            services.AddHttpClient("uex", c =>
+            {
+                c.BaseAddress = new Uri(UEXService.BaseUrl); // https://api.uexcorp.uk/2.0/
+                c.Timeout = TimeSpan.FromSeconds(30);
+            });
+            services.AddHttpClient("prices", c =>
+            {
+                // PriceService uses absolute URLs (uexcorp.space/api/...), so no BaseAddress here.
+                c.Timeout = TimeSpan.FromSeconds(30);
+            });
+            services.AddHttpClient("github", c =>
+            {
+                c.BaseAddress = new Uri("https://api.github.com/");
+                c.Timeout = TimeSpan.FromSeconds(10);
+                c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Golem-Mining-Suite", "1.0"));
+            });
+            services.AddHttpClient("downloads", c =>
+            {
+                // Binary download of release ZIPs. Keep the factory default (100s) overridden
+                // to something long enough for large artifacts on slow connections.
+                c.Timeout = TimeSpan.FromMinutes(10);
+            });
+
             // Services
             if (secrets.IsSupabaseConfigured)
             {
-                services.AddSingleton<SupabaseService>(
+                services.AddSingleton<ISupabaseService>(
                     _ => new SupabaseService(secrets.SupabaseUrl, secrets.SupabaseKey));
             }
             else
@@ -54,11 +81,11 @@ namespace Golem_Mining_Suite
             services.AddSingleton<IRefineryService, RefineryService>();
             services.AddSingleton<IWindowService, WindowService>();
 
-            // LiveDataCoordinator tolerates a null SupabaseService — wire it explicitly so
+            // LiveDataCoordinator tolerates a null ISupabaseService — wire it explicitly so
             // the coordinator is always constructible, but only gets a live Supabase when configured.
             services.AddSingleton<LiveDataCoordinator>(p =>
             {
-                var supabase = p.GetService<SupabaseService>();
+                var supabase = p.GetService<ISupabaseService>();
                 if (supabase == null)
                 {
                     var log = p.GetService<ILogger<LiveDataCoordinator>>();
@@ -74,9 +101,15 @@ namespace Golem_Mining_Suite
             }
             services.AddSingleton<UEXService>(p => new UEXService(
                 p.GetRequiredService<ILogger<UEXService>>(),
+                p.GetRequiredService<IHttpClientFactory>(),
                 secrets.UexApiKey));
             services.AddSingleton<ICommodityDataService, CommodityDataService>();
             services.AddSingleton<ISettingsService, SettingsService>();
+
+            // Update infrastructure — formerly static helpers, now DI-managed so they
+            // receive an IHttpClientFactory-configured HttpClient.
+            services.AddSingleton<UpdateChecker>();
+            services.AddSingleton<AutoUpdater>();
 
             // ViewModels
             services.AddSingleton<MainViewModel>();
@@ -111,22 +144,16 @@ namespace Golem_Mining_Suite
             Services = ConfigureServices();
             base.OnStartup(e);
 
-            // Wire up Live Data events
-            var supabase = Services.GetService<SupabaseService>();
+            // Wire up Live Data events — both sides are now behind interfaces, so no
+            // `is PriceService ps` cast is needed.
+            var supabase = Services.GetService<ISupabaseService>();
             var priceService = Services.GetRequiredService<IPriceService>();
-            
+
             if (supabase != null)
             {
-                supabase.TerminalUpdateReceived += (s, data) => 
-                {
-                    if (priceService is PriceService ps) ps.UpdateWithLiveData(s, data);
-                };
-                
-                supabase.ConnectionStatusChanged += (s, connected) => 
-                {
-                    if (priceService is PriceService ps) ps.SetLiveConnectionStatus(connected);
-                };
-                
+                supabase.TerminalUpdateReceived += priceService.UpdateWithLiveData;
+                supabase.ConnectionStatusChanged += (s, connected) => priceService.SetLiveConnectionStatus(connected);
+
                 // Start listening if configured
                 // DISABLED FOR RELEASE: Feature Flagged off until ready
                 // _ = supabase.SubscribeToTerminalUpdatesAsync();
@@ -139,10 +166,10 @@ namespace Golem_Mining_Suite
         private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             Log.Error(e.Exception, "Unhandled Dispatcher Exception");
-            
+
             // Prevent crash for non-critical UI errors if desired, but for now let's just log and maybe alert
-            // e.Handled = true; 
-            
+            // e.Handled = true;
+
             MessageBox.Show($"An unhandled error occurred: {e.Exception.Message}\n\nCheck logs for details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 

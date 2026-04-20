@@ -16,6 +16,13 @@ namespace Golem_Mining_Suite.Services
         public bool IsLiveConnected { get; private set; }
         private List<PriceData> _liveOverrides = new List<PriceData>();
 
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public PriceService(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         // Some terminals (e.g. Maker's Point) are in price data but missing from the terminals API endpoint.
         // We map them manually to ensure they have a valid Star System.
         private static readonly Dictionary<string, string> _knownMissingTerminals = new Dictionary<string, string>
@@ -33,52 +40,49 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
+                var client = _httpClientFactory.CreateClient("prices");
+                var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
+                var jsonDoc = JsonDocument.Parse(response);
+                var terminals = jsonDoc.RootElement.GetProperty("data");
+
+                foreach (var terminal in terminals.EnumerateArray())
                 {
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var terminals = jsonDoc.RootElement.GetProperty("data");
+                    int id = terminal.GetProperty("id").GetInt32();
 
-                    foreach (var terminal in terminals.EnumerateArray())
+                    // Filter by type (Mining/Commodities only)
+                    string? type = null;
+                    if (terminal.TryGetProperty("type", out var typeElement))
                     {
-                        int id = terminal.GetProperty("id").GetInt32();
-                        
-                        // Filter by type (Mining/Commodities only)
-                        string? type = null;
-                        if (terminal.TryGetProperty("type", out var typeElement))
-                        {
-                            type = typeElement.GetString();
-                        }
-
-                        if (type != "commodity" && type != "commodity_raw" && type != "refinery")
-                            continue;
-
-                        // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
-                        string name = "";
-                        if (terminal.TryGetProperty("displayname", out var dnElement))
-                        {
-                            name = dnElement.GetString() ?? "";
-                        }
-                        
-                        if (string.IsNullOrWhiteSpace(name))
-                        {
-                             name = terminal.GetProperty("name").GetString() ?? "";
-                        }
-                        
-                        string starSystem = terminal.GetProperty("star_system_name").GetString() ?? "";
-                        
-                        // Avoid duplicates (e.g. multiple shops at same station)
-                        if (_cachedTerminals.Any(t => t.Name == name && t.StarSystem == starSystem))
-                            continue;
-                            
-                        var info = new TerminalInfo { Id = id, Name = name, StarSystem = starSystem };
-                        _cachedTerminals.Add(info);
-                        
-                        // Also populate the mapping for legacy use
-                        if (!_terminalToSystem.ContainsKey(id))
-                            _terminalToSystem[id] = starSystem;
+                        type = typeElement.GetString();
                     }
+
+                    if (type != "commodity" && type != "commodity_raw" && type != "refinery")
+                        continue;
+
+                    // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
+                    string name = "";
+                    if (terminal.TryGetProperty("displayname", out var dnElement))
+                    {
+                        name = dnElement.GetString() ?? "";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                         name = terminal.GetProperty("name").GetString() ?? "";
+                    }
+
+                    string starSystem = terminal.GetProperty("star_system_name").GetString() ?? "";
+
+                    // Avoid duplicates (e.g. multiple shops at same station)
+                    if (_cachedTerminals.Any(t => t.Name == name && t.StarSystem == starSystem))
+                        continue;
+
+                    var info = new TerminalInfo { Id = id, Name = name, StarSystem = starSystem };
+                    _cachedTerminals.Add(info);
+
+                    // Also populate the mapping for legacy use
+                    if (!_terminalToSystem.ContainsKey(id))
+                        _terminalToSystem[id] = starSystem;
                 }
             }
             catch (Exception)
@@ -97,20 +101,17 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var terminals = jsonDoc.RootElement.GetProperty("data");
+                var client = _httpClientFactory.CreateClient("prices");
+                var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
+                var jsonDoc = JsonDocument.Parse(response);
+                var terminals = jsonDoc.RootElement.GetProperty("data");
 
-                    foreach (var terminal in terminals.EnumerateArray())
-                    {
-                        int id = terminal.GetProperty("id").GetInt32();
-                        string? starSystem = terminal.GetProperty("star_system_name").GetString();
-                        if (starSystem != null)
-                            mapping[id] = starSystem;
-                    }
+                foreach (var terminal in terminals.EnumerateArray())
+                {
+                    int id = terminal.GetProperty("id").GetInt32();
+                    string? starSystem = terminal.GetProperty("star_system_name").GetString();
+                    if (starSystem != null)
+                        mapping[id] = starSystem;
                 }
             }
             catch (Exception)
@@ -145,16 +146,14 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(30);
+                var client = _httpClientFactory.CreateClient("prices");
 
-                    // Fetch API prices
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/commodities_prices_all");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var pricesData = jsonDoc.RootElement.GetProperty("data");
+                // Fetch API prices
+                var response = await client.GetStringAsync("https://uexcorp.space/api/commodities_prices_all");
+                var jsonDoc = JsonDocument.Parse(response);
+                var pricesData = jsonDoc.RootElement.GetProperty("data");
 
-                    foreach (var priceEntry in pricesData.EnumerateArray())
+                foreach (var priceEntry in pricesData.EnumerateArray())
                     {
                         var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
                         var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
@@ -243,8 +242,7 @@ namespace Golem_Mining_Suite.Services
                             });
                         }
                     }
-                }
-                
+
                 // Merge overrides
                 foreach (var live in _liveOverrides)
                 {

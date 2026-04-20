@@ -6,65 +6,71 @@ using System.Reflection;
 
 namespace Golem_Mining_Suite
 {
-	public static class UpdateChecker
+	/// <summary>
+	/// Checks GitHub for a newer release. Uses an <see cref="IHttpClientFactory"/>-provided
+	/// <see cref="HttpClient"/> (named client: <c>github</c>) so the User-Agent header and
+	/// timeout are configured once at startup rather than per-call.
+	/// </summary>
+	public class UpdateChecker
 	{
 		private const string GITHUB_API_URL = "https://api.github.com/repos/ErskeN1337/Golem-Mining-Suite/releases/latest";
 
-		public static async Task<UpdateInfo> CheckForUpdateAsync()
+		private readonly HttpClient _httpClient;
+
+		public UpdateChecker(IHttpClientFactory httpClientFactory)
+		{
+			_httpClient = httpClientFactory.CreateClient("github");
+		}
+
+		public async Task<UpdateInfo> CheckForUpdateAsync()
 		{
 			try
 			{
-				using (var client = new HttpClient())
+				var response = await _httpClient.GetStringAsync(GITHUB_API_URL);
+				var jsonDoc = JsonDocument.Parse(response);
+				var root = jsonDoc.RootElement;
+
+				string latestVersion = root.GetProperty("tag_name").GetString()?.Replace("v", "") ?? "0.0.0";
+				string downloadUrl = "";
+				string releaseNotes = "";
+
+				// Try to get release notes
+				if (root.TryGetProperty("body", out var bodyElement))
 				{
-					client.DefaultRequestHeaders.Add("User-Agent", "Golem-Mining-Suite");
-					client.Timeout = TimeSpan.FromSeconds(10);
+					releaseNotes = bodyElement.GetString() ?? "";
+				}
 
-					var response = await client.GetStringAsync(GITHUB_API_URL);
-					var jsonDoc = JsonDocument.Parse(response);
-					var root = jsonDoc.RootElement;
-
-					string latestVersion = root.GetProperty("tag_name").GetString()?.Replace("v", "") ?? "0.0.0";
-					string downloadUrl = "";
-					string releaseNotes = "";
-
-					// Try to get release notes
-					if (root.TryGetProperty("body", out var bodyElement))
+				// Get the ZIP file download URL
+				if (root.TryGetProperty("assets", out var assetsElement))
+				{
+					foreach (var asset in assetsElement.EnumerateArray())
 					{
-						releaseNotes = bodyElement.GetString() ?? "";
-					}
-
-					// Get the ZIP file download URL
-					if (root.TryGetProperty("assets", out var assetsElement))
-					{
-						foreach (var asset in assetsElement.EnumerateArray())
+						string? assetName = asset.GetProperty("name").GetString();
+						if (assetName != null && assetName.EndsWith(".zip"))
 						{
-							string? assetName = asset.GetProperty("name").GetString();
-							if (assetName != null && assetName.EndsWith(".zip"))
-							{
-								downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
-								break;
-							}
+							downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+							break;
 						}
 					}
-
-					// Get current version
-					var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-					string currentVersionString = currentVersion != null 
-						? $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}"
-						: "1.0.0";
-
-					// Compare versions
-					bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
-
-					return new UpdateInfo
-					{
-						IsUpdateAvailable = isNewer,
-						LatestVersion = latestVersion,
-						CurrentVersion = currentVersionString,
-						DownloadUrl = downloadUrl ?? "",
-						ReleaseNotes = releaseNotes ?? ""
-					};
 				}
+
+				// Get current version
+				var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+				string currentVersionString = currentVersion != null
+					? $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}"
+					: "1.0.0";
+
+				// Compare versions
+				bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
+
+				return new UpdateInfo
+				{
+					IsUpdateAvailable = isNewer,
+					LatestVersion = latestVersion,
+					CurrentVersion = currentVersionString,
+					DownloadUrl = downloadUrl ?? "",
+					ReleaseNotes = releaseNotes ?? ""
+				};
 			}
 			catch (Exception)
 			{
