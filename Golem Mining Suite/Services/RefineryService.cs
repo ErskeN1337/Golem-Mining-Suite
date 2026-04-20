@@ -101,7 +101,51 @@ namespace Golem_Mining_Suite.Services
                 _logger.LogWarning(ex, "Failed to fetch UEX refinery yields; returning whatever was cached");
             }
 
+            // If UEX returned no refineries (offline first boot, API change, etc.), seed the
+            // Star Citizen 4.7 station list so the UI dropdown still has sensible options.
+            // Empty yield dictionaries per station = "no bonus known" which the calculator
+            // treats as a plain 0% bonus — safer than hiding the station entirely.
+            if (_refineryYields.Count == 0)
+            {
+                LoadFallbackRefineryYields();
+            }
+
             return _refineryYields;
+        }
+
+        /// <summary>
+        /// Apply a heuristic quality multiplier to a base per-unit price. See
+        /// <see cref="QualityScore"/> for the tier bands and R1-refinery-4.7.md for sourcing.
+        /// </summary>
+        /// <remarks>
+        /// Multipliers are a first-pass heuristic — CIG has not published a price curve and
+        /// the live market for quality-tagged materials is still thin. Will be tuned as
+        /// community data stabilises. A <c>null</c> quality (unknown) is treated as 1.0x so
+        /// pre-4.7 code paths are unaffected.
+        /// </remarks>
+        public decimal EffectiveValue(decimal basePricePerUnit, QualityScore? quality)
+        {
+            decimal multiplier = QualityMultiplier(quality);
+            return basePricePerUnit * multiplier;
+        }
+
+        /// <summary>
+        /// Heuristic multiplier lookup for <see cref="EffectiveValue"/>. Exposed as internal so
+        /// the UI can show "1.40x" on the quality badge without re-deriving the bands.
+        /// </summary>
+        internal static decimal QualityMultiplier(QualityScore? quality)
+        {
+            if (quality is null) return 1.0m;
+
+            return quality.Value.Tier switch
+            {
+                QualityTier.Debuff => 0.8m,     // < 500 — crafted output is inferior
+                QualityTier.Baseline => 1.0m,   // 500..649 — break-even with store-bought
+                QualityTier.Good => 1.15m,      // 650..699 — community "use it"
+                QualityTier.Keeper => 1.4m,     // 700..899 — stockpile for crafting
+                QualityTier.Endgame => 2.0m,    // >= 900 — high-end stockpile
+                _ => 1.0m,
+            };
         }
 
         private void LoadFallbackRefineryData()
@@ -109,6 +153,38 @@ namespace Golem_Mining_Suite.Services
             _refineryMethods["Dinyx Solvents"] = new RefineryMethod { Name = "Dinyx Solvents", Code = "DINYX", YieldBonus = 70, CostPercent = 15 };
             _refineryMethods["Cormack Method"] = new RefineryMethod { Name = "Cormack Method", Code = "CORMACK", YieldBonus = 50, CostPercent = 10 };
             _refineryMethods["XCR Reaction"] = new RefineryMethod { Name = "XCR Reaction", Code = "XCR", YieldBonus = 30, CostPercent = 7 };
+        }
+
+        /// <summary>
+        /// Seed the <see cref="_refineryYields"/> dictionary with the Star Citizen 4.7 station
+        /// roster when the UEX API is unreachable. Values are empty per-commodity maps — this
+        /// is a *name-only* fallback so the refinery dropdown has options. 4.7 additions
+        /// <c>Pyro Gateway</c>, <c>Ruin Station</c>, and <c>Terra Gateway</c> are included per
+        /// R1-refinery-4.7.md §4.
+        /// </summary>
+        private void LoadFallbackRefineryYields()
+        {
+            // Stanton
+            _refineryYields["ARC-L1"] = new Dictionary<string, double>();
+            _refineryYields["ARC-L2"] = new Dictionary<string, double>();
+            _refineryYields["ARC-L4"] = new Dictionary<string, double>();
+            _refineryYields["CRU-L1"] = new Dictionary<string, double>();
+            _refineryYields["HUR-L1 (Green Glade)"] = new Dictionary<string, double>();
+            _refineryYields["HUR-L2 (Faithful Dream)"] = new Dictionary<string, double>();
+            _refineryYields["MIC-L1 (Shallow Frontier)"] = new Dictionary<string, double>();
+            _refineryYields["MIC-L2 (Long Forest)"] = new Dictionary<string, double>();
+            _refineryYields["MIC-L5"] = new Dictionary<string, double>();
+            _refineryYields["Terra Gateway"] = new Dictionary<string, double>();
+
+            // Pyro (4.7 LIVE per R1)
+            _refineryYields["Checkmate"] = new Dictionary<string, double>();
+            _refineryYields["Orbituary"] = new Dictionary<string, double>();
+            _refineryYields["Pyro Gateway"] = new Dictionary<string, double>();
+            _refineryYields["Ruin Station"] = new Dictionary<string, double>();
+            _refineryYields["Stanton Gateway (Pyro)"] = new Dictionary<string, double>();
+
+            // Nyx
+            _refineryYields["Levski"] = new Dictionary<string, double>();
         }
     }
 }

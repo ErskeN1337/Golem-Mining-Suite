@@ -42,32 +42,61 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="10"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <TextBlock Grid.Column="0" Text="Refinery Location:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <ComboBox x:Name="RefineryComboBox" Grid.Column="2"
                               ItemsSource="{Binding Refineries}"
                               SelectedItem="{Binding SelectedRefinery}"/>
                 </Grid>
-                
+
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <TextBlock Grid.Column="0" Text="Refinery Method:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <ComboBox x:Name="MethodComboBox" Grid.Column="2"
                               ItemsSource="{Binding Methods}"
                               SelectedItem="{Binding SelectedMethod}"/>
+                </Grid>
+
+                <!-- 4.7 quality score input + tier badge. Defaults to 500 (Baseline, 1.0x)
+                     so the calculator output matches pre-4.7 behavior for users who ignore it. -->
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Quality (0-1000):" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBox Grid.Column="2"
+                             Text="{Binding QualityText, UpdateSourceTrigger=PropertyChanged}"
+                             HorizontalContentAlignment="Center"/>
+                    <Border Grid.Column="4"
+                            Background="{Binding QualityTierBrush}"
+                            CornerRadius="3"
+                            Padding="10,3"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding QualityTierText}"
+                                   Foreground="#FFFFFF"
+                                   FontWeight="Bold"
+                                   FontSize="12"/>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>
@@ -155,7 +184,13 @@
                      <TextBlock Text="Refined Value:" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding RefinedValueText}" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#FFC107"/>
                 </Grid>
-                
+
+                <!-- 4.7 quality-adjusted value (refined value * tier multiplier). -->
+                <Grid Margin="0,0,0,10">
+                     <TextBlock Text="Effective Value (Q):" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                     <TextBlock Text="{Binding EffectiveValueText}" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#FFC107"/>
+                </Grid>
+
                 <Grid>
                      <TextBlock Text="Net Profit:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                      <TextBlock Text="{Binding NetProfitText}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Right" Foreground="#4CAF50"/>

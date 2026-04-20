@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Golem.Mining.Suite.Tests.Helpers;
+using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Linq;
@@ -145,6 +146,95 @@ namespace Golem.Mining.Suite.Tests.Services
 
             methods.Should().ContainSingle();
             methods[0].CostPercent.Should().Be(expectedCost);
+        }
+
+        // ---------------------------------------------------------------------------------
+        // 4.7 quality multiplier tests. Locks the EffectiveValue() mapping in RefineryService
+        // so a refactor cannot silently shift the tier → multiplier table. The bands come
+        // from R1-refinery-4.7.md §2 ("Crafting quality thresholds") and the multipliers are
+        // heuristic (labelled as such in xmldoc).
+        // ---------------------------------------------------------------------------------
+
+        [Theory]
+        [InlineData(0, 0.8)]     // Debuff  — crafted inferior, market haircut
+        [InlineData(250, 0.8)]
+        [InlineData(499, 0.8)]
+        [InlineData(500, 1.0)]   // Baseline
+        [InlineData(600, 1.0)]
+        [InlineData(649, 1.0)]
+        [InlineData(650, 1.15)]  // Good
+        [InlineData(699, 1.15)]
+        [InlineData(700, 1.4)]   // Keeper
+        [InlineData(899, 1.4)]
+        [InlineData(900, 2.0)]   // Endgame
+        [InlineData(1000, 2.0)]
+        public void EffectiveValue_AppliesTierMultiplier(int quality, double expectedMultiplier)
+        {
+            var sut = new RefineryService(StubHttpClientFactory.AlwaysThrow(), NullLogger<RefineryService>.Instance);
+
+            decimal basePrice = 1000m;
+            decimal effective = sut.EffectiveValue(basePrice, new QualityScore(quality));
+
+            effective.Should().Be(basePrice * (decimal)expectedMultiplier,
+                $"quality {quality} should fall in the expected tier with a {expectedMultiplier}x multiplier");
+        }
+
+        [Fact]
+        public void EffectiveValue_WithNullQuality_ReturnsBasePriceUnchanged()
+        {
+            // Unknown quality = 1.0x. This is the regression guard for pre-4.7 callers: anything
+            // that doesn't yet pass a QualityScore must get identical output to before.
+            var sut = new RefineryService(StubHttpClientFactory.AlwaysThrow(), NullLogger<RefineryService>.Instance);
+
+            decimal effective = sut.EffectiveValue(12345.67m, null);
+
+            effective.Should().Be(12345.67m);
+        }
+
+        [Fact]
+        public void EffectiveValue_BaselineQuality_MatchesNullBehavior()
+        {
+            // Q=500 (the UI default) must equal the null-quality path. If this breaks, the
+            // 4.7 calculator will silently shift default output vs pre-4.7 behavior.
+            var sut = new RefineryService(StubHttpClientFactory.AlwaysThrow(), NullLogger<RefineryService>.Instance);
+
+            decimal basePrice = 88_800m;
+            decimal withDefault = sut.EffectiveValue(basePrice, new QualityScore(500));
+            decimal withNull = sut.EffectiveValue(basePrice, null);
+
+            withDefault.Should().Be(withNull);
+        }
+
+        [Fact]
+        public async Task GetRefineryYieldsAsync_FallbackPath_IncludesNew47Stations()
+        {
+            // When UEX is unreachable the service must still surface the 4.7 station roster
+            // so the refinery dropdown has usable options. Pyro Gateway + Ruin Station are
+            // the headline 4.7 additions per R1; Terra Gateway is also explicitly called out.
+            var factory = StubHttpClientFactory.AlwaysThrow();
+            var sut = new RefineryService(factory, NullLogger<RefineryService>.Instance);
+
+            var yields = await sut.GetRefineryYieldsAsync();
+
+            yields.Should().NotBeEmpty("fallback station list must populate when UEX is down");
+            yields.Keys.Should().Contain(new[] { "Pyro Gateway", "Ruin Station", "Terra Gateway" });
+            yields.Keys.Should().Contain("Levski", "Nyx refinery hub should be present");
+        }
+
+        [Fact]
+        public async Task GetRefineryYieldsAsync_CachesResultAfterFirstCall()
+        {
+            // The fallback path still caches — a second call must not refire HTTP.
+            int callCount = 0;
+            var handler = new CountingHandler(UexNineMethodResponse, () => callCount++);
+            var factory = new CountingFactory(handler);
+            var sut = new RefineryService(factory, NullLogger<RefineryService>.Instance);
+
+            _ = await sut.GetRefineryYieldsAsync();
+            _ = await sut.GetRefineryYieldsAsync();
+
+            callCount.Should().BeLessThanOrEqualTo(1,
+                "yields call should hit HTTP at most once, then serve from cache");
         }
 
         [Fact]
