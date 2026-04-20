@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Windows;
 using Golem_Mining_Suite.Services;
+using Golem_Mining_Suite.Services.Configuration;
 using Golem_Mining_Suite.Services.Interfaces;
 using Golem_Mining_Suite.ViewModels;
 using Golem_Mining_Suite.Views; // For views if needed, though MainWindow is in root
 using Serilog;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Golem_Mining_Suite
 {
@@ -28,37 +27,54 @@ namespace Golem_Mining_Suite
         {
             var services = new ServiceCollection();
 
-            // Configuration
-            string supabaseUrl = "";
-            string supabaseKey = "";
-            try {
-                var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-                if (File.Exists(appSettingsPath))
-                {
-                    var json = File.ReadAllText(appSettingsPath);
-                    var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("Supabase", out var supabaseElement))
-                    {
-                        supabaseUrl = supabaseElement.GetProperty("Url").GetString() ?? "";
-                        supabaseKey = supabaseElement.GetProperty("Key").GetString() ?? "";
-                    }
-                }
-            } catch { }
+            // Logging — initialise Serilog early so SecretResolver diagnostics can be logged.
+            // Kept as the static Log.Logger because the UnhandledException handler has no DI.
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            services.AddLogging(b => b.AddSerilog(dispose: true));
+
+            // Configuration — layered: env vars > %APPDATA%\Golem Mining Suite\appsettings.json > shipped appsettings.json
+            var secrets = SecretResolver.Resolve();
 
             // Services
-            if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
+            if (secrets.IsSupabaseConfigured)
             {
-                services.AddSingleton<SupabaseService>(p => new SupabaseService(supabaseUrl, supabaseKey));
+                services.AddSingleton<SupabaseService>(
+                    _ => new SupabaseService(secrets.SupabaseUrl, secrets.SupabaseKey));
             }
-            
+            else
+            {
+                Log.Warning("Supabase is not configured (no Url/Key via env vars, %APPDATA% override, or appsettings.json). Live data features will be disabled.");
+            }
+
             services.AddSingleton<IMiningDataService, MiningDataService>();
             services.AddSingleton<IPriceService, PriceService>();
             services.AddSingleton<IRefineryService, RefineryService>();
             services.AddSingleton<IWindowService, WindowService>();
-            services.AddSingleton<LiveDataCoordinator>(p => new LiveDataCoordinator(p.GetService<SupabaseService>()));
-            
+
+            // LiveDataCoordinator tolerates a null SupabaseService — wire it explicitly so
+            // the coordinator is always constructible, but only gets a live Supabase when configured.
+            services.AddSingleton<LiveDataCoordinator>(p =>
+            {
+                var supabase = p.GetService<SupabaseService>();
+                if (supabase == null)
+                {
+                    var log = p.GetService<ILogger<LiveDataCoordinator>>();
+                    log?.LogWarning("LiveDataCoordinator starting without Supabase — live crowdsourced data will not be uploaded.");
+                }
+                return new LiveDataCoordinator(supabase);
+            });
+
             // New Services for Hauling
-            services.AddSingleton<UEXService>();
+            if (!secrets.IsUexConfigured)
+            {
+                Log.Warning("UEX API key is not configured. UEX-backed commodity data will be unavailable.");
+            }
+            services.AddSingleton<UEXService>(p => new UEXService(
+                p.GetRequiredService<ILogger<UEXService>>(),
+                secrets.UexApiKey));
             services.AddSingleton<ICommodityDataService, CommodityDataService>();
             services.AddSingleton<ISettingsService, SettingsService>();
 
@@ -82,13 +98,6 @@ namespace Golem_Mining_Suite
 
             // Windows
             services.AddSingleton<MainWindow>();
-
-            // Logging
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
-            
-            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
             return services.BuildServiceProvider();
         }

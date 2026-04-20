@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Application secrets — local development config with real Supabase/UEX keys.
+# The committed appsettings.Example.json is the template; users copy it to
+# appsettings.json (or set env vars / %APPDATA% override) locally. Keep real
+# secrets out of source control to prevent credential leaks.
+Golem Mining Suite/appsettings.json
+!Golem Mining Suite/appsettings.Example.json

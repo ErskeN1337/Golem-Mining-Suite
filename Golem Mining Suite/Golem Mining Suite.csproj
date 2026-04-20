@@ -59,8 +59,13 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		
-		<!-- Supabase Configuration -->
-		<None Include="appsettings.json">
+		<!-- Application Configuration.
+		     appsettings.json is git-ignored (contains user-local secrets); appsettings.Example.json
+		     is committed and ships as a template that users copy or reference. -->
+		<None Include="appsettings.json" Condition="Exists('appsettings.json')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Example.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

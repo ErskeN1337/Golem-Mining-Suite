@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Golem_Mining_Suite.Models;
 using Microsoft.Extensions.Logging;
-using System.IO;
 
 namespace Golem_Mining_Suite.Services
 {
@@ -20,28 +19,11 @@ namespace Golem_Mining_Suite.Services
 
         public bool IsConfigured => !string.IsNullOrEmpty(_apiKey);
 
-        public UEXService(ILogger<UEXService> logger)
+        public UEXService(ILogger<UEXService> logger, string apiKey)
         {
             _logger = logger;
+            _apiKey = apiKey ?? "";
             _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            
-            // simple config read
-            _apiKey = "";
-            try {
-                var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-                if (File.Exists(appSettingsPath))
-                {
-                    var json = File.ReadAllText(appSettingsPath);
-                    using var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("UEX", out var uexElement))
-                    {
-                        if(uexElement.TryGetProperty("ApiKey", out var keyElement))
-                        {
-                            _apiKey = keyElement.GetString() ?? "";
-                        }
-                    }
-                }
-            } catch { } // Configuration read failure, assume no key
         }
 
         public async Task<List<CommodityData>> GetCommoditiesAsync()
