@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Golem_Mining_Suite
 {
@@ -8,6 +10,7 @@ namespace Golem_Mining_Suite
 	{
 		private UpdateInfo updateInfo;
 		private readonly AutoUpdater autoUpdater;
+		private readonly ILogger<UpdateAvailableWindow>? _logger;
 		private bool isDownloading = false;
 
 		public UpdateAvailableWindow(UpdateInfo info, AutoUpdater autoUpdater)
@@ -15,6 +18,9 @@ namespace Golem_Mining_Suite
 			InitializeComponent();
 			updateInfo = info;
 			this.autoUpdater = autoUpdater;
+			// Best-effort logger resolution — this window is newed up manually rather
+			// than via the DI container, so treat the logger as optional.
+			_logger = App.Current?.Services?.GetService<ILogger<UpdateAvailableWindow>>();
 			LoadUpdateInfo();
 		}
 
@@ -102,6 +108,7 @@ namespace Golem_Mining_Suite
 			}
 			catch (Exception ex)
 			{
+				_logger?.LogError(ex, "Update download failed; falling back to browser");
 				MessageBox.Show($"Could not download update: {ex.Message}\n\n" +
 							   "Opening GitHub release page instead...",
 					"Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -115,7 +122,10 @@ namespace Golem_Mining_Suite
 						UseShellExecute = true
 					});
 				}
-				catch { }
+				catch (Exception browserEx)
+				{
+					_logger?.LogWarning(browserEx, "Fallback browser launch also failed for GitHub releases page");
+				}
 
 				this.DialogResult = false;
 				this.Close();

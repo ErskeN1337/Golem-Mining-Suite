@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
 using Golem_Mining_Suite.Messages;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Golem_Mining_Suite.ViewModels
     {
         private readonly ICommodityDataService _commodityDataService;
         private readonly IWindowService _windowService;
+        private readonly ILogger<HaulingDashboardViewModel> _logger;
         private System.Collections.Generic.List<CommodityData> _allCommodities = new();
 
         [ObservableProperty]
@@ -31,16 +33,21 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
-        public HaulingDashboardViewModel(ICommodityDataService commodityDataService, IWindowService windowService)
+        public HaulingDashboardViewModel(ICommodityDataService commodityDataService, IWindowService windowService, ILogger<HaulingDashboardViewModel> logger)
         {
             _commodityDataService = commodityDataService;
             _windowService = windowService;
+            _logger = logger;
 
             System.Diagnostics.Debug.WriteLine("[HaulingVM] Initializing...");
-            LoadDataAsync();
+            // Fire-and-forget initial load; continuation surfaces faults to the logger so
+            // we never lose an exception to async void semantics.
+            _ = LoadDataAsync().ContinueWith(
+                t => _logger.LogError(t.Exception, "HaulingDashboardViewModel initial data load failed"),
+                TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        private async void LoadDataAsync()
+        private async Task LoadDataAsync()
         {
             System.Diagnostics.Debug.WriteLine("[HaulingVM] Loading data...");
             IsLoading = true;
@@ -54,6 +61,7 @@ namespace Golem_Mining_Suite.ViewModels
             catch (System.Exception ex)
             {
                  System.Diagnostics.Debug.WriteLine($"[HaulingVM] Error loading data: {ex}");
+                 _logger.LogError(ex, "Failed to load commodity data for hauling dashboard");
             }
             finally
             {

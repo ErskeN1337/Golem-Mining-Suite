@@ -4,6 +4,7 @@ using System.Windows;
 using Golem_Mining_Suite.ViewModels;
 using Golem_Mining_Suite.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Golem_Mining_Suite
 {
@@ -11,21 +12,26 @@ namespace Golem_Mining_Suite
 	{
 		private readonly UpdateChecker _updateChecker;
 		private readonly AutoUpdater _autoUpdater;
+		private readonly ILogger<MainWindow> _logger;
 
-		public MainWindow(MainViewModel viewModel, UpdateChecker updateChecker, AutoUpdater autoUpdater)
+		public MainWindow(MainViewModel viewModel, UpdateChecker updateChecker, AutoUpdater autoUpdater, ILogger<MainWindow> logger)
 		{
 			InitializeComponent();
 			DataContext = viewModel;
 			_updateChecker = updateChecker;
 			_autoUpdater = autoUpdater;
+			_logger = logger;
 
-			// Check for updates
-			this.Loaded += Window_Loaded;
-		}
-
-		private async void Window_Loaded(object sender, RoutedEventArgs e)
-		{
-			await CheckForUpdatesAsync();
+			// Check for updates. The Loaded event delegate is void-returning, so we
+			// bridge to the Task-returning CheckForUpdatesAsync via a handler that
+			// converts any fault into a logged error rather than leaking an
+			// unobserved async void exception.
+			this.Loaded += (s, e) =>
+			{
+				_ = CheckForUpdatesAsync().ContinueWith(
+					t => _logger.LogError(t.Exception, "Update check on window load failed"),
+					TaskContinuationOptions.OnlyOnFaulted);
+			};
 		}
 
 		private async Task CheckForUpdatesAsync()
@@ -43,6 +49,7 @@ namespace Golem_Mining_Suite
 			}
 			catch (Exception ex)
 			{
+				_logger.LogWarning(ex, "Update check failed");
 				System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
 			}
 		}

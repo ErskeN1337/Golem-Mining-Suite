@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Golem_Mining_Suite.Services.Interfaces;
 using Golem_Mining_Suite.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +15,7 @@ namespace Golem_Mining_Suite.ViewModels
     {
         private readonly IWindowService _windowService;
         private readonly IPriceService _priceService;
+        private readonly ILogger<HaulingCalculatorViewModel> _logger;
         
         // Cache of prices: CommodityName -> (StationName -> PriceData)
         // Storing PriceData instead of double to access both Buy/Sell prices
@@ -82,13 +84,18 @@ namespace Golem_Mining_Suite.ViewModels
             { "RSI Zeus Mk II CL", 128 }
         };
 
-        public HaulingCalculatorViewModel(IWindowService windowService, IPriceService priceService)
+        public HaulingCalculatorViewModel(IWindowService windowService, IPriceService priceService, ILogger<HaulingCalculatorViewModel> logger)
         {
             _windowService = windowService;
             _priceService = priceService;
+            _logger = logger;
 
-            InitializeData();
-            
+            // Fire-and-forget initial data load; exceptions are surfaced via the continuation
+            // rather than escaping as an async void crash.
+            _ = InitializeDataAsync().ContinueWith(
+                t => _logger.LogError(t.Exception, "HaulingCalculatorViewModel initialization failed"),
+                TaskContinuationOptions.OnlyOnFaulted);
+
             // Ensure selections are not null
             SelectedShip = Ships.FirstOrDefault(s => s == "C2 Hercules") ?? Ships.FirstOrDefault() ?? "C2 Hercules";
             SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
@@ -97,7 +104,7 @@ namespace Golem_Mining_Suite.ViewModels
             AddCommodityRow();
         }
 
-        private async void InitializeData()
+        private async Task InitializeDataAsync()
         {
             // Ships
             foreach (var ship in _shipCapacities.Keys.OrderBy(s => s)) Ships.Add(ship);

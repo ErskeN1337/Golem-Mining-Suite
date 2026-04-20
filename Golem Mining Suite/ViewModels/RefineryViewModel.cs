@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Golem_Mining_Suite.Services.Interfaces;
 using Golem_Mining_Suite.Models;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Windows;
 using Golem_Mining_Suite.ViewModels; // For MineralRowViewModel potentially or just define new one
@@ -14,6 +15,7 @@ namespace Golem_Mining_Suite.ViewModels
     public partial class RefineryViewModel : ObservableObject
     {
         private readonly IRefineryService _refineryService;
+        private readonly ILogger<RefineryViewModel> _logger;
         // private Dictionary<string, double> _mineralPrices; // Removed unused field
 
         [ObservableProperty]
@@ -76,13 +78,18 @@ namespace Golem_Mining_Suite.ViewModels
                 { "Iron", 855 }
             };
 
-        public RefineryViewModel(IRefineryService refineryService)
+        public RefineryViewModel(IRefineryService refineryService, ILogger<RefineryViewModel> logger)
         {
             _refineryService = refineryService;
-            Initialize();
+            _logger = logger;
+            // Fire-and-forget; continuation logs any fault so exceptions don't tear down
+            // the finalizer thread the way an unobserved async void would.
+            _ = InitializeAsync().ContinueWith(
+                t => _logger.LogError(t.Exception, "RefineryViewModel initialization failed"),
+                TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        private async void Initialize()
+        private async Task InitializeAsync()
         {
             StatusText = "Loading refinery data from UEX Corp API...";
             _allMethods = await _refineryService.GetRefineryMethodsAsync();
