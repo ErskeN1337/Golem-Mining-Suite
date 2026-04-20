@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Windows;
 using Golem_Mining_Suite.Services;
 using Golem_Mining_Suite.Services.Configuration;
@@ -132,6 +133,11 @@ namespace Golem_Mining_Suite
             services.AddTransient<RouteOptimizerViewModel>();
             services.AddSingleton<SettingsViewModel>();
 
+            // Wave 3 services — pure-logic solvers + Game.log tailer.
+            services.AddSingleton<FractureSolver>();
+            services.AddSingleton<SkipRockPredictor>();
+            services.AddSingleton<IGameLogService, GameLogService>();
+
             // Windows
             services.AddSingleton<MainWindow>();
 
@@ -161,6 +167,13 @@ namespace Golem_Mining_Suite
                 // DISABLED FOR RELEASE: Feature Flagged off until ready
                 // _ = supabase.SubscribeToTerminalUpdatesAsync();
             }
+
+            // Fire-and-forget: start tailing Game.log. Safe when SC isn't installed —
+            // the service logs a warning and stays disarmed.
+            var gameLog = Services.GetRequiredService<IGameLogService>();
+            _ = gameLog.StartAsync().ContinueWith(
+                t => Log.Error(t.Exception, "GameLogService failed to start."),
+                TaskContinuationOptions.OnlyOnFaulted);
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
