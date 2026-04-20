@@ -45,9 +45,9 @@ namespace Golem_Mining_Suite.ViewModels
 
         public class ThemeOption
         {
-            public string Name { get; set; }
-            public string Value { get; set; }
-            public string ColorHex { get; set; }
+            public required string Name { get; set; }
+            public required string Value { get; set; }
+            public required string ColorHex { get; set; }
         }
 
         public ObservableCollection<ThemeOption> Themes { get; } = new ObservableCollection<ThemeOption>

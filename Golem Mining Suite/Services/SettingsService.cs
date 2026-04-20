@@ -14,7 +14,7 @@ namespace Golem_Mining_Suite.Services
         private string _settingsPath;
         private readonly ILogger<SettingsService> _logger;
 
-        private SettingsData _data;
+        private SettingsData _data = new SettingsData();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

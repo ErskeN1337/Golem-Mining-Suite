@@ -28,9 +28,9 @@ From the prior audit. All non-feature work to stabilize before building new thin
 - [ ] Introduce `ISupabaseService` interface; fix `is PriceService ps` cast in `App.xaml.cs:113`
 - [ ] Remove all empty `catch {}` blocks; inject `ILogger<T>` everywhere
 - [ ] Convert `async void` UI handlers → `async Task` via `[RelayCommand]`
-- [ ] Swap `AsteroidLocationLoader` naive split for `CsvHelper`
-- [ ] Delete `debug_etam_loop.txt`, `debug_uex.ps1`, `gitignore.txt` from project folder
-- [ ] `.csproj` cleanup: dedupe `Golem.ico`, add `<TreatWarningsAsErrors>`, add analyzer packages
+- [x] Swap `AsteroidLocationLoader` naive split for `CsvHelper` (Wave 2E — CsvHelper 33.1.0)
+- [x] Delete `debug_etam_loop.txt`, `debug_uex.ps1`, `gitignore.txt` from project folder (Wave 2E)
+- [x] `.csproj` cleanup: dedupe `Golem.ico`, add `<TreatWarningsAsErrors>`, add analyzer packages (Wave 2E — NetAnalyzers 10.0.202, CS8618s fixed)
 - [ ] Move Serilog to DI-only (drop static `Log.Logger` usage)
 - [ ] Fail-loud DI: `GetRequiredService` instead of `GetService` in App startup
 
