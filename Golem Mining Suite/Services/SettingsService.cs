@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Golem_Mining_Suite.Services
 {
@@ -11,13 +12,15 @@ namespace Golem_Mining_Suite.Services
     {
         private const string SettingsFileName = "user_settings.json";
         private string _settingsPath;
+        private readonly ILogger<SettingsService> _logger;
 
         private SettingsData _data;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public SettingsService()
+        public SettingsService(ILogger<SettingsService> logger)
         {
+            _logger = logger;
             _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFileName);
             Load();
         }
@@ -78,8 +81,9 @@ namespace Golem_Mining_Suite.Services
                     _data = new SettingsData();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to load settings from {SettingsPath}; falling back to defaults", _settingsPath);
                 _data = new SettingsData();
             }
         }

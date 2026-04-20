@@ -1,5 +1,6 @@
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,10 +15,12 @@ namespace Golem_Mining_Suite.Services
         private readonly Dictionary<string, Dictionary<string, double>> _refineryYields = new();
 
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<RefineryService> _logger;
 
-        public RefineryService(IHttpClientFactory httpClientFactory)
+        public RefineryService(IHttpClientFactory httpClientFactory, ILogger<RefineryService> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         public async Task<List<RefineryMethod>> GetRefineryMethodsAsync()
@@ -93,9 +96,9 @@ namespace Golem_Mining_Suite.Services
                     _refineryYields[terminal][commodity] = value;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Optionally log error
+                _logger.LogWarning(ex, "Failed to fetch UEX refinery yields; returning whatever was cached");
             }
 
             return _refineryYields;

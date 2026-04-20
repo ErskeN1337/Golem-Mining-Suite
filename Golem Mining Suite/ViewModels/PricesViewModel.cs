@@ -7,8 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Golem_Mining_Suite.Services;
-
 namespace Golem_Mining_Suite.ViewModels
 {
     public partial class PricesViewModel : ObservableObject
@@ -41,22 +39,19 @@ namespace Golem_Mining_Suite.ViewModels
             Minerals = new ObservableCollection<string>();
             _allPrices = new List<PriceData>(); // Initialize to avoid null warning
             
-            // Subscribe to live events
-            if (_priceService is PriceService ps)
+            // Subscribe to live events — interface surfaces these directly, no cast needed.
+            IsLiveConnected = _priceService.IsLiveConnected; // Init
+
+            _priceService.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() =>
             {
-                 IsLiveConnected = ps.IsLiveConnected; // Init
-                 
-                 ps.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() => 
-                 {
-                     StatusText = "Live Data Received";
-                     ApplyFilter();
-                 });
-                 
-                 ps.LinkStatusChanged += (s, connected) => 
-                 {
-                     App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
-                 };
-            }
+                StatusText = "Live Data Received";
+                ApplyFilter();
+            });
+
+            _priceService.LinkStatusChanged += (s, connected) =>
+            {
+                App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
+            };
             
             LoadDataCommand.ExecuteAsync(null);
         }

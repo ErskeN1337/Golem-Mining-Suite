@@ -1,5 +1,6 @@
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -17,6 +18,7 @@ namespace Golem_Mining_Suite.Services
         private readonly OCRService _ocrService;
         private readonly TerminalParser _parser;
         private readonly ISupabaseService? _supabaseService;
+        private readonly ILogger<LiveDataCoordinator> _logger;
         private readonly string _logFilePath;
         
         private CancellationTokenSource? _cancellationTokenSource;
@@ -36,18 +38,23 @@ namespace Golem_Mining_Suite.Services
         public bool IsEnabled => _isEnabled;
         public bool IsGameRunning => _gameDetection.IsStarCitizenRunning();
 
-        public LiveDataCoordinator(ISupabaseService? supabaseService)
+        public LiveDataCoordinator(ILoggerFactory loggerFactory, ISupabaseService? supabaseService)
         {
+            _logger = loggerFactory.CreateLogger<LiveDataCoordinator>();
             _gameDetection = new GameDetectionService();
             var tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-            _ocrService = new OCRService(tessDataPath);
-            _parser = new TerminalParser();
+            _ocrService = new OCRService(tessDataPath, loggerFactory.CreateLogger<OCRService>());
+            _parser = new TerminalParser(loggerFactory.CreateLogger<TerminalParser>());
             _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
-            
+
             _supabaseService = supabaseService;
-            
+
             // Clear old log on startup
-            try { File.WriteAllText(_logFilePath, $"=== Live Data Debug Log - {DateTime.Now} ===\n"); } catch { }
+            try { File.WriteAllText(_logFilePath, $"=== Live Data Debug Log - {DateTime.Now} ===\n"); }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to truncate livedata_debug.log on startup at {LogPath}", _logFilePath);
+            }
         }
 
         /// <summary>
@@ -336,14 +343,17 @@ namespace Golem_Mining_Suite.Services
             }
 
             _lastLogTime = DateTime.Now;
-            
+
             var logMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
             System.Diagnostics.Debug.WriteLine($"[LiveData] {message}");
             try
             {
                 File.AppendAllText(_logFilePath, logMessage + "\n");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to append to livedata_debug.log at {LogPath}", _logFilePath);
+            }
         }
 
         private void LogDebugCritical(string message)
@@ -355,7 +365,10 @@ namespace Golem_Mining_Suite.Services
             {
                 File.AppendAllText(_logFilePath, logMessage + "\n");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to append critical message to livedata_debug.log at {LogPath}", _logFilePath);
+            }
         }
 
         public void Dispose()

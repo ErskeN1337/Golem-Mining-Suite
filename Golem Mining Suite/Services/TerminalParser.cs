@@ -1,4 +1,5 @@
 using Golem_Mining_Suite.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,13 @@ namespace Golem_Mining_Suite.Services
     /// </summary>
     public class TerminalParser
     {
+        private readonly ILogger<TerminalParser> _logger;
+
+        public TerminalParser(ILogger<TerminalParser> logger)
+        {
+            _logger = logger;
+        }
+
         // Common commodity names to look for (minerals and gases only - for mining)
         private static readonly string[] KNOWN_MINERALS = new[]
         {
@@ -45,11 +53,11 @@ namespace Golem_Mining_Suite.Services
             data.CommodityName = ExtractCommodityName(ocrText);
             if (string.IsNullOrEmpty(data.CommodityName))
             {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No commodity name found\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No commodity name found\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                 return null; // No valid commodity found
             }
 
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Found commodity: {data.CommodityName}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Found commodity: {data.CommodityName}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Find the line(s) containing this commodity to extract prices from the correct context
             var commodityContext = ExtractCommodityContext(ocrText, data.CommodityName);
@@ -57,7 +65,7 @@ namespace Golem_Mining_Suite.Services
             // Extract prices from the commodity's context only
             data.PriceSell = ExtractPrice(commodityContext, "sell");
             data.PriceBuy = ExtractPrice(commodityContext, "buy");
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Prices - Sell: {data.PriceSell}, Buy: {data.PriceBuy}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Prices - Sell: {data.PriceSell}, Buy: {data.PriceBuy}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Extract inventory from the commodity's context
             var inventory = ExtractInventory(commodityContext);
@@ -65,16 +73,16 @@ namespace Golem_Mining_Suite.Services
             {
                 data.InventorySCU = inventory.Value.current;
                 data.InventoryMax = inventory.Value.max;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory: {data.InventorySCU}/{data.InventoryMax}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory: {data.InventorySCU}/{data.InventoryMax}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
             else
             {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No inventory found\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No inventory found\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
 
             // Extract terminal name (harder, might need improvement)
             data.TerminalName = ExtractTerminalName(ocrText);
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Terminal: {data.TerminalName}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Terminal: {data.TerminalName}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Validation is now handled in LiveDataCoordinator after manual overrides are applied
              // But we still return null if no base commodity was found
@@ -164,7 +172,7 @@ namespace Golem_Mining_Suite.Services
                         
                         // Convert to integer (aUEC)
                         int result = (int)Math.Round(price);
-                        try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Price matched: '{match.Value}' -> {result} aUEC\n"); } catch { }
+                        try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Price matched: '{match.Value}' -> {result} aUEC\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                         return result;
                     }
                 }
@@ -194,13 +202,13 @@ namespace Golem_Mining_Suite.Services
             if (currentMatch.Success && int.TryParse(currentMatch.Groups[1].Value.Replace(",", ""), out int curr))
             {
                 current = curr;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory current matched: '{currentMatch.Value}' -> {curr}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory current matched: '{currentMatch.Value}' -> {curr}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
             
             if (maxMatch.Success && int.TryParse(maxMatch.Groups[1].Value.Replace(",", ""), out int mx))
             {
                 max = mx;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory max matched: '{maxMatch.Value}' -> {mx}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory max matched: '{maxMatch.Value}' -> {mx}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
             
             // If we found both, return them
@@ -218,12 +226,12 @@ namespace Golem_Mining_Suite.Services
 
                 if (int.TryParse(currentStr, out int legacyCurr) && int.TryParse(maxStr, out int legacyMax))
                 {
-                    try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory legacy matched: '{legacyMatch.Value}' -> {legacyCurr}/{legacyMax}\n"); } catch { }
+                    try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory legacy matched: '{legacyMatch.Value}' -> {legacyCurr}/{legacyMax}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                     return (legacyCurr, legacyMax);
                 }
             }
 
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory extraction failed. Text: '{text.Substring(0, Math.Min(100, text.Length))}...'\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory extraction failed. Text: '{text.Substring(0, Math.Min(100, text.Length))}...'\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             return null;
         }
 

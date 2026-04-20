@@ -68,8 +68,10 @@ namespace Golem_Mining_Suite
             // Services
             if (secrets.IsSupabaseConfigured)
             {
-                services.AddSingleton<ISupabaseService>(
-                    _ => new SupabaseService(secrets.SupabaseUrl, secrets.SupabaseKey));
+                services.AddSingleton<ISupabaseService>(p => new SupabaseService(
+                    secrets.SupabaseUrl,
+                    secrets.SupabaseKey,
+                    p.GetRequiredService<ILogger<SupabaseService>>()));
             }
             else
             {
@@ -86,12 +88,13 @@ namespace Golem_Mining_Suite
             services.AddSingleton<LiveDataCoordinator>(p =>
             {
                 var supabase = p.GetService<ISupabaseService>();
+                var loggerFactory = p.GetRequiredService<ILoggerFactory>();
                 if (supabase == null)
                 {
-                    var log = p.GetService<ILogger<LiveDataCoordinator>>();
-                    log?.LogWarning("LiveDataCoordinator starting without Supabase — live crowdsourced data will not be uploaded.");
+                    loggerFactory.CreateLogger<LiveDataCoordinator>()
+                        .LogWarning("LiveDataCoordinator starting without Supabase — live crowdsourced data will not be uploaded.");
                 }
-                return new LiveDataCoordinator(supabase);
+                return new LiveDataCoordinator(loggerFactory, supabase);
             });
 
             // New Services for Hauling

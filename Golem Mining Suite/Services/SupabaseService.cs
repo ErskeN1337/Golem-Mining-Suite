@@ -1,5 +1,6 @@
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using Supabase;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
@@ -20,15 +21,17 @@ namespace Golem_Mining_Suite.Services
         private Supabase.Client? _client;
         private readonly string _supabaseUrl;
         private readonly string _supabaseKey;
+        private readonly ILogger<SupabaseService> _logger;
         private bool _isInitialized = false;
 
         public event EventHandler<TerminalData>? TerminalUpdateReceived;
         public event EventHandler<bool>? ConnectionStatusChanged;
 
-        public SupabaseService(string supabaseUrl, string supabaseKey)
+        public SupabaseService(string supabaseUrl, string supabaseKey, ILogger<SupabaseService> logger)
         {
             _supabaseUrl = supabaseUrl;
             _supabaseKey = supabaseKey;
+            _logger = logger;
         }
 
         /// <summary>
@@ -94,8 +97,11 @@ namespace Golem_Mining_Suite.Services
                     {
                         File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Inner exception: {ex.InnerException.Message}\n");
                     }
-                } 
-                catch { }
+                }
+                catch (Exception logEx)
+                {
+                    _logger.LogWarning(logEx, "Failed to write Supabase upload failure to livedata_debug.log");
+                }
                 System.Diagnostics.Debug.WriteLine($"[Supabase] Upload failed: {ex.Message}");
                 return false;
             }
@@ -132,8 +138,9 @@ namespace Golem_Mining_Suite.Services
                     CapturedAt = r.captured_at
                 }).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to fetch recent Supabase prices for commodity {Commodity}", commodityName);
                 return new List<TerminalData>();
             }
         }
@@ -297,8 +304,9 @@ namespace Golem_Mining_Suite.Services
                     CapturedAt = r.captured_at
                 }).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to fetch all recent Supabase prices");
                 return new List<TerminalData>();
             }
         }

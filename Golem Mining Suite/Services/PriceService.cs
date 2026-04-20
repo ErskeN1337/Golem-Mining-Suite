@@ -1,5 +1,6 @@
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -17,10 +18,12 @@ namespace Golem_Mining_Suite.Services
         private List<PriceData> _liveOverrides = new List<PriceData>();
 
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<PriceService> _logger;
 
-        public PriceService(IHttpClientFactory httpClientFactory)
+        public PriceService(IHttpClientFactory httpClientFactory, ILogger<PriceService> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         // Some terminals (e.g. Maker's Point) are in price data but missing from the terminals API endpoint.
@@ -85,11 +88,11 @@ namespace Golem_Mining_Suite.Services
                         _terminalToSystem[id] = starSystem;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Fallback or empty
+                _logger.LogWarning(ex, "Failed to fetch UEX terminals list; returning whatever was cached");
             }
-            
+
             return _cachedTerminals.OrderBy(t => t.Name).ToList();
         }
 
@@ -114,10 +117,9 @@ namespace Golem_Mining_Suite.Services
                         mapping[id] = starSystem;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log error or handle gracefully
-                // For now return empty or basic mapping
+                _logger.LogWarning(ex, "Failed to build UEX terminal-to-star-system mapping; returning whatever was parsed so far");
             }
 
             _terminalToSystem = mapping;
