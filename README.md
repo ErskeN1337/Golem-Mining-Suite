@@ -4,16 +4,42 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
-## 🆕 Latest Update (v1.4.0-beta)
-**The Audit & 4.7 Refresh Update**
-- **💎 4.7 Quality Score (0-1000)**: Refinery Calculator now reads the new SC 4.7 mining quality stat. Tier badges (Debuff → Endgame) and an Effective Value row show how quality swings your payout.
-- **🔥 New Pyro Refineries**: Pyro Gateway, Ruin Station, and Terra Gateway added alongside the existing Stanton refinery stations.
-- **📦 Regolith Migration**: Import your Regolith Co. sessions before their June 1, 2026 shutdown — works via file-drop JSON *or* live API key pull.
-- **👥 Crew Sessions**: New local crew-session browser with aUEC share tracking. Set your User Handle in Settings.
-- **🔔 Desktop Toasts**: Get notified the moment your refinery order is ready.
-- **🏴‍☠️ Piracy Route Risk**: Optional checkbox in the Route Optimizer that scores each leg against known Pyro piracy hotspots.
-- **📝 Game.log Tailing**: Session / QT / death / stall / disconnect detection running quietly in the background — foundation for future overlays.
-- **🛡️ Hardening**: Full .NET 8 polish — IHttpClientFactory, ILogger<T>, ISupabaseService, CsvHelper, TreatWarningsAsErrors, 130+ xUnit tests, secrets off disk.
+> **Original project & maintainer:** [**ErskeN1337**](https://github.com/ErskeN1337) — creator of Golem Mining Suite and the driving force behind every release through v1.3.0.
+> If this tool helps you, please [☕ buy them a coffee](https://buymeacoffee.com/ericamcoff). The v1.4.0-beta contribution below is a community PR — Erske's vision, design, and codebase made it possible.
+
+## 🆕 Latest Update — v1.4.0-beta · "Audit & 4.7 Refresh"
+
+A community contribution focused on patch 4.7 readiness, a time-boxed Regolith migration play, and a top-to-bottom code-hardening pass. Full changelog in [`Golem Mining Suite/CHANGELOG.md`](Golem%20Mining%20Suite/CHANGELOG.md).
+
+### ⛏️ New player-facing features
+
+| Area | What's new |
+|---|---|
+| **Refinery Calculator** | 4.7 **Quality Score (0–1000)** input with 5-tier badge (Debuff / Baseline / Good / Keeper / Endgame). New **Effective Value** row shows how quality swings your payout. Pyro Gateway, Ruin Station, and Terra Gateway added to the station list. |
+| **Crew Sessions** | New top-menu tile. Local browser of your past crew-mining work with per-member aUEC share tracking. Set your in-game handle in Settings to see your cut. |
+| **Regolith Migration** | One-click import of your Regolith Co. sessions before their **June 1, 2026** shutdown — supports both per-session JSON file drop and live `x-api-key` API pull. |
+| **Refinery Toasts** | Native Windows desktop notifications fire the moment a refinery order is ready. Survives app restart. |
+| **Route Optimizer** | New optional **Piracy Risk** checkbox scores each route leg against known Pyro pull-points using Snareplan-style geometry. Risk column with green/yellow/orange/red badges. |
+| **Behind the scenes** | Game.log tailing for session / QT / death / 30k-stall detection (foundation for future overlays — mining events still require OCR). Rock fracture solver + skip-rock predictor available at API level for future UI. |
+
+### 🛡️ Code & security hardening
+
+- Real Supabase + UEX keys removed from source; layered loader reads env vars → `%APPDATA%\Golem Mining Suite\appsettings.json` → shipped placeholder file. `appsettings.Example.json` ships as the template.
+- `IHttpClientFactory` with five named clients replaces every `new HttpClient(...)`. `ISupabaseService` interface introduced.
+- 16 empty `catch {}` blocks replaced with `ILogger<T>`. Five `async void` methods reduced to one (the XAML-wired handler, now with try/catch).
+- `CsvHelper` replaces naive `.Split(',')` for asteroid-location parsing.
+- `<TreatWarningsAsErrors>` + `Microsoft.CodeAnalysis.NetAnalyzers` enforced; pre-existing CS8618 warnings fixed.
+
+### 🧪 Test suite
+
+New `Tests/Golem.Mining.Suite.Tests` xUnit project with **130 passing tests** covering:
+RefineryService (pre- and post-4.7), RouteOptimizer, TerminalParser, QualityScore boundaries, FractureSolver geometry, SkipRockPredictor heuristics, GameLog regex patterns, RegolithImporter parsing, CrewSessionService persistence, RefineryOrderWatcher timers, PiracyRouteAnalyzer point-to-segment math.
+
+### 🛠️ Build / CI
+
+- Target framework bumped to `net8.0-windows10.0.17763.0` (Windows 10 1809 floor — required for native toast).
+- CI runs `restore → build Release → test Release → dotnet format --verify-no-changes` on `windows-latest`.
+- Version bumped 1.2.9 → 1.4.0-beta (`AssemblyVersion`/`FileVersion` 1.4.0.0).
 
 ## 🌟 Features
 
@@ -52,12 +78,19 @@ To verify a release:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 💡 About Me
+## 💡 About the Project
 
-I’m completely new to coding, and this project is my first big endeavor. It’s been a huge learning experience, and I’m excited to continue improving the suite while making it useful for the Star Citizen community.
+Golem Mining Suite was created by [**ErskeN1337**](https://github.com/ErskeN1337) as their first major coding project — a Star Citizen mining companion built from scratch and shipped through v1.3.0. The codebase, vision, and Star Citizen domain knowledge that make this app useful are all theirs.
 
 **Enjoying the tool?**
-[☕ Buy me a coffee](https://buymeacoffee.com/ericamcoff)
+[☕ Buy ErskeN1337 a coffee](https://buymeacoffee.com/ericamcoff)
+
+## 🙌 Credits
+
+- **Original creator & lead maintainer**: [ErskeN1337](https://github.com/ErskeN1337)
+- **v1.4.0-beta contribution**: [justinrmcgowan](https://github.com/justinrmcgowan) — 4.7 refinery quality, Regolith migration suite, piracy route analyzer, GameLog tailer, .NET 8 hardening, test suite, CI upgrades.
+- Built on community data from [UEX Corp](https://uexcorp.space), [Star Citizen Wiki](https://starcitizen.tools), and the late great [Regolith Co.](https://regolith.rocks) (RIP June 1, 2026).
+- Want on this list? PRs welcome — see Contributing above.
 
 ## 📜 License
 
