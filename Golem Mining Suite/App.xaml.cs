@@ -66,6 +66,14 @@ namespace Golem_Mining_Suite
                 c.Timeout = TimeSpan.FromMinutes(10);
             });
 
+            // Wave 5A: Regolith importer uses a named client so the api.regolith.rocks base
+            // address and 30s timeout live alongside the other HTTP registrations.
+            services.AddHttpClient("regolith", c =>
+            {
+                c.BaseAddress = new Uri("https://api.regolith.rocks/");
+                c.Timeout = TimeSpan.FromSeconds(30);
+            });
+
             // Services
             if (secrets.IsSupabaseConfigured)
             {
@@ -138,6 +146,13 @@ namespace Golem_Mining_Suite
             services.AddSingleton<SkipRockPredictor>();
             services.AddSingleton<IGameLogService, GameLogService>();
 
+            // Wave 5A/B/C — Regolith importer, toast service, refinery watcher, crew sessions.
+            services.AddSingleton<IRegolithImporter, RegolithImporter>();
+            services.AddSingleton<IToastNotificationService, ToastNotificationService>();
+            services.AddSingleton<RefineryOrderWatcher>();
+            services.AddSingleton<ICrewSessionService, CrewSessionService>();
+            services.AddTransient<CrewSessionViewModel>();
+
             // Windows
             services.AddSingleton<MainWindow>();
 
@@ -174,6 +189,18 @@ namespace Golem_Mining_Suite
             _ = gameLog.StartAsync().ContinueWith(
                 t => Log.Error(t.Exception, "GameLogService failed to start."),
                 TaskContinuationOptions.OnlyOnFaulted);
+
+            // Wave 5B: load persisted crew sessions so the UI has data ready when the
+            // user opens the Crew Sessions view. Non-fatal on failure — the service logs
+            // and starts with an empty list.
+            var crewSessionService = Services.GetRequiredService<ICrewSessionService>();
+            _ = crewSessionService.LoadAsync().ContinueWith(
+                t => Log.Warning(t.Exception, "CrewSessionService failed to load at startup."),
+                TaskContinuationOptions.OnlyOnFaulted);
+
+            // Wave 5C: refinery watcher ctor loads from disk synchronously, so no
+            // explicit LoadAsync is needed — resolving the singleton primes it.
+            _ = Services.GetRequiredService<RefineryOrderWatcher>();
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             mainWindow.Show();

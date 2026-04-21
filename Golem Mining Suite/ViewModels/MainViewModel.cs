@@ -127,6 +127,7 @@ namespace Golem_Mining_Suite.ViewModels
         private SettingsView _settingsView;
         private HaulingDashboardView _haulingDashboardView; // Cached view
         private HaulingRoutesView _haulingRoutesView;
+        private CrewSessionView? _crewSessionView; // Wave 5B — lazy to avoid building until first use
 
         [ObservableProperty]
         private bool _isLocationPromptVisible;
@@ -249,6 +250,17 @@ namespace Golem_Mining_Suite.ViewModels
                     break;
                 case "Settings":
                     CurrentView = _settingsView;
+                    break;
+                case "CrewSessions":
+                    // Lazy-build: most sessions never open this view, and its VM does
+                    // work in the ctor (wires into ICrewSessionService.SessionsChanged).
+                    if (_crewSessionView is null)
+                    {
+                        _crewSessionView = new CrewSessionView();
+                        var crewVm = App.Current.Services.GetService(typeof(CrewSessionViewModel));
+                        if (crewVm != null) _crewSessionView.DataContext = crewVm;
+                    }
+                    CurrentView = _crewSessionView;
                     break;
             }
         }

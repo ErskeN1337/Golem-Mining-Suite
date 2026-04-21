@@ -67,6 +67,22 @@ namespace Golem_Mining_Suite.Services
             }
         }
 
+        public string UserHandle
+        {
+            get => _data.UserHandle;
+            set
+            {
+                // Normalise null → empty so downstream consumers never have to null-check.
+                var normalised = value ?? string.Empty;
+                if (_data.UserHandle != normalised)
+                {
+                    _data.UserHandle = normalised;
+                    OnPropertyChanged();
+                    Save();
+                }
+            }
+        }
+
         private void Load()
         {
             try
@@ -112,6 +128,7 @@ namespace Golem_Mining_Suite.Services
             public bool AlwaysOnTop { get; set; } = false;
             public double WindowOpacity { get; set; } = 1.0;
             public string Theme { get; set; } = "Auto";
+            public string UserHandle { get; set; } = string.Empty;
         }
     }
 }

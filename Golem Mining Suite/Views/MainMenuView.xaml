@@ -158,6 +158,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Row 0: Mining Modes -->
@@ -231,8 +232,8 @@
                     </Button>
 
                     <!-- Refinery Calculator -->
-                    <Button Grid.Row="1" Grid.Column="2" 
-                            Style="{DynamicResource DashboardTile}" 
+                    <Button Grid.Row="1" Grid.Column="2"
+                            Style="{DynamicResource DashboardTile}"
                             Command="{Binding OpenRefineryCalculatorCommand}"
                             Height="140"
                             Margin="10">
@@ -240,6 +241,20 @@
                             <TextBlock Text="🏭" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                             <TextBlock Text="Refinery Calculator" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock Text="Calculate yields &amp; costs" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Row 2: Crew Sessions (Wave 5B) -->
+                    <Button Grid.Row="2" Grid.Column="0"
+                            Style="{DynamicResource DashboardTile}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="CrewSessions"
+                            Height="140"
+                            Margin="10">
+                        <StackPanel>
+                            <TextBlock Text="👥" FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <TextBlock Text="Crew Sessions" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Import from Regolith" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                         </StackPanel>
                     </Button>
                 </Grid>

@@ -17,11 +17,12 @@ namespace Golem_Mining_Suite.ViewModels
         public SettingsViewModel(ISettingsService settingsService)
         {
             _settingsService = settingsService;
-            
+
             // Initialize from service
             _alwaysOnTop = _settingsService.AlwaysOnTop;
             _windowOpacity = _settingsService.WindowOpacity;
-            
+            _userHandle = _settingsService.UserHandle;
+
             // Map saved theme string to selection
             var savedTheme = _settingsService.Theme;
             _selectedTheme = Themes.FirstOrDefault(t => t.Value == savedTheme) ?? Themes.First();
@@ -41,6 +42,19 @@ namespace Golem_Mining_Suite.ViewModels
         partial void OnWindowOpacityChanged(double value)
         {
             _settingsService.WindowOpacity = value;
+        }
+
+        /// <summary>
+        /// Star Citizen handle used by Wave 5B's crew-session "My Share" calculation.
+        /// Persisted through <see cref="ISettingsService.UserHandle"/> so the value
+        /// survives restarts and is visible to every service that needs it.
+        /// </summary>
+        [ObservableProperty]
+        private string _userHandle = string.Empty;
+
+        partial void OnUserHandleChanged(string value)
+        {
+            _settingsService.UserHandle = value ?? string.Empty;
         }
 
         public class ThemeOption
