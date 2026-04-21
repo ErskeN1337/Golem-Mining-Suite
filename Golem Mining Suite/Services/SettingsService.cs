@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Golem_Mining_Suite.Services
 {
@@ -11,13 +12,15 @@ namespace Golem_Mining_Suite.Services
     {
         private const string SettingsFileName = "user_settings.json";
         private string _settingsPath;
+        private readonly ILogger<SettingsService> _logger;
 
-        private SettingsData _data;
+        private SettingsData _data = new SettingsData();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public SettingsService()
+        public SettingsService(ILogger<SettingsService> logger)
         {
+            _logger = logger;
             _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFileName);
             Load();
         }
@@ -64,6 +67,22 @@ namespace Golem_Mining_Suite.Services
             }
         }
 
+        public string UserHandle
+        {
+            get => _data.UserHandle;
+            set
+            {
+                // Normalise null → empty so downstream consumers never have to null-check.
+                var normalised = value ?? string.Empty;
+                if (_data.UserHandle != normalised)
+                {
+                    _data.UserHandle = normalised;
+                    OnPropertyChanged();
+                    Save();
+                }
+            }
+        }
+
         private void Load()
         {
             try
@@ -78,8 +97,9 @@ namespace Golem_Mining_Suite.Services
                     _data = new SettingsData();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to load settings from {SettingsPath}; falling back to defaults", _settingsPath);
                 _data = new SettingsData();
             }
         }
@@ -108,6 +128,7 @@ namespace Golem_Mining_Suite.Services
             public bool AlwaysOnTop { get; set; } = false;
             public double WindowOpacity { get; set; } = 1.0;
             public string Theme { get; set; } = "Auto";
+            public string UserHandle { get; set; } = string.Empty;
         }
     }
 }

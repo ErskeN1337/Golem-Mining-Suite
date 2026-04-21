@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -14,6 +15,7 @@ namespace Golem_Mining_Suite.Services
     {
         private TesseractEngine? _engine;
         private readonly string _tessDataPath;
+        private readonly ILogger<OCRService> _logger;
         private bool _isInitialized = false;
 
         // Windows API for screen capture
@@ -27,9 +29,10 @@ namespace Golem_Mining_Suite.Services
         private static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int wDest, int hDest,
             IntPtr hdcSource, int xSrc, int ySrc, CopyPixelOperation rop);
 
-        public OCRService(string tessDataPath = "tessdata")
+        public OCRService(string tessDataPath, ILogger<OCRService> logger)
         {
             _tessDataPath = tessDataPath;
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,8 +53,9 @@ namespace Golem_Mining_Suite.Services
                 _isInitialized = true;
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to initialize Tesseract OCR engine at {TessDataPath}", _tessDataPath);
                 _isInitialized = false;
                 return false;
             }
@@ -80,8 +84,9 @@ namespace Golem_Mining_Suite.Services
 
                 return bitmap;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to capture window region hWnd={HWnd} ({X},{Y}) {Width}x{Height}", hWnd, x, y, width, height);
                 return null;
             }
         }
@@ -104,8 +109,9 @@ namespace Golem_Mining_Suite.Services
                 }
                 return bitmap;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to capture screen region ({X},{Y}) {Width}x{Height}", x, y, width, height);
                 return null;
             }
         }
@@ -127,7 +133,7 @@ namespace Golem_Mining_Suite.Services
                 {
                     bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     ms.Position = 0;
-                    
+
                     using (var pix = Pix.LoadFromMemory(ms.ToArray()))
                     using (var page = _engine.Process(pix))
                     {
@@ -135,8 +141,9 @@ namespace Golem_Mining_Suite.Services
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Tesseract OCR extraction failed");
                 return null;
             }
         }
@@ -149,12 +156,17 @@ namespace Golem_Mining_Suite.Services
             using (var bitmap = CaptureScreenRegion(x, y, width, height))
             {
                 if (bitmap == null) return null;
-                
+
                 // DEBUG: Save image to check what we are seeing
-                try {
+                try
+                {
                     string debugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ocr_debug.png");
                     bitmap.Save(debugPath, System.Drawing.Imaging.ImageFormat.Png);
-                } catch {}
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to save OCR debug image to ocr_debug.png");
+                }
 
                 return ExtractText(bitmap);
             }
@@ -170,7 +182,7 @@ namespace Golem_Mining_Suite.Services
             // - Centered horizontally
             // - In bottom 60% of screen
             // - Takes up about 70% of screen width
-            
+
             int terminalWidth = (int)(windowWidth * 0.7);
             int terminalHeight = (int)(windowHeight * 0.6);
             int terminalX = windowX + (windowWidth - terminalWidth) / 2;

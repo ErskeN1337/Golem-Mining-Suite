@@ -25,7 +25,7 @@ namespace Golem_Mining_Suite.ViewModels
 
         [ObservableProperty]
         private bool _isROCMode;
-        
+
         [ObservableProperty]
         private bool _isMineral;
 
@@ -60,14 +60,14 @@ namespace Golem_Mining_Suite.ViewModels
 
         [ObservableProperty]
         private string _minMineralPercentText = "";
-        
+
         // Cluster Rock Popup
         [ObservableProperty]
         private List<ClusterRockInfo> _clusterRocks = new();
-        
+
         [ObservableProperty]
         private string _popupTitle = "";
-        
+
         [ObservableProperty]
         private bool _isPopupOpen;
 
@@ -101,7 +101,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Initialize Filters
             if (IsAsteroidMode) LoadOreTypeFilter();
-            if(!IsAsteroidMode) LoadPlanetFilter();
+            if (!IsAsteroidMode) LoadPlanetFilter();
 
             // Default selections
             if (Planets.Count > 0) SelectedPlanet = Planets[0];
@@ -236,12 +236,13 @@ namespace Golem_Mining_Suite.ViewModels
 
             if (depositLocations.ContainsKey(depositName))
             {
-                _allLocations = depositLocations[depositName].Select(loc => {
-                     double sortVal = 0;
-                     double.TryParse(loc.Chance.Replace("%", ""), out sortVal);
-                     
-                     return new LocationData
-                     {
+                _allLocations = depositLocations[depositName].Select(loc =>
+                {
+                    double sortVal = 0;
+                    double.TryParse(loc.Chance.Replace("%", ""), out sortVal);
+
+                    return new LocationData
+                    {
                         LocationName = loc.LocationName,
                         Chance = loc.Chance,
                         DepositChance = loc.Chance,
@@ -250,14 +251,14 @@ namespace Golem_Mining_Suite.ViewModels
                         SortValue = sortVal,
                         Signature = _miningDataService.GetSurfaceDepositSignature(depositName, loc.System),
                         DepositType = depositName
-                     };
+                    };
                 }).ToList();
                 ApplyFilter();
             }
             else
             {
-                 _allLocations = new List<LocationData>();
-                 ApplyFilter();
+                _allLocations = new List<LocationData>();
+                ApplyFilter();
             }
         }
 
@@ -267,12 +268,13 @@ namespace Golem_Mining_Suite.ViewModels
 
             if (oreTypeLocations.ContainsKey(oreTypeName))
             {
-                _allLocations = oreTypeLocations[oreTypeName].Select(loc => {
-                     double sortVal = 0;
-                     double.TryParse(loc.Chance.Replace("%", ""), out sortVal);
+                _allLocations = oreTypeLocations[oreTypeName].Select(loc =>
+                {
+                    double sortVal = 0;
+                    double.TryParse(loc.Chance.Replace("%", ""), out sortVal);
 
-                     return new LocationData
-                     {
+                    return new LocationData
+                    {
                         LocationName = loc.LocationName,
                         Chance = loc.Chance,
                         DepositChance = loc.Chance,
@@ -281,14 +283,14 @@ namespace Golem_Mining_Suite.ViewModels
                         SortValue = sortVal,
                         Signature = _miningDataService.GetAsteroidOreTypeSignature(oreTypeName),
                         DepositType = oreTypeName
-                     };
+                    };
                 }).ToList();
                 ApplyFilter();
             }
-             else
+            else
             {
-                 _allLocations = new List<LocationData>();
-                 ApplyFilter();
+                _allLocations = new List<LocationData>();
+                ApplyFilter();
             }
         }
 
@@ -320,15 +322,15 @@ namespace Golem_Mining_Suite.ViewModels
                 .Distinct()
                 .OrderBy(p => p)
                 .ToList();
-            
-            foreach(var p in planetList) Planets.Add(p);
+
+            foreach (var p in planetList) Planets.Add(p);
         }
 
         private void LoadOreTypeFilter()
         {
             OreTypes.Clear();
             OreTypes.Add("All Ore Types");
-            foreach(var type in new[] { "C-Type", "E-Type", "I-Type", "M-Type", "P-Type", "Q-Type", "S-Type" })
+            foreach (var type in new[] { "C-Type", "E-Type", "I-Type", "M-Type", "P-Type", "Q-Type", "S-Type" })
             {
                 OreTypes.Add(type);
             }
@@ -380,7 +382,7 @@ namespace Golem_Mining_Suite.ViewModels
             // 4. Planet
             if (!IsAsteroidMode && SelectedPlanet != "All" && !string.IsNullOrEmpty(SelectedPlanet))
             {
-                 filtered = filtered.Where(l => l.LocationName.ToLower().StartsWith(SelectedPlanet.ToLower()));
+                filtered = filtered.Where(l => l.LocationName.ToLower().StartsWith(SelectedPlanet.ToLower()));
             }
 
             // 5. Search
@@ -413,9 +415,9 @@ namespace Golem_Mining_Suite.ViewModels
             var sorted = filtered.OrderByDescending(l => l.SortValue).ToList();
 
             Locations.Clear();
-            foreach(var item in sorted) Locations.Add(item);
+            foreach (var item in sorted) Locations.Add(item);
         }
-        
+
         [RelayCommand] // For Systems
         private void SetSystemFilter(string system)
         {
@@ -431,16 +433,16 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand] // Show Signature
         private void ShowSignature(LocationData locationData)
         {
-             if (locationData == null || string.IsNullOrEmpty(locationData.DepositType)) return;
-             
-             PopupTitle = locationData.DepositType;
-             
-             if(IsAsteroidMode)
+            if (locationData == null || string.IsNullOrEmpty(locationData.DepositType)) return;
+
+            PopupTitle = locationData.DepositType;
+
+            if (IsAsteroidMode)
                 ClusterRocks = _miningDataService.GetAsteroidClusterRockData(locationData.DepositType);
-             else
+            else
                 ClusterRocks = _miningDataService.GetSurfaceClusterRockData(locationData.DepositType);
-             
-             IsPopupOpen = true;
+
+            IsPopupOpen = true;
         }
 
         [RelayCommand]

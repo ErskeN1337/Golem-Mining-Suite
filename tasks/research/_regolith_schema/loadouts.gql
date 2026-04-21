@@ -1,0 +1,109 @@
+enum LoadoutShipEnum {
+  PROSPECTOR
+  MOLE
+  GOLEM
+  ROC
+}
+
+enum MiningLaserEnum {
+  LancetMH1
+  LancetMH2
+  HofstedeS0 # NEW FOR ROC
+  HofstedeS1
+  HofstedeS2
+  KleinS0 # NEW FOR ROC
+  KleinS1
+  KleinS2
+  ImpactI
+  ImpactII
+  Helix0 # NEW FOR ROC
+  HelixI
+  HelixII
+  ArborMH1
+  ArborMH2
+  ArborMHV # NEW FOR ROC
+  Pitman # NEW FOR ROC
+  Lawson # NEW FOR ROC
+}
+
+enum MiningModuleEnum {
+  Brandt
+  Forel
+  Lifeline
+  Optimum
+  Rime
+  Stampede
+  Surge
+  Torpid
+  FLTR
+  FLTRL
+  FLTRXL
+  Focus
+  FocusII
+  FocusIII
+  Rieger
+  RiegerC2
+  RiegerC3
+  Torrent
+  TorrentII
+  TorrentIII
+  Vaux
+  VauxC2
+  VauxC3
+  XTR
+  XTRL
+  XTRXL
+}
+
+enum MiningGadgetEnum {
+  Optimax
+  Okunis
+  Sabir
+  Stalwart
+  Boremax
+  Waveshift
+}
+
+type MiningLoadout {
+  loadoutId: ID!
+  owner: User!
+  name: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  ship: LoadoutShipEnum!
+  # Active lasers ARE part of the inventory but they can also be null
+  activeLasers: [ActiveMiningLaserLoadout]!
+  # This is the inventory
+  inventoryLasers: [MiningLaserEnum!]!
+  inventoryModules: [MiningModuleEnum!]!
+  inventoryGadgets: [MiningGadgetEnum!]!
+  # One of the gadgets can be active
+  activeGadgetIndex: Int
+}
+
+type ActiveMiningLaserLoadout {
+  laser: MiningLaserEnum!
+  laserActive: Boolean!
+  # Modules can be null
+  modules: [MiningModuleEnum]!
+  modulesActive: [Boolean!]!
+}
+
+
+input MiningLoadoutInput {
+  name: String!
+  ship: LoadoutShipEnum!
+  activeLasers: [ActiveMiningLaserLoadoutInput]!
+  inventoryLasers: [MiningLaserEnum!]!
+  inventoryModules: [MiningModuleEnum!]!
+  inventoryGadgets: [MiningGadgetEnum!]!
+  activeGadgetIndex: Int
+}
+
+input ActiveMiningLaserLoadoutInput {
+  laser: MiningLaserEnum!
+  laserActive: Boolean!
+  modules: [MiningModuleEnum]!
+  modulesActive: [Boolean!]!
+}
+

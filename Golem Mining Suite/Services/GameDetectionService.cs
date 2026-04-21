@@ -67,7 +67,7 @@ namespace Golem_Mining_Suite.Services
 
                 // Get the first Star Citizen process
                 var process = processes[0];
-                
+
                 // Return the main window handle
                 return process.MainWindowHandle;
             }
@@ -84,7 +84,7 @@ namespace Golem_Mining_Suite.Services
         {
             IntPtr hwnd = GetStarCitizenWindow();
             if (hwnd == IntPtr.Zero) return false;
-            
+
             return IsWindowVisible(hwnd);
         }
 
@@ -94,13 +94,13 @@ namespace Golem_Mining_Suite.Services
         public (int X, int Y, int Width, int Height)? GetWindowBounds()
         {
             IntPtr hwnd = GetStarCitizenWindow();
-            
+
             // Try to get window rect
             if (hwnd != IntPtr.Zero && GetWindowRect(hwnd, out RECT rect))
             {
                 int width = rect.Right - rect.Left;
                 int height = rect.Bottom - rect.Top;
-                
+
                 // Check if we got valid dimensions
                 if (width > 0 && height > 0)
                 {
@@ -117,7 +117,7 @@ namespace Golem_Mining_Suite.Services
                     // Get primary screen dimensions using WPF
                     int width = (int)System.Windows.SystemParameters.PrimaryScreenWidth;
                     int height = (int)System.Windows.SystemParameters.PrimaryScreenHeight;
-                    
+
                     if (width > 0 && height > 0)
                     {
                         return (0, 0, width, height);
@@ -153,7 +153,7 @@ namespace Golem_Mining_Suite.Services
         {
             var gameWnd = GetStarCitizenWindow();
             if (gameWnd == IntPtr.Zero) return false;
-            
+
             var foreground = GetForegroundWindow();
             return gameWnd == foreground;
         }

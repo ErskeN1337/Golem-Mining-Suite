@@ -128,44 +128,53 @@
                 </StackPanel>
 
                 <!-- Min Profit and Max Budget Filters -->
-                <StackPanel Grid.Row="1" Grid.Column="5" 
-                            Orientation="Horizontal" 
+                <StackPanel Grid.Row="1" Grid.Column="5"
+                            Orientation="Horizontal"
                             Margin="0,10,0,0">
-                    
+
                      <!-- Max Budget Filter (Left) -->
-                    <TextBlock Text="Max Budget: " 
+                    <TextBlock Text="Max Budget: "
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                Margin="0,0,5,0"/>
-                    <TextBox Width="70" 
+                    <TextBox Width="70"
                              Text="{Binding MaxBudget, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
                              VerticalAlignment="Center">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Return" Command="{Binding ApplyFiltersCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
-                    <TextBlock Text=" aUEC" 
+                    <TextBlock Text=" aUEC"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                Margin="2,0,10,0"/>
 
                     <!-- Min Profit Filter (Right) -->
-                    <TextBlock Text="Min Profit: " 
+                    <TextBlock Text="Min Profit: "
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                Margin="0,0,5,0"/>
-                    <TextBox Width="70" 
+                    <TextBox Width="70"
                              Text="{Binding MinProfit, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
                              VerticalAlignment="Center">
                         <TextBox.InputBindings>
                             <KeyBinding Key="Return" Command="{Binding ApplyFiltersCommand}"/>
                         </TextBox.InputBindings>
                     </TextBox>
-                    <TextBlock Text=" aUEC" 
+                    <TextBlock Text=" aUEC"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                Margin="2,0,0,0"/>
                 </StackPanel>
+
+                <!-- Wave 6: Piracy risk toggle. Default OFF so existing behaviour is preserved. -->
+                <CheckBox Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="2"
+                          Content="Include piracy risk analysis"
+                          IsChecked="{Binding IncludePiracyRisk}"
+                          VerticalAlignment="Center"
+                          Foreground="{DynamicResource TextSecondaryBrush}"
+                          Margin="15,10,0,0"
+                          ToolTip="Scores each route against known Pyro pull-points. Geometry from Snareplan model (R4); seed data is approximate."/>
             </Grid>
         </Border>
 
@@ -242,6 +251,55 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="SYSTEM" Binding="{Binding SystemRoute}" Width="120"/>
+
+                <!-- Wave 6: Piracy risk column. Shows "—" when analysis is off;
+                     colored numeric badge otherwise (green <30, yellow 30-60,
+                     orange 60-80, red >80). Uses DataTriggers against the raw
+                     RiskScore double so bins are kept in one place. -->
+                <DataGridTemplateColumn Header="RISK" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="4"
+                                    Padding="6,2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RiskScore, TargetNullValue=-1}" Value="-1">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding RiskScoreFormatted}"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RiskScore, Converter={StaticResource NullToDash}}" Value="low">
+                                                    <Setter Property="Foreground" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RiskScore, Converter={StaticResource NullToDash}}" Value="med">
+                                                    <Setter Property="Foreground" Value="#FFC107"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RiskScore, Converter={StaticResource NullToDash}}" Value="high">
+                                                    <Setter Property="Foreground" Value="#FF9800"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RiskScore, Converter={StaticResource NullToDash}}" Value="crit">
+                                                    <Setter Property="Foreground" Value="#F44336"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 

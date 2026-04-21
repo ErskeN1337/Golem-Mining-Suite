@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
-using Golem_Mining_Suite.Services;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -39,24 +38,21 @@ namespace Golem_Mining_Suite.ViewModels
             Prices = new ObservableCollection<PriceData>();
             Commodities = new ObservableCollection<string>();
             _allPrices = new List<PriceData>(); // Initialize to avoid null warning
-            
-            // Subscribe to live events (casting if needed, similar to PricesViewModel)
-            if (_priceService is PriceService ps)
+
+            // Subscribe to live events — interface surfaces these directly, no cast needed.
+            IsLiveConnected = _priceService.IsLiveConnected;
+
+            _priceService.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() =>
             {
-                 IsLiveConnected = ps.IsLiveConnected;
-                 
-                 ps.PricesUpdated += (s, e) => App.Current.Dispatcher.Invoke(() => 
-                 {
-                     StatusText = "Live Data Received";
-                     ApplyFilter();
-                 });
-                 
-                 ps.LinkStatusChanged += (s, connected) => 
-                 {
-                     App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
-                 };
-            }
-            
+                StatusText = "Live Data Received";
+                ApplyFilter();
+            });
+
+            _priceService.LinkStatusChanged += (s, connected) =>
+            {
+                App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
+            };
+
             LoadDataCommand.ExecuteAsync(null);
         }
 
@@ -122,7 +118,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
 
             var sorted = filtered.OrderByDescending(p => p.NumericPrice).ToList();
-            
+
             Prices.Clear();
             foreach (var item in sorted) Prices.Add(item);
 

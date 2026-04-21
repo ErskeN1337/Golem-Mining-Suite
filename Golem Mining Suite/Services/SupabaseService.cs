@@ -1,4 +1,7 @@
 using Golem_Mining_Suite.Models;
+using Golem_Mining_Suite.Models.Piracy;
+using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using Supabase;
 using Supabase.Realtime;
 using Supabase.Realtime.Interfaces;
@@ -14,20 +17,22 @@ namespace Golem_Mining_Suite.Services
     /// <summary>
     /// Service for interacting with Supabase backend for live terminal data
     /// </summary>
-    public class SupabaseService
+    public class SupabaseService : ISupabaseService
     {
         private Supabase.Client? _client;
         private readonly string _supabaseUrl;
         private readonly string _supabaseKey;
+        private readonly ILogger<SupabaseService> _logger;
         private bool _isInitialized = false;
 
         public event EventHandler<TerminalData>? TerminalUpdateReceived;
         public event EventHandler<bool>? ConnectionStatusChanged;
 
-        public SupabaseService(string supabaseUrl, string supabaseKey)
+        public SupabaseService(string supabaseUrl, string supabaseKey, ILogger<SupabaseService> logger)
         {
             _supabaseUrl = supabaseUrl;
             _supabaseKey = supabaseKey;
+            _logger = logger;
         }
 
         /// <summary>
@@ -85,16 +90,19 @@ namespace Golem_Mining_Suite.Services
             catch (Exception ex)
             {
                 var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
-                try 
-                { 
+                try
+                {
                     File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Upload failed: {ex.Message}\n");
                     File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Exception type: {ex.GetType().Name}\n");
                     if (ex.InnerException != null)
                     {
                         File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Inner exception: {ex.InnerException.Message}\n");
                     }
-                } 
-                catch { }
+                }
+                catch (Exception logEx)
+                {
+                    _logger.LogWarning(logEx, "Failed to write Supabase upload failure to livedata_debug.log");
+                }
                 System.Diagnostics.Debug.WriteLine($"[Supabase] Upload failed: {ex.Message}");
                 return false;
             }
@@ -131,8 +139,9 @@ namespace Golem_Mining_Suite.Services
                     CapturedAt = r.captured_at
                 }).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to fetch recent Supabase prices for commodity {Commodity}", commodityName);
                 return new List<TerminalData>();
             }
         }
@@ -203,9 +212,9 @@ namespace Golem_Mining_Suite.Services
                     // For now, let's break the loop. If the connection drops, the library *should* throw an event,
                     // but if it doesn't auto-reconnect, we might be stuck.
                     // Let's add a periodic check.
-                    
+
                     await MonitorConnectionAsync();
-                    
+
                     // If Monitor returns, it means we lost connection.
                     System.Diagnostics.Debug.WriteLine("[Supabase] Connection lost, retrying in 5 seconds...");
                     ConnectionStatusChanged?.Invoke(this, false);
@@ -228,41 +237,114 @@ namespace Golem_Mining_Suite.Services
             // As a workaround, we will rely on the fact that if the underlying socket closes, 
             // the listener might stop receiving. 
             // However, the original error was an exception. 
-            
+
             // NOTE: Ideally we would attach to an OnClose/OnDisconnect event from the client, 
             // but the Supabase-csharp client documentation/interface for that varies.
-            
+
             // For now, we'll implement a dummy delay loop. Real robust implementation requires
             // checking _client.Realtime.Socket.State if exposed, or handling the disconnect event.
             // Since we can't easily see the internal state, we will assume the library stays connected
             // unless we decide to restart.
-            
+
             // To properly catch the "Remote party closed" exception which likely happens ON the socket thread,
             // we might need to rely on the library's internal error handling or global exception handlers.
-            
+
             // Only exit this method if we detect a failure or want to reconnect.
             // Currently, we just wait indefinitely until an exception bubbles up or we implement a heartbeat.
-            
+
             // Let's assume the loop in ConnectAndSubscribeAsync handles the "Start" and exception retry.
             // But once `await channel.Subscribe()` returns, we are just "running".
-            
+
             // If the socket closes, does it throw here? No.
             // The exception seen in logs "Error while listening to websocket stream" comes from `WebsocketClient.Listen`.
             // The Supabase library likely uses `Websocket.Client`.
-            
+
             // We can try to keep this method alive.
-            try 
+            try
             {
                 while (_client!.Realtime.Socket != null) // Check if socket object exists
                 {
-                   await Task.Delay(2000);
-                   // If we could check state: 
-                   // if (_client.Realtime.Socket.IsConnected == false) return;
+                    await Task.Delay(2000);
+                    // If we could check state: 
+                    // if (_client.Realtime.Socket.IsConnected == false) return;
                 }
             }
             catch
             {
                 return;
+            }
+        }
+
+        /// <summary>
+        /// Upload a user-submitted piracy pull-point report. Insert-only — community
+        /// aggregation (median / outlier rejection) happens server-side per R4 §6.1.
+        /// </summary>
+        public async Task<bool> UploadPullPointReportAsync(PullPoint point)
+        {
+            if (point == null) return false;
+            if (!_isInitialized || _client == null) return false;
+
+            try
+            {
+                var record = new PullPointReportRecord
+                {
+                    external_id = point.Id,
+                    name = point.Name,
+                    position_x_km = point.Position.X,
+                    position_y_km = point.Position.Y,
+                    position_z_km = point.Position.Z,
+                    radius_km = point.RadiusKm,
+                    notoriety = point.Notoriety,
+                    source = point.Source,
+                    reported_by = point.LastReportedBy,
+                    reported_at = point.LastReportedAt ?? DateTime.UtcNow
+                };
+
+                await _client.From<PullPointReportRecord>().Insert(record);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to upload pull-point report {Id}", point.Id);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Fetch recent crowdsourced pull-point reports. Returns an empty list when
+        /// Supabase is not initialised so the analyzer falls back to seed data.
+        /// </summary>
+        public async Task<List<PullPoint>> GetCrowdsourcedPullPointsAsync(int maxAgeDays = 30)
+        {
+            if (!_isInitialized || _client == null)
+                return new List<PullPoint>();
+
+            try
+            {
+                var cutoff = DateTime.UtcNow.AddDays(-maxAgeDays);
+
+                var response = await _client
+                    .From<PullPointReportRecord>()
+                    .Filter("reported_at", Postgrest.Constants.Operator.GreaterThanOrEqual, cutoff.ToString("o"))
+                    .Order("reported_at", Postgrest.Constants.Ordering.Descending)
+                    .Get();
+
+                return response.Models.Select(r => new PullPoint
+                {
+                    Id = string.IsNullOrEmpty(r.external_id) ? $"crowd_{r.id}" : r.external_id!,
+                    Name = r.name ?? "Unnamed report",
+                    Position = new Vec3(r.position_x_km, r.position_y_km, r.position_z_km),
+                    RadiusKm = r.radius_km <= 0 ? 20.0 : r.radius_km,
+                    Notoriety = r.notoriety,
+                    LastReportedBy = r.reported_by,
+                    LastReportedAt = r.reported_at,
+                    Source = "crowdsourced"
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to fetch crowdsourced pull points");
+                return new List<PullPoint>();
             }
         }
 
@@ -296,8 +378,9 @@ namespace Golem_Mining_Suite.Services
                     CapturedAt = r.captured_at
                 }).ToList();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Failed to fetch all recent Supabase prices");
                 return new List<TerminalData>();
             }
         }
@@ -338,5 +421,47 @@ namespace Golem_Mining_Suite.Services
 
         [Postgrest.Attributes.Column("created_at")]
         public DateTime created_at { get; set; }
+    }
+
+    /// <summary>
+    /// Database model for the <c>pull_point_reports</c> table. See R4 §6.1 for the
+    /// schema rationale; columns here mirror the fields we surface on
+    /// <see cref="PullPoint"/> plus reporter metadata.
+    /// </summary>
+    [Postgrest.Attributes.Table("pull_point_reports")]
+    public class PullPointReportRecord : Postgrest.Models.BaseModel
+    {
+        [Postgrest.Attributes.PrimaryKey("id", false)]
+        public int id { get; set; }
+
+        [Postgrest.Attributes.Column("external_id")]
+        public string? external_id { get; set; }
+
+        [Postgrest.Attributes.Column("name")]
+        public string? name { get; set; }
+
+        [Postgrest.Attributes.Column("position_x_km")]
+        public double position_x_km { get; set; }
+
+        [Postgrest.Attributes.Column("position_y_km")]
+        public double position_y_km { get; set; }
+
+        [Postgrest.Attributes.Column("position_z_km")]
+        public double position_z_km { get; set; }
+
+        [Postgrest.Attributes.Column("radius_km")]
+        public double radius_km { get; set; }
+
+        [Postgrest.Attributes.Column("notoriety")]
+        public int notoriety { get; set; }
+
+        [Postgrest.Attributes.Column("source")]
+        public string? source { get; set; }
+
+        [Postgrest.Attributes.Column("reported_by")]
+        public string? reported_by { get; set; }
+
+        [Postgrest.Attributes.Column("reported_at")]
+        public DateTime reported_at { get; set; }
     }
 }

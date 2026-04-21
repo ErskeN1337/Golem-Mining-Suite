@@ -53,10 +53,22 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private bool _isLoading = false;
 
+        /// <summary>
+        /// Wave 6 opt-in: when true, routes are annotated with a 0..100 piracy
+        /// risk score. Default OFF so existing users see zero behaviour change.
+        /// </summary>
+        [ObservableProperty]
+        private bool _includePiracyRisk;
+
         public RouteOptimizerViewModel(IPriceService priceService)
+            : this(priceService, null)
+        {
+        }
+
+        public RouteOptimizerViewModel(IPriceService priceService, IPiracyRouteAnalyzer? piracyAnalyzer)
         {
             _priceService = priceService;
-            _routeOptimizer = new RouteOptimizerService();
+            _routeOptimizer = new RouteOptimizerService(piracyAnalyzer);
 
             InitializeShips();
         }
@@ -133,8 +145,14 @@ namespace Golem_Mining_Suite.ViewModels
 
         partial void OnMaxBudgetChanged(double? value)
         {
-             // Auto-refresh when budget changes
-             _ = ApplyFiltersAsync();
+            // Auto-refresh when budget changes
+            _ = ApplyFiltersAsync();
+        }
+
+        partial void OnIncludePiracyRiskChanged(bool value)
+        {
+            // Re-scan so the risk column populates (or clears) immediately.
+            _ = ApplyFiltersAsync();
         }
 
         [RelayCommand]
@@ -165,7 +183,7 @@ namespace Golem_Mining_Suite.ViewModels
                 }
 
                 // Calculate ALL routes
-                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0);
+                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0, IncludePiracyRisk);
 
                 // Apply filters FIRST
                 var filteredRoutes = ApplyFilters(allRoutes);
@@ -205,7 +223,7 @@ namespace Golem_Mining_Suite.ViewModels
                 var priceData = await _priceService.GetAllCommodityPricesAsync();
 
                 // Calculate ALL routes
-                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0);
+                var allRoutes = _routeOptimizer.CalculateRoutes(priceData, CargoCapacity, MaxBudget ?? 0, IncludePiracyRisk);
 
                 // Apply filters FIRST
                 var filteredRoutes = ApplyFilters(allRoutes);

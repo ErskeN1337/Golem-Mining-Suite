@@ -1,4 +1,5 @@
 using Golem_Mining_Suite.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,13 @@ namespace Golem_Mining_Suite.Services
     /// </summary>
     public class TerminalParser
     {
+        private readonly ILogger<TerminalParser> _logger;
+
+        public TerminalParser(ILogger<TerminalParser> logger)
+        {
+            _logger = logger;
+        }
+
         // Common commodity names to look for (minerals and gases only - for mining)
         private static readonly string[] KNOWN_MINERALS = new[]
         {
@@ -25,7 +33,7 @@ namespace Golem_Mining_Suite.Services
             "Hydrogen", "Nitrogen", "Methane", "Quantanium Gas", "Pressurized Ice",
             
             // Grim Hex / Illegal Goods
-            "Widow", "Slam", "E'tam", "Neon", "Altruciatoxin", 
+            "Widow", "Slam", "E'tam", "Neon", "Altruciatoxin",
             "Distilled Spirits", "Stims", "Medical Supplies", "Waste", "Scrap",
             "WiDoW", "Etam", "Maze" // Common OCR misreads or alt spellings
         };
@@ -45,19 +53,19 @@ namespace Golem_Mining_Suite.Services
             data.CommodityName = ExtractCommodityName(ocrText);
             if (string.IsNullOrEmpty(data.CommodityName))
             {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No commodity name found\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No commodity name found\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                 return null; // No valid commodity found
             }
 
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Found commodity: {data.CommodityName}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Found commodity: {data.CommodityName}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Find the line(s) containing this commodity to extract prices from the correct context
             var commodityContext = ExtractCommodityContext(ocrText, data.CommodityName);
-            
+
             // Extract prices from the commodity's context only
             data.PriceSell = ExtractPrice(commodityContext, "sell");
             data.PriceBuy = ExtractPrice(commodityContext, "buy");
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Prices - Sell: {data.PriceSell}, Buy: {data.PriceBuy}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Prices - Sell: {data.PriceSell}, Buy: {data.PriceBuy}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Extract inventory from the commodity's context
             var inventory = ExtractInventory(commodityContext);
@@ -65,19 +73,19 @@ namespace Golem_Mining_Suite.Services
             {
                 data.InventorySCU = inventory.Value.current;
                 data.InventoryMax = inventory.Value.max;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory: {data.InventorySCU}/{data.InventoryMax}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory: {data.InventorySCU}/{data.InventoryMax}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
             else
             {
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No inventory found\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] No inventory found\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
 
             // Extract terminal name (harder, might need improvement)
             data.TerminalName = ExtractTerminalName(ocrText);
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Terminal: {data.TerminalName}\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Terminal: {data.TerminalName}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
 
             // Validation is now handled in LiveDataCoordinator after manual overrides are applied
-             // But we still return null if no base commodity was found
+            // But we still return null if no base commodity was found
             return data;
         }
 
@@ -86,7 +94,7 @@ namespace Golem_Mining_Suite.Services
             // Find lines containing the commodity name and surrounding context
             var lines = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             var contextLines = new List<string>();
-            
+
             for (int i = 0; i < lines.Length; i++)
             {
                 if (lines[i].Contains(commodityName, StringComparison.OrdinalIgnoreCase))
@@ -100,7 +108,7 @@ namespace Golem_Mining_Suite.Services
                     break; // Only process the first match
                 }
             }
-            
+
             return string.Join("\n", contextLines);
         }
 
@@ -123,13 +131,13 @@ namespace Golem_Mining_Suite.Services
             // Star Citizen terminals show prices like:
             // "H2.58599996K/UNITS" or "£11.06200003K/SCU" or "128.9160003K/5C" (OCR typo)
             // OCR sometimes reads decimal points as spaces: "1128 9160003K/SC" instead of "1128.9160003K/SC"
-            
+
             var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
-            
+
             // First, normalize spaces that might be decimal points in price numbers
             // Replace space between digits followed by K/ with a decimal point
             text = Regex.Replace(text, @"(\d+)\s+(\d+)\s*K/", "$1.$2K/", RegexOptions.IgnoreCase);
-            
+
             // Look for price patterns - be flexible with OCR errors
             // IMPORTANT: Order matters! Check K/ patterns FIRST before currency-only patterns
             var pricePatterns = new[]
@@ -156,15 +164,15 @@ namespace Golem_Mining_Suite.Services
                     if (double.TryParse(priceStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double price))
                     {
                         // If the pattern includes K, multiply by 1000
-                        if (match.Value.Contains("K/", StringComparison.OrdinalIgnoreCase) || 
+                        if (match.Value.Contains("K/", StringComparison.OrdinalIgnoreCase) ||
                             match.Value.Contains("K ", StringComparison.OrdinalIgnoreCase))
                         {
                             price *= 1000;
                         }
-                        
+
                         // Convert to integer (aUEC)
                         int result = (int)Math.Round(price);
-                        try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Price matched: '{match.Value}' -> {result} aUEC\n"); } catch { }
+                        try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Price matched: '{match.Value}' -> {result} aUEC\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                         return result;
                     }
                 }
@@ -176,39 +184,39 @@ namespace Golem_Mining_Suite.Services
         private (int current, int max)? ExtractInventory(string text)
         {
             var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
-            
+
             // Star Citizen terminals show inventory in various formats:
             // "HYDROGEN 0 scu" (current inventory)
             // "MAX INVENTORY 18,000SCU" or "18,000 SCU" (max capacity)
             // Sometimes on same line, sometimes separate lines
-            
+
             // Try to find current inventory (the number before "scu" on the commodity line)
             var currentMatch = Regex.Match(text, @"(\d+)\s*(?:scu|&80|sc0|s)", RegexOptions.IgnoreCase);
-            
+
             // Try to find max inventory
             var maxMatch = Regex.Match(text, @"(?:MAX\s*INVENTORY|INVENTORY)\s*(\d{1,3}(?:,\d{3})*)\s*(?:SCU|sc0|s)", RegexOptions.IgnoreCase);
-            
+
             int? current = null;
             int? max = null;
-            
+
             if (currentMatch.Success && int.TryParse(currentMatch.Groups[1].Value.Replace(",", ""), out int curr))
             {
                 current = curr;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory current matched: '{currentMatch.Value}' -> {curr}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory current matched: '{currentMatch.Value}' -> {curr}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
-            
+
             if (maxMatch.Success && int.TryParse(maxMatch.Groups[1].Value.Replace(",", ""), out int mx))
             {
                 max = mx;
-                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory max matched: '{maxMatch.Value}' -> {mx}\n"); } catch { }
+                try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory max matched: '{maxMatch.Value}' -> {mx}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             }
-            
+
             // If we found both, return them
             if (current.HasValue && max.HasValue)
             {
                 return (current.Value, max.Value);
             }
-            
+
             // Legacy pattern: "1234/5000 SCU" or "1,234 / 5,000"
             var legacyMatch = Regex.Match(text, @"(\d{1,3}(?:,\d{3})*)\s*/\s*(\d{1,3}(?:,\d{3})*)\s*(?:SCU)?", RegexOptions.IgnoreCase);
             if (legacyMatch.Success)
@@ -218,12 +226,12 @@ namespace Golem_Mining_Suite.Services
 
                 if (int.TryParse(currentStr, out int legacyCurr) && int.TryParse(maxStr, out int legacyMax))
                 {
-                    try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory legacy matched: '{legacyMatch.Value}' -> {legacyCurr}/{legacyMax}\n"); } catch { }
+                    try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory legacy matched: '{legacyMatch.Value}' -> {legacyCurr}/{legacyMax}\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
                     return (legacyCurr, legacyMax);
                 }
             }
 
-            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory extraction failed. Text: '{text.Substring(0, Math.Min(100, text.Length))}...'\n"); } catch { }
+            try { File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Parser] Inventory extraction failed. Text: '{text.Substring(0, Math.Min(100, text.Length))}...'\n"); } catch (Exception ex) { _logger.LogWarning(ex, "Failed to append to livedata_debug.log from TerminalParser"); }
             return null;
         }
 
@@ -232,10 +240,10 @@ namespace Golem_Mining_Suite.Services
             // This is tricky - terminal names vary widely
             // Common patterns: "Port Olisar", "Area 18", "Lorville"
             // For now, return a placeholder - we'll improve this with testing
-            
+
             // Look for common terminal keywords
             var terminalKeywords = new[] { "Port", "Area", "Station", "Terminal", "Lorville", "Orison", "New Babbage" };
-            
+
             foreach (var keyword in terminalKeywords)
             {
                 if (text.Contains(keyword, StringComparison.OrdinalIgnoreCase))

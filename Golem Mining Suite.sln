@@ -5,19 +5,50 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Golem Mining Suite", "Golem Mining Suite\Golem Mining Suite.csproj", "{E007F185-48A6-4234-AB78-BE054CC3FA80}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Golem.Mining.Suite.Tests", "Tests\Golem.Mining.Suite.Tests\Golem.Mining.Suite.Tests.csproj", "{525B4620-B5E7-4776-8A93-3338A8E6A5E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|x64.Build.0 = Debug|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Debug|x86.Build.0 = Debug|Any CPU
 		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|x64.ActiveCfg = Release|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|x64.Build.0 = Release|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|x86.ActiveCfg = Release|Any CPU
+		{E007F185-48A6-4234-AB78-BE054CC3FA80}.Release|x86.Build.0 = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|x64.Build.0 = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Debug|x86.Build.0 = Debug|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|x64.ActiveCfg = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|x64.Build.0 = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|x86.ActiveCfg = Release|Any CPU
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{525B4620-B5E7-4776-8A93-3338A8E6A5E5} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {453FD2B3-7B47-4A10-A367-A970199E826F}

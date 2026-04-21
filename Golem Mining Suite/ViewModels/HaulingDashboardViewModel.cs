@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
 using Golem_Mining_Suite.Messages;
+using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +15,12 @@ namespace Golem_Mining_Suite.ViewModels
     {
         private readonly ICommodityDataService _commodityDataService;
         private readonly IWindowService _windowService;
+        private readonly ILogger<HaulingDashboardViewModel> _logger;
         private System.Collections.Generic.List<CommodityData> _allCommodities = new();
 
         [ObservableProperty]
         private string _searchText = "Search commodity...";
-        
+
         [ObservableProperty]
         private bool _showSuggestions;
 
@@ -31,16 +33,21 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
-        public HaulingDashboardViewModel(ICommodityDataService commodityDataService, IWindowService windowService)
+        public HaulingDashboardViewModel(ICommodityDataService commodityDataService, IWindowService windowService, ILogger<HaulingDashboardViewModel> logger)
         {
             _commodityDataService = commodityDataService;
             _windowService = windowService;
+            _logger = logger;
 
             System.Diagnostics.Debug.WriteLine("[HaulingVM] Initializing...");
-            LoadDataAsync();
+            // Fire-and-forget initial load; continuation surfaces faults to the logger so
+            // we never lose an exception to async void semantics.
+            _ = LoadDataAsync().ContinueWith(
+                t => _logger.LogError(t.Exception, "HaulingDashboardViewModel initial data load failed"),
+                TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        private async void LoadDataAsync()
+        private async Task LoadDataAsync()
         {
             System.Diagnostics.Debug.WriteLine("[HaulingVM] Loading data...");
             IsLoading = true;
@@ -53,7 +60,8 @@ namespace Golem_Mining_Suite.ViewModels
             }
             catch (System.Exception ex)
             {
-                 System.Diagnostics.Debug.WriteLine($"[HaulingVM] Error loading data: {ex}");
+                System.Diagnostics.Debug.WriteLine($"[HaulingVM] Error loading data: {ex}");
+                _logger.LogError(ex, "Failed to load commodity data for hauling dashboard");
             }
             finally
             {
@@ -74,11 +82,11 @@ namespace Golem_Mining_Suite.ViewModels
         // Search Logic
         partial void OnSearchTextChanged(string value)
         {
-             if (value == "Search commodity..." || string.IsNullOrWhiteSpace(value))
+            if (value == "Search commodity..." || string.IsNullOrWhiteSpace(value))
             {
                 ShowSuggestions = false;
                 // Reset filter
-                if (!IsLoading && _allCommodities.Count > 0) 
+                if (!IsLoading && _allCommodities.Count > 0)
                     FeaturedCommodities = new ObservableCollection<CommodityData>(_allCommodities);
                 return;
             }
@@ -92,7 +100,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Update suggestions
             Suggestions.Clear();
-            foreach(var c in matching.Take(5)) Suggestions.Add(c.Name);
+            foreach (var c in matching.Take(5)) Suggestions.Add(c.Name);
             ShowSuggestions = Suggestions.Count > 0;
         }
 
@@ -115,10 +123,10 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void SelectSuggestion(string suggestion)
         {
-             if(!string.IsNullOrEmpty(suggestion))
+            if (!string.IsNullOrEmpty(suggestion))
             {
                 var found = _allCommodities.FirstOrDefault(c => c.Name == suggestion);
-                if(found != null)
+                if (found != null)
                 {
                     OpenCommodityInfo(found);
                 }

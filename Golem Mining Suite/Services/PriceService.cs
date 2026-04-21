@@ -1,5 +1,6 @@
 using Golem_Mining_Suite.Models;
 using Golem_Mining_Suite.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -15,6 +16,15 @@ namespace Golem_Mining_Suite.Services
         public event EventHandler<bool>? LinkStatusChanged;
         public bool IsLiveConnected { get; private set; }
         private List<PriceData> _liveOverrides = new List<PriceData>();
+
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<PriceService> _logger;
+
+        public PriceService(IHttpClientFactory httpClientFactory, ILogger<PriceService> logger)
+        {
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
+        }
 
         // Some terminals (e.g. Maker's Point) are in price data but missing from the terminals API endpoint.
         // We map them manually to ensure they have a valid Star System.
@@ -33,59 +43,56 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
+                var client = _httpClientFactory.CreateClient("prices");
+                var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
+                var jsonDoc = JsonDocument.Parse(response);
+                var terminals = jsonDoc.RootElement.GetProperty("data");
+
+                foreach (var terminal in terminals.EnumerateArray())
                 {
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var terminals = jsonDoc.RootElement.GetProperty("data");
+                    int id = terminal.GetProperty("id").GetInt32();
 
-                    foreach (var terminal in terminals.EnumerateArray())
+                    // Filter by type (Mining/Commodities only)
+                    string? type = null;
+                    if (terminal.TryGetProperty("type", out var typeElement))
                     {
-                        int id = terminal.GetProperty("id").GetInt32();
-                        
-                        // Filter by type (Mining/Commodities only)
-                        string? type = null;
-                        if (terminal.TryGetProperty("type", out var typeElement))
-                        {
-                            type = typeElement.GetString();
-                        }
-
-                        if (type != "commodity" && type != "commodity_raw" && type != "refinery")
-                            continue;
-
-                        // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
-                        string name = "";
-                        if (terminal.TryGetProperty("displayname", out var dnElement))
-                        {
-                            name = dnElement.GetString() ?? "";
-                        }
-                        
-                        if (string.IsNullOrWhiteSpace(name))
-                        {
-                             name = terminal.GetProperty("name").GetString() ?? "";
-                        }
-                        
-                        string starSystem = terminal.GetProperty("star_system_name").GetString() ?? "";
-                        
-                        // Avoid duplicates (e.g. multiple shops at same station)
-                        if (_cachedTerminals.Any(t => t.Name == name && t.StarSystem == starSystem))
-                            continue;
-                            
-                        var info = new TerminalInfo { Id = id, Name = name, StarSystem = starSystem };
-                        _cachedTerminals.Add(info);
-                        
-                        // Also populate the mapping for legacy use
-                        if (!_terminalToSystem.ContainsKey(id))
-                            _terminalToSystem[id] = starSystem;
+                        type = typeElement.GetString();
                     }
+
+                    if (type != "commodity" && type != "commodity_raw" && type != "refinery")
+                        continue;
+
+                    // Use 'displayname' (e.g. "Grim HEX", "Lorville") instead of specific terminal name
+                    string name = "";
+                    if (terminal.TryGetProperty("displayname", out var dnElement))
+                    {
+                        name = dnElement.GetString() ?? "";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        name = terminal.GetProperty("name").GetString() ?? "";
+                    }
+
+                    string starSystem = terminal.GetProperty("star_system_name").GetString() ?? "";
+
+                    // Avoid duplicates (e.g. multiple shops at same station)
+                    if (_cachedTerminals.Any(t => t.Name == name && t.StarSystem == starSystem))
+                        continue;
+
+                    var info = new TerminalInfo { Id = id, Name = name, StarSystem = starSystem };
+                    _cachedTerminals.Add(info);
+
+                    // Also populate the mapping for legacy use
+                    if (!_terminalToSystem.ContainsKey(id))
+                        _terminalToSystem[id] = starSystem;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Fallback or empty
+                _logger.LogWarning(ex, "Failed to fetch UEX terminals list; returning whatever was cached");
             }
-            
+
             return _cachedTerminals.OrderBy(t => t.Name).ToList();
         }
 
@@ -97,26 +104,22 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var terminals = jsonDoc.RootElement.GetProperty("data");
+                var client = _httpClientFactory.CreateClient("prices");
+                var response = await client.GetStringAsync("https://uexcorp.space/api/terminals");
+                var jsonDoc = JsonDocument.Parse(response);
+                var terminals = jsonDoc.RootElement.GetProperty("data");
 
-                    foreach (var terminal in terminals.EnumerateArray())
-                    {
-                        int id = terminal.GetProperty("id").GetInt32();
-                        string? starSystem = terminal.GetProperty("star_system_name").GetString();
-                        if (starSystem != null)
-                            mapping[id] = starSystem;
-                    }
+                foreach (var terminal in terminals.EnumerateArray())
+                {
+                    int id = terminal.GetProperty("id").GetInt32();
+                    string? starSystem = terminal.GetProperty("star_system_name").GetString();
+                    if (starSystem != null)
+                        mapping[id] = starSystem;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log error or handle gracefully
-                // For now return empty or basic mapping
+                _logger.LogWarning(ex, "Failed to build UEX terminal-to-star-system mapping; returning whatever was parsed so far");
             }
 
             _terminalToSystem = mapping;
@@ -145,106 +148,103 @@ namespace Golem_Mining_Suite.Services
 
             try
             {
-                using (var client = new HttpClient())
+                var client = _httpClientFactory.CreateClient("prices");
+
+                // Fetch API prices
+                var response = await client.GetStringAsync("https://uexcorp.space/api/commodities_prices_all");
+                var jsonDoc = JsonDocument.Parse(response);
+                var pricesData = jsonDoc.RootElement.GetProperty("data");
+
+                foreach (var priceEntry in pricesData.EnumerateArray())
                 {
-                    client.Timeout = TimeSpan.FromSeconds(30);
+                    var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
+                    var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
 
-                    // Fetch API prices
-                    var response = await client.GetStringAsync("https://uexcorp.space/api/commodities_prices_all");
-                    var jsonDoc = JsonDocument.Parse(response);
-                    var pricesData = jsonDoc.RootElement.GetProperty("data");
+                    // Price Sell = Terminal SELLS to us (Cost)
+                    // Price Buy = Terminal BUYS from us (Value)
+                    double priceSell = 0;
+                    double priceBuy = 0;
 
-                    foreach (var priceEntry in pricesData.EnumerateArray())
+                    if (priceEntry.TryGetProperty("price_sell", out var psVal))
+                        priceSell = psVal.ValueKind == JsonValueKind.Number ? psVal.GetDouble() : 0;
+
+                    if (priceEntry.TryGetProperty("price_buy", out var pbVal))
+                        priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
+
+                    int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
+                    string starSystem;
+
+                    if (_terminalToSystem.ContainsKey(terminalId))
                     {
-                        var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
-                        var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
-                        
-                        // Price Sell = Terminal SELLS to us (Cost)
-                        // Price Buy = Terminal BUYS from us (Value)
-                        double priceSell = 0;
-                        double priceBuy = 0;
+                        starSystem = _terminalToSystem[terminalId];
+                    }
+                    else if (_knownMissingTerminals.TryGetValue(terminalName, out var knownSystem))
+                    {
+                        starSystem = knownSystem;
+                    }
+                    else if (terminalId == 21) starSystem = "Stanton"; // Likely TDD Area18
+                    else if (terminalId == 89) starSystem = "Stanton"; // TDD New Babbage
+                    else if (terminalId == 90) starSystem = "Stanton"; // TDD Orison
+                    else if (terminalId == 436) starSystem = "Stanton"; // Checkmate
+                    else if (terminalId == 443) starSystem = "Stanton"; // Orbituary
+                    else
+                    {
+                        starSystem = $"Unknown ({terminalId})";
+                    }
 
-                        if (priceEntry.TryGetProperty("price_sell", out var psVal)) 
-                            priceSell = psVal.ValueKind == JsonValueKind.Number ? psVal.GetDouble() : 0;
-                            
-                        if (priceEntry.TryGetProperty("price_buy", out var pbVal)) 
-                            priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
+                    int scuMax = 100;
+                    int scu = 0;
 
-                        int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
-                        string starSystem;
-                        
-                        if (_terminalToSystem.ContainsKey(terminalId))
+                    if (priceEntry.TryGetProperty("scu", out JsonElement scuElement))
+                        scu = scuElement.ValueKind == JsonValueKind.Number ? scuElement.GetInt32() : 0;
+                    if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
+                        scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
+
+                    // Include if there is ANY activity (Buy OR Sell)
+                    if (priceSell <= 0 && priceBuy <= 0)
+                        continue;
+
+                    var displayName = MapCommodityName(commodityName);
+
+                    if (onlyMinerals && !IsMineralName(displayName))
+                        continue;
+
+                    double inventoryPercent = scuMax > 0 ? (double)scu / scuMax * 100 : 0;
+                    string demand = inventoryPercent < 50 ? "High" : "Low";
+
+                    // Check for LIVE override
+                    var overrideData = _liveOverrides.FirstOrDefault(o => o.MineralName == displayName && o.BestLocation == terminalName);
+                    if (overrideData != null)
+                    {
+                        priceList.Add(overrideData);
+                    }
+                    else
+                    {
+                        // API seems to use Player perspective:
+                        // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
+                        // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
+
+                        double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
+                        double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
+
+                        // Determine primary "Price" text for display
+                        double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
+
+                        priceList.Add(new PriceData
                         {
-                            starSystem = _terminalToSystem[terminalId];
-                        }
-                        else if (_knownMissingTerminals.TryGetValue(terminalName, out var knownSystem))
-                        {
-                            starSystem = knownSystem;
-                        }
-                        else if (terminalId == 21) starSystem = "Stanton"; // Likely TDD Area18
-                        else if (terminalId == 89) starSystem = "Stanton"; // TDD New Babbage
-                        else if (terminalId == 90) starSystem = "Stanton"; // TDD Orison
-                        else if (terminalId == 436) starSystem = "Stanton"; // Checkmate
-                        else if (terminalId == 443) starSystem = "Stanton"; // Orbituary
-                        else
-                        {
-                            starSystem = $"Unknown ({terminalId})";
-                        }
-
-                        int scuMax = 100;
-                        int scu = 0;
-
-                        if (priceEntry.TryGetProperty("scu", out JsonElement scuElement))
-                             scu = scuElement.ValueKind == JsonValueKind.Number ? scuElement.GetInt32() : 0;
-                        if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
-                             scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
-
-                        // Include if there is ANY activity (Buy OR Sell)
-                        if (priceSell <= 0 && priceBuy <= 0)
-                            continue;
-
-                        var displayName = MapCommodityName(commodityName);
-
-                        if (onlyMinerals && !IsMineralName(displayName))
-                            continue;
-
-                        double inventoryPercent = scuMax > 0 ? (double)scu / scuMax * 100 : 0;
-                        string demand = inventoryPercent < 50 ? "High" : "Low";
-
-                        // Check for LIVE override
-                        var overrideData = _liveOverrides.FirstOrDefault(o => o.MineralName == displayName && o.BestLocation == terminalName);
-                        if (overrideData != null)
-                        {
-                            priceList.Add(overrideData);
-                        }
-                        else
-                        {
-                            // API seems to use Player perspective:
-                            // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
-                            // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
-
-                            double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
-                            double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
-                            
-                            // Determine primary "Price" text for display
-                            double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
-
-                            priceList.Add(new PriceData
-                            {
-                                MineralName = displayName,
-                                Price = $"{primaryPrice:N2} aUEC",
-                                NumericPrice = primaryPrice,
-                                UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
-                                UnitSellPrice = unitSellPrice,   // We Buy (Cost)
-                                BestLocation = terminalName,
-                                Demand = demand,
-                                StarSystem = starSystem,
-                                LastUpdatedText = "API"
-                            });
-                        }
+                            MineralName = displayName,
+                            Price = $"{primaryPrice:N2} aUEC",
+                            NumericPrice = primaryPrice,
+                            UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
+                            UnitSellPrice = unitSellPrice,   // We Buy (Cost)
+                            BestLocation = terminalName,
+                            Demand = demand,
+                            StarSystem = starSystem,
+                            LastUpdatedText = "API"
+                        });
                     }
                 }
-                
+
                 // Merge overrides
                 foreach (var live in _liveOverrides)
                 {
@@ -282,31 +282,31 @@ namespace Golem_Mining_Suite.Services
 
         private void AddLivePriceOverride(TerminalData data)
         {
-             if (data.PriceSell <= 0) return;
-             
-             var displayName = MapCommodityName(data.CommodityName);
-             if (!IsMineralName(displayName)) return;
-             
-             // Create PriceData
-             var priceData = new PriceData
-             {
-                 MineralName = displayName,
-                 Price = $"{data.PriceSell:N0} aUEC",
-                 NumericPrice = data.PriceSell,
-                 BestLocation = data.TerminalName,
-                 Demand = "Live", 
-                 StarSystem = data.StarSystem,
-                 LastUpdated = data.CapturedAt,
-                 LastUpdatedText = data.CapturedAt.ToString("HH:mm:ss")
-             };
-             
-             // Remove existing override for same location/mineral
-             var existing = _liveOverrides.FirstOrDefault(p => p.MineralName == displayName && p.BestLocation == priceData.BestLocation);
-             if (existing != null)
-             {
-                 _liveOverrides.Remove(existing);
-             }
-             _liveOverrides.Add(priceData);
+            if (data.PriceSell <= 0) return;
+
+            var displayName = MapCommodityName(data.CommodityName);
+            if (!IsMineralName(displayName)) return;
+
+            // Create PriceData
+            var priceData = new PriceData
+            {
+                MineralName = displayName,
+                Price = $"{data.PriceSell:N0} aUEC",
+                NumericPrice = data.PriceSell,
+                BestLocation = data.TerminalName,
+                Demand = "Live",
+                StarSystem = data.StarSystem,
+                LastUpdated = data.CapturedAt,
+                LastUpdatedText = data.CapturedAt.ToString("HH:mm:ss")
+            };
+
+            // Remove existing override for same location/mineral
+            var existing = _liveOverrides.FirstOrDefault(p => p.MineralName == displayName && p.BestLocation == priceData.BestLocation);
+            if (existing != null)
+            {
+                _liveOverrides.Remove(existing);
+            }
+            _liveOverrides.Add(priceData);
         }
 
         public void SetLiveConnectionStatus(bool connected)

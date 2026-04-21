@@ -56,7 +56,7 @@ namespace Golem_Mining_Suite.Services
                         Percentage = pct
                     });
                 }
-                
+
                 // Sort ore sources by percentage descending
                 mineral.OreSources.Sort((a, b) => b.Percentage.CompareTo(a.Percentage));
                 result.Add(mineral);
@@ -64,7 +64,7 @@ namespace Golem_Mining_Suite.Services
 
             // Sort minerals alphabetically or by importance? Alphabetical seems fine.
             result.Sort((a, b) => a.MineralName.CompareTo(b.MineralName));
-            
+
             return result;
         }
 

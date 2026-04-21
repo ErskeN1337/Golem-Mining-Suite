@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Golem_Mining_Suite.Models;
 using Microsoft.Extensions.Logging;
-using System.IO;
 
 namespace Golem_Mining_Suite.Services
 {
@@ -16,32 +15,17 @@ namespace Golem_Mining_Suite.Services
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly ILogger<UEXService> _logger;
-        private const string BaseUrl = "https://api.uexcorp.uk/2.0/";
+        // Kept for reference / registration; the actual base address is set on the named
+        // client "uex" in App.xaml.cs and injected through IHttpClientFactory.
+        public const string BaseUrl = "https://api.uexcorp.uk/2.0/";
 
         public bool IsConfigured => !string.IsNullOrEmpty(_apiKey);
 
-        public UEXService(ILogger<UEXService> logger)
+        public UEXService(ILogger<UEXService> logger, IHttpClientFactory httpClientFactory, string apiKey)
         {
             _logger = logger;
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-            
-            // simple config read
-            _apiKey = "";
-            try {
-                var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
-                if (File.Exists(appSettingsPath))
-                {
-                    var json = File.ReadAllText(appSettingsPath);
-                    using var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("UEX", out var uexElement))
-                    {
-                        if(uexElement.TryGetProperty("ApiKey", out var keyElement))
-                        {
-                            _apiKey = keyElement.GetString() ?? "";
-                        }
-                    }
-                }
-            } catch { } // Configuration read failure, assume no key
+            _apiKey = apiKey ?? "";
+            _httpClient = httpClientFactory.CreateClient("uex");
         }
 
         public async Task<List<CommodityData>> GetCommoditiesAsync()
@@ -53,7 +37,7 @@ namespace Golem_Mining_Suite.Services
                 // UEX API endpoint: /commodities
                 // Note: Actual endpoint might vary based on docs, assuming GET /commodities works or similar
                 // Based on docs provided: https://api.uexcorp.uk/2.0/commodities
-                
+
                 // Add headers if needed? Usually Authorization header or query param?
                 // Docs check needed. Usually it's a header. Assuming "Authorization: Bearer <key>" or custom header?
                 // Docs say: "To obtain your access token...". Usually headers.
@@ -64,10 +48,10 @@ namespace Golem_Mining_Suite.Services
                 // But user said "We're gonna use UEX API".
                 // I will assume it's publicly available OR key is needed. 
                 // Let's try to pass key if we have it.
-                
+
                 // _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey); 
                 // or apiKey query param? 
-                
+
                 var response = await _httpClient.GetAsync("commodities");
                 if (response.IsSuccessStatusCode)
                 {
@@ -77,13 +61,13 @@ namespace Golem_Mining_Suite.Services
                         var list = new List<CommodityData>();
                         foreach (var item in result.Data)
                         {
-                             list.Add(new CommodityData 
-                             {
-                                 Name = item.Name ?? "Unknown",
-                                 Code = item.Code ?? "",
-                                 AveragePriceBuy = item.PriceBuyAvg,
-                                 AveragePriceSell = item.PriceSellAvg
-                             });
+                            list.Add(new CommodityData
+                            {
+                                Name = item.Name ?? "Unknown",
+                                Code = item.Code ?? "",
+                                AveragePriceBuy = item.PriceBuyAvg,
+                                AveragePriceSell = item.PriceSellAvg
+                            });
                         }
                         return list;
                     }
@@ -107,7 +91,7 @@ namespace Golem_Mining_Suite.Services
     {
         [JsonPropertyName("status")]
         public string? Status { get; set; }
-        
+
         [JsonPropertyName("data")]
         public List<UexCommodity>? Data { get; set; }
     }
@@ -116,16 +100,16 @@ namespace Golem_Mining_Suite.Services
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
-        
+
         [JsonPropertyName("name")]
         public string? Name { get; set; }
-        
+
         [JsonPropertyName("slug")] // or Code?
         public string? Code { get; set; }
-        
+
         [JsonPropertyName("price_buy")]
         public double PriceBuyAvg { get; set; } // Simplified mapping
-        
+
         [JsonPropertyName("price_sell")]
         public double PriceSellAvg { get; set; }
     }

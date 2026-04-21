@@ -1,0 +1,63 @@
+{
+  "schema_version": "0.1",
+  "system": "PYRO",
+  "patch": "4.7.1-LIVE",
+  "updated": "2026-04-21T00:00:00Z",
+  "data_fidelity_note": "Positions below are APPROXIMATE anchor-relative placeholders (km). CIG does not publish canonical Pyro coordinates (see R4). Expect crowdsourced reports via Supabase to supplant these values.",
+  "pull_points": [
+    {
+      "id": "pp_stanton_pyro_jump_pyro_side",
+      "name": "Stanton-Pyro jump corridor (Pyro side)",
+      "position_km": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 85,
+      "source": "seed",
+      "notes": "R4 §3 rank 1. Highest-traffic inbound lane in Pyro. Approximate — anchor at the jump exit."
+    },
+    {
+      "id": "pp_ruin_approach",
+      "name": "Ruin Station approach cone",
+      "position_km": { "x": 68300000.0, "y": 0.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 80,
+      "source": "seed",
+      "notes": "R4 §3 rank 2. XenoThreat-adjacent; placeholder at Terminus orbital distance (~68.3 Gm from Pyro)."
+    },
+    {
+      "id": "pp_ruin_checkmate_midpoint",
+      "name": "Ruin ↔ Checkmate corridor midpoint",
+      "position_km": { "x": 34150000.0, "y": 0.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 75,
+      "source": "seed",
+      "notes": "R4 §3 rank 3 / §4 PY-REFSELL-1. Classic pirate lane; midpoint placeholder between Terminus and Monox L4."
+    },
+    {
+      "id": "pp_checkmate_approach",
+      "name": "Checkmate Station (Monox L4) approach",
+      "position_km": { "x": 0.0, "y": 10000000.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 55,
+      "source": "seed",
+      "notes": "R4 §3 rank 4. R&R-controlled but not immune to rival packs."
+    },
+    {
+      "id": "pp_orbituary_approach",
+      "name": "Orbituary approach (Bloom high orbit)",
+      "position_km": { "x": 22000000.0, "y": 5000000.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 60,
+      "source": "seed",
+      "notes": "R4 §3 rank 5. Outlaw refinery; loaded cargo exits = ambush bait."
+    },
+    {
+      "id": "pp_bloom_lpoints",
+      "name": "Bloom L-point crossing (Starlight / Patch City)",
+      "position_km": { "x": 22000000.0, "y": -5000000.0, "z": 0.0 },
+      "radius_km": 20.0,
+      "notoriety": 40,
+      "source": "seed",
+      "notes": "R4 §3 rank 6. Short intra-Bloom legs invite light-pirate crossings."
+    }
+  ]
+}

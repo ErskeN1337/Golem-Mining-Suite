@@ -1,129 +1,141 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Golem_Mining_Suite
 {
-	public partial class UpdateAvailableWindow : Window
-	{
-		private UpdateInfo updateInfo;
-		private bool isDownloading = false;
+    public partial class UpdateAvailableWindow : Window
+    {
+        private UpdateInfo updateInfo;
+        private readonly AutoUpdater autoUpdater;
+        private readonly ILogger<UpdateAvailableWindow>? _logger;
+        private bool isDownloading = false;
 
-		public UpdateAvailableWindow(UpdateInfo info)
-		{
-			InitializeComponent();
-			updateInfo = info;
-			LoadUpdateInfo();
-		}
+        public UpdateAvailableWindow(UpdateInfo info, AutoUpdater autoUpdater)
+        {
+            InitializeComponent();
+            updateInfo = info;
+            this.autoUpdater = autoUpdater;
+            // Best-effort logger resolution — this window is newed up manually rather
+            // than via the DI container, so treat the logger as optional.
+            _logger = App.Current?.Services?.GetService<ILogger<UpdateAvailableWindow>>();
+            LoadUpdateInfo();
+        }
 
-		private void LoadUpdateInfo()
-		{
-			CurrentVersionText.Text = "v" + updateInfo.CurrentVersion;
-			NewVersionText.Text = "v" + updateInfo.LatestVersion;
+        private void LoadUpdateInfo()
+        {
+            CurrentVersionText.Text = "v" + updateInfo.CurrentVersion;
+            NewVersionText.Text = "v" + updateInfo.LatestVersion;
 
-			if (!string.IsNullOrEmpty(updateInfo.ReleaseNotes))
-			{
-				// Format release notes for better readability
-				string formattedNotes = updateInfo.ReleaseNotes
-					.Replace("## ", "\n") // Remove markdown headers
-					.Replace("### ", "• ") // Convert subheaders to bullets
-					.Replace("- ", "  • ") // Indent list items
-					.Trim();
-				
-				ReleaseNotesText.Text = formattedNotes;
-			}
-			else
-			{
-				ReleaseNotesText.Text = "No release notes available.";
-			}
-		}
+            if (!string.IsNullOrEmpty(updateInfo.ReleaseNotes))
+            {
+                // Format release notes for better readability
+                string formattedNotes = updateInfo.ReleaseNotes
+                    .Replace("## ", "\n") // Remove markdown headers
+                    .Replace("### ", "• ") // Convert subheaders to bullets
+                    .Replace("- ", "  • ") // Indent list items
+                    .Trim();
 
-		private async void DownloadButton_Click(object sender, RoutedEventArgs e)
-		{
-			if (isDownloading)
-				return;
+                ReleaseNotesText.Text = formattedNotes;
+            }
+            else
+            {
+                ReleaseNotesText.Text = "No release notes available.";
+            }
+        }
 
-			try
-			{
-				isDownloading = true;
-				DownloadButton.IsEnabled = false;
-				SkipButton.IsEnabled = false;
+        private async void DownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isDownloading)
+                return;
 
-				// Check if we have a download URL
-				if (string.IsNullOrEmpty(updateInfo.DownloadUrl))
-				{
-					MessageBox.Show("No update file found in the release.\n" +
-								   "Opening GitHub release page in browser...",
-						"Manual Download Required", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                isDownloading = true;
+                DownloadButton.IsEnabled = false;
+                SkipButton.IsEnabled = false;
 
-					Process.Start(new ProcessStartInfo
-					{
-						FileName = $"https://github.com/ErskeN1337/Golem-Mining-Suite/releases/latest",
-						UseShellExecute = true
-					});
+                // Check if we have a download URL
+                if (string.IsNullOrEmpty(updateInfo.DownloadUrl))
+                {
+                    MessageBox.Show("No update file found in the release.\n" +
+                                   "Opening GitHub release page in browser...",
+                        "Manual Download Required", MessageBoxButton.OK, MessageBoxImage.Information);
 
-					this.DialogResult = false;
-					this.Close();
-					return;
-				}
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = $"https://github.com/ErskeN1337/Golem-Mining-Suite/releases/latest",
+                        UseShellExecute = true
+                    });
 
-				// Change button text to show downloading
-				DownloadButton.Content = "Downloading... 0%";
+                    this.DialogResult = false;
+                    this.Close();
+                    return;
+                }
 
-				// Download and install the update - USE THIS METHOD
-				bool success = await AutoUpdater.DownloadUpdateWithProgressAsync(
-					updateInfo,
-					(progress) =>  // This is Action<int>, not IProgress<int>
-					{
-						Dispatcher.Invoke(() =>
-						{
-							if (progress < 100)
-							{
-								DownloadButton.Content = $"Downloading... {progress}%";
-							}
-							else
-							{
-								DownloadButton.Content = "Installing...";
-							}
-						});
-					}
-				);
+                // Change button text to show downloading
+                DownloadButton.Content = "Downloading... 0%";
 
-				if (!success)
-				{
-					DownloadButton.Content = "Download Update";
-					DownloadButton.IsEnabled = true;
-					SkipButton.IsEnabled = true;
-					isDownloading = false;
-				}
-				// If success, app will close and restart
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show($"Could not download update: {ex.Message}\n\n" +
-							   "Opening GitHub release page instead...",
-					"Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Download and install the update - USE THIS METHOD
+                bool success = await autoUpdater.DownloadUpdateWithProgressAsync(
+                    updateInfo,
+                    (progress) =>  // This is Action<int>, not IProgress<int>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (progress < 100)
+                            {
+                                DownloadButton.Content = $"Downloading... {progress}%";
+                            }
+                            else
+                            {
+                                DownloadButton.Content = "Installing...";
+                            }
+                        });
+                    }
+                );
 
-				// Fallback to opening browser
-				try
-				{
-					Process.Start(new ProcessStartInfo
-					{
-						FileName = $"https://github.com/ErskeN1337/Golem-Mining-Suite/releases/latest",
-						UseShellExecute = true
-					});
-				}
-				catch { }
+                if (!success)
+                {
+                    DownloadButton.Content = "Download Update";
+                    DownloadButton.IsEnabled = true;
+                    SkipButton.IsEnabled = true;
+                    isDownloading = false;
+                }
+                // If success, app will close and restart
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Update download failed; falling back to browser");
+                MessageBox.Show($"Could not download update: {ex.Message}\n\n" +
+                               "Opening GitHub release page instead...",
+                    "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-				this.DialogResult = false;
-				this.Close();
-			}
-		}
+                // Fallback to opening browser
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = $"https://github.com/ErskeN1337/Golem-Mining-Suite/releases/latest",
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception browserEx)
+                {
+                    _logger?.LogWarning(browserEx, "Fallback browser launch also failed for GitHub releases page");
+                }
 
-		private void SkipButton_Click(object sender, RoutedEventArgs e)
-		{
-			this.DialogResult = false;
-			this.Close();
-		}
-	}
+                this.DialogResult = false;
+                this.Close();
+            }
+        }
+
+        private void SkipButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+    }
 }
