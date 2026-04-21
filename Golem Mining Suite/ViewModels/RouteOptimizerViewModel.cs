@@ -145,8 +145,8 @@ namespace Golem_Mining_Suite.ViewModels
 
         partial void OnMaxBudgetChanged(double? value)
         {
-             // Auto-refresh when budget changes
-             _ = ApplyFiltersAsync();
+            // Auto-refresh when budget changes
+            _ = ApplyFiltersAsync();
         }
 
         partial void OnIncludePiracyRiskChanged(bool value)

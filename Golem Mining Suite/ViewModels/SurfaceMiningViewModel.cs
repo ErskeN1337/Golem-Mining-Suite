@@ -77,14 +77,14 @@ namespace Golem_Mining_Suite.ViewModels
         {
             _windowService.ShowCalculatorWindow();
         }
-        
+
         [RelayCommand]
         private void OpenUexLink()
         {
             // MainViewModel handles logic or we duplicate it?
             // Since we removed MainViewModel dependency, we can put logic here or send message.
             // We can add OpenUexLink to IWindowService? Or just implement here.
-             try
+            try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
@@ -110,10 +110,10 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void OpenDepositLocation(string depositName)
         {
-             if(!string.IsNullOrEmpty(depositName))
-             {
-                 _windowService.ShowLocationWindow(depositName, false, false, false);
-             }
+            if (!string.IsNullOrEmpty(depositName))
+            {
+                _windowService.ShowLocationWindow(depositName, false, false, false);
+            }
         }
 
         // Search Logic
@@ -131,7 +131,7 @@ namespace Golem_Mining_Suite.ViewModels
                 .ToList();
 
             Suggestions.Clear();
-            foreach(var m in matchingMinerals) Suggestions.Add(m);
+            foreach (var m in matchingMinerals) Suggestions.Add(m);
 
             ShowSuggestions = Suggestions.Count > 0;
         }
@@ -173,10 +173,10 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void SelectSuggestion(string suggestion)
         {
-            if(!string.IsNullOrEmpty(suggestion))
+            if (!string.IsNullOrEmpty(suggestion))
             {
                 var found = _allMiningData.FirstOrDefault(m => m.MineralName == suggestion);
-                if(found != null)
+                if (found != null)
                 {
                     OpenMineralLocation(found);
                 }

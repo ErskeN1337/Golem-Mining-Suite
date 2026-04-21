@@ -167,15 +167,21 @@ namespace Golem.Mining.Suite.Tests.Services
             // Sanity-check the consumer of parser output — GetDemand() is what the rest of the app calls.
             var low = new Golem_Mining_Suite.Models.TerminalData
             {
-                CommodityName = "Iron", InventorySCU = 100, InventoryMax = 1000
+                CommodityName = "Iron",
+                InventorySCU = 100,
+                InventoryMax = 1000
             };
             var high = new Golem_Mining_Suite.Models.TerminalData
             {
-                CommodityName = "Iron", InventorySCU = 900, InventoryMax = 1000
+                CommodityName = "Iron",
+                InventorySCU = 900,
+                InventoryMax = 1000
             };
             var zero = new Golem_Mining_Suite.Models.TerminalData
             {
-                CommodityName = "Iron", InventorySCU = 0, InventoryMax = 0
+                CommodityName = "Iron",
+                InventorySCU = 0,
+                InventoryMax = 0
             };
 
             low.GetDemand().Should().Be("High");

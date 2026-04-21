@@ -20,7 +20,7 @@ namespace Golem_Mining_Suite.ViewModels
 
         [ObservableProperty]
         private string _searchText = "Search commodity...";
-        
+
         [ObservableProperty]
         private bool _showSuggestions;
 
@@ -60,8 +60,8 @@ namespace Golem_Mining_Suite.ViewModels
             }
             catch (System.Exception ex)
             {
-                 System.Diagnostics.Debug.WriteLine($"[HaulingVM] Error loading data: {ex}");
-                 _logger.LogError(ex, "Failed to load commodity data for hauling dashboard");
+                System.Diagnostics.Debug.WriteLine($"[HaulingVM] Error loading data: {ex}");
+                _logger.LogError(ex, "Failed to load commodity data for hauling dashboard");
             }
             finally
             {
@@ -82,11 +82,11 @@ namespace Golem_Mining_Suite.ViewModels
         // Search Logic
         partial void OnSearchTextChanged(string value)
         {
-             if (value == "Search commodity..." || string.IsNullOrWhiteSpace(value))
+            if (value == "Search commodity..." || string.IsNullOrWhiteSpace(value))
             {
                 ShowSuggestions = false;
                 // Reset filter
-                if (!IsLoading && _allCommodities.Count > 0) 
+                if (!IsLoading && _allCommodities.Count > 0)
                     FeaturedCommodities = new ObservableCollection<CommodityData>(_allCommodities);
                 return;
             }
@@ -100,7 +100,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Update suggestions
             Suggestions.Clear();
-            foreach(var c in matching.Take(5)) Suggestions.Add(c.Name);
+            foreach (var c in matching.Take(5)) Suggestions.Add(c.Name);
             ShowSuggestions = Suggestions.Count > 0;
         }
 
@@ -123,10 +123,10 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void SelectSuggestion(string suggestion)
         {
-             if(!string.IsNullOrEmpty(suggestion))
+            if (!string.IsNullOrEmpty(suggestion))
             {
                 var found = _allCommodities.FirstOrDefault(c => c.Name == suggestion);
-                if(found != null)
+                if (found != null)
                 {
                     OpenCommodityInfo(found);
                 }

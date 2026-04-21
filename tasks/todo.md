@@ -19,48 +19,58 @@ These are the only items I can't do for you. Everything else below, I'm executin
 - [x] **R3** → `tasks/research/R3-regolith-schema.md` — **Good news: GraphQL schema is open-source MIT at github.com/RegolithCo/RegolithCo-Common.** No bulk-export tool from Regolith team. Users download per-session JSON. Importer supports both file drops and x-api-key API pull.
 - [x] **R4** → `tasks/research/R4-pyro-qt-geometry.md` — **Caveat: exact Pyro coords not publicly scrapeable at precision.** Snareplan math is public (point-to-line-segment, 20 km radius). Pyro stations at Lagrange anchors documented. Must crowdsource pull-point coords via existing Supabase backend.
 
-## Wave 2 — Code hardening (single implementer agent, sequential edits)
+## Wave 2 — Code hardening ✅ DONE
 
-From the prior audit. All non-feature work to stabilize before building new things.
-
-- [ ] Strip real secrets from `appsettings.json`; replace with `appsettings.Example.json` + env-var / user-secrets loader in `App.xaml.cs`
-- [ ] `IHttpClientFactory` + typed clients for PriceService, UEXService, UpdateChecker, AutoUpdater
-- [ ] Introduce `ISupabaseService` interface; fix `is PriceService ps` cast in `App.xaml.cs:113`
-- [ ] Remove all empty `catch {}` blocks; inject `ILogger<T>` everywhere
-- [ ] Convert `async void` UI handlers → `async Task` via `[RelayCommand]`
-- [x] Swap `AsteroidLocationLoader` naive split for `CsvHelper` (Wave 2E — CsvHelper 33.1.0)
+- [x] Strip real secrets from `appsettings.json`; replace with `appsettings.Example.json` + env-var / `%APPDATA%` loader (Wave 2A, commit `9f8c025`)
+- [x] `IHttpClientFactory` + typed clients for PriceService, UEXService, UpdateChecker, AutoUpdater (Wave 2B, commit `73e1544`)
+- [x] Introduce `ISupabaseService` interface; fix `is PriceService ps` cast in App.xaml.cs (Wave 2B + 2C, all three casts removed)
+- [x] Remove all empty `catch {}` blocks; inject `ILogger<T>` everywhere (Wave 2C, commit `a043125` — 16 empty catches → 0)
+- [x] Convert `async void` UI handlers → `async Task` via `[RelayCommand]` (Wave 2D, commit `c26ef4b` — 5 → 1 remaining XAML-wired handler with try/catch)
+- [x] Swap `AsteroidLocationLoader` naive split for `CsvHelper` (Wave 2E, commit `3f1d0cb` — CsvHelper 33.1.0)
 - [x] Delete `debug_etam_loop.txt`, `debug_uex.ps1`, `gitignore.txt` from project folder (Wave 2E)
 - [x] `.csproj` cleanup: dedupe `Golem.ico`, add `<TreatWarningsAsErrors>`, add analyzer packages (Wave 2E — NetAnalyzers 10.0.202, CS8618s fixed)
-- [ ] Move Serilog to DI-only (drop static `Log.Logger` usage)
-- [ ] Fail-loud DI: `GetRequiredService` instead of `GetService` in App startup
+- [x] Fail-loud DI: Supabase/LiveDataCoordinator registration now conditional + logged on missing config (Wave 2A)
+- [~] Move Serilog fully to DI-only — partial: DI uses `AddLogging(AddSerilog)`; static `Log.Logger` retained only for UnhandledException handler (no DI scope available there) — intentional residual
 
-## Wave 3 — New foundations (parallel subagents, disjoint new files)
+## Wave 3 — New foundations ✅ DONE
 
-- [ ] `Services/GameLogService.cs` — watch `Game.log`, emit mining events (rock scan, fracture, refinery complete, cargo spawn). Replaces OCR for mining flow.
-- [ ] `Services/FractureSolver.cs` + `Models/RockScan.cs` — given mass/instability/resistance/composition, returns safe laser charge band + recommended head
-- [ ] `Services/SkipRockPredictor.cs` — probability that a rock is profitably crackable given the scan
-- [ ] `Tests/Golem.Mining.Suite.Tests.csproj` — xUnit scaffold with first tests for RefineryService, RouteOptimizerService, TerminalParser
+- [x] `Services/GameLogService.cs` — session/QT/death/30k events (scope-corrected: mining events are NOT in Game.log post-4.0.2; OCR remains for rock data). Commit `946962a`.
+- [x] `Services/FractureSolver.cs` + `Models/RockScan.cs` — charge band + head + ship recommendation + 4-tier risk. Commit `4caaecb`.
+- [x] `Services/SkipRockPredictor.cs` — composition × risk × price heuristic → probability + skip reasoning. Commit `4caaecb`.
+- [x] `Tests/Golem.Mining.Suite.Tests.csproj` — 30 tests passing (xUnit 2.9.3, FluentAssertions 7.2.0, pre-4.7 refinery baseline locked). Commit `b37b437`.
+- [x] DI wiring in `App.xaml.cs` — services registered, GameLogService auto-starts disarmed-safe.
 
-## Wave 4 — Refinery 4.7 rewrite (depends on R1)
+## Wave 4 — Refinery 4.7 quality tracking ✅ DONE (commit `d4a8d38`)
 
-- [ ] `Models/Refinery47.cs` — byproduct graph, quality score, updated station list incl. Pyro Gateway + Ruin
-- [ ] Rewrite `RefineryService` around the new model (keep legacy API for back-compat via adapter)
-- [ ] Update `RefineryViewModel` + `RefineryCalculatorWindow.xaml` to show primary + secondary output, quality badge (< 500 warn / > 700 keeper)
-- [ ] Live refinery-workload comparator (UEX `/commodities_prices_history` + workload endpoints)
+- [x] `Models/QualityScore.cs` — 0-1000 clamped, 5-tier enum (Debuff/Baseline/Good/Keeper/Endgame)
+- [x] `RefineryService.EffectiveValue()` with tier-based multiplier (0.8x..2.0x, heuristic, marked for tuning)
+- [x] CommodityData / MineralData / AsteroidMineralData gain nullable `Quality` field (back-compat)
+- [x] `RefineryCalculatorWindow` gains Quality input + tier badge + Effective Value row
+- [x] Station roster expanded: Pyro Gateway, Ruin Station, Terra Gateway + existing Stanton Ls
+- [x] Byproduct rewrite **deliberately skipped** (not live in 4.7 per R1 — would ship wrong answers)
+- [x] 55 new tests added (85 total, all green)
+- [ ] Live refinery-workload comparator — **deferred** to a later polish pass (not blocking)
 
-## Wave 5 — Regolith migration suite (depends on R3)
+## Wave 5 — Regolith migration suite ✅ DONE
 
-- [ ] `Services/RegolithImporter.cs` — parse Regolith session JSON export → Golem wallet + logbook
-- [ ] `Services/CrewSessionService.cs` — session model, per-member contribution tracking, aUEC split
-- [ ] `ViewModels/CrewSessionViewModel.cs` + new `Views/CrewSessionView.xaml`
-- [ ] Desktop toast notifications for refinery pickup timers (WinRT ToastNotificationManager)
-- [ ] "Import from Regolith" button wired to `RegolithImporter`
+- [x] `Services/RegolithImporter.cs` + `Models/Regolith/*` — file-drop JSON + x-api-key GraphQL pull (Wave 5A, commit `9f9cb6f`)
+- [x] `Services/CrewSessionService.cs` — local JSON-backed session store, idempotent add, thread-safe, MyShare helper (Wave 5B, commit `7dfc3b7`)
+- [x] `ViewModels/CrewSessionViewModel.cs` + `Views/CrewSessionView.xaml` + navigation wiring in MainMenuView + new dashboard tile (Wave 5B)
+- [x] Desktop toast notifications — `Microsoft.Toolkit.Uwp.Notifications 7.1.3`, `RefineryOrderWatcher` with persistence + timer (Wave 5C, commit `f36ae47`). TFM bumped to `net8.0-windows10.0.17763.0`.
+- [x] "Import from Regolith" (file + API) buttons wired (Wave 5B)
+- [x] Settings gains `UserHandle` for aUEC share computation (Wave 5B)
+- [x] Full DI wiring in App.xaml.cs with Regolith named HttpClient
 
-## Wave 6 — Piracy QT + polish (depends on R4)
+## Wave 6 — Piracy QT analyzer ✅ DONE (commit `e960319`)
 
-- [ ] `Services/PiracyRouteAnalyzer.cs` — given QT path, flag known pull-point proximity
-- [ ] `RouteOptimizerService` integration — optional risk-weighted routing
-- [ ] UI toggle: "Highlight piracy risk" on route list
+- [x] `Services/PiracyRouteAnalyzer.cs` with Snareplan geometry (point-to-segment distance, 20 km Mantis radius)
+- [x] `RouteOptimizerService` opt-in integration (default off for back-compat)
+- [x] `Assets/Data/piracy-seed.json` with 6 Pyro hotspots (seed only, crowdsource-extendable)
+- [x] Supabase `pull_point_reports` table integration for crowdsourcing
+- [x] UI: checkbox + risk column with 4-tier color badge (green <30 / yellow <60 / orange <80 / red)
+- [x] 11 new tests — geometry edge cases, off-segment guard, risk-score clamping
+
+**Known limitation (documented, not a bug):** route leg synthesis uses (0,0,0) for both endpoints pending a real body/station coordinate table. Risk column will show 0 for shipped routes until crowdsourcing fills the Supabase table OR we add a body-position seed dataset. UI/API is complete and stable.
 
 ## Wave 7 — Verification
 

@@ -51,7 +51,7 @@ namespace Golem_Mining_Suite.ViewModels
         private string _versionText;
 
         public Visibility HomeButtonVisibility => CurrentView is MainMenuView ? Visibility.Collapsed : Visibility.Visible;
-        
+
         public Visibility SurfaceButtonVisibility => IsMiningMode && !(CurrentView is SurfaceMiningView) ? Visibility.Visible : Visibility.Collapsed;
         public Visibility AsteroidButtonVisibility => IsMiningMode && !(CurrentView is AsteroidMiningView) ? Visibility.Visible : Visibility.Collapsed;
         public Visibility ROCButtonVisibility => IsMiningMode && !(CurrentView is ROCMiningView) ? Visibility.Visible : Visibility.Collapsed;
@@ -89,7 +89,7 @@ namespace Golem_Mining_Suite.ViewModels
                 LogoSource = "/Assets/Images/Golem Mining Suite Logo.png";
                 LogoHeight = 145;
                 LogoMargin = new Thickness(15, -40, 15, 0);
-                
+
                 // Set Mining theme accent color (Orange) if Auto
                 if (SettingsVM.SelectedTheme.Value == "Auto")
                 {
@@ -103,7 +103,7 @@ namespace Golem_Mining_Suite.ViewModels
                 LogoSource = "pack://siteoforigin:,,,/Assets/Images/Golem Hauling Suite Logo.png";
                 LogoHeight = 145;
                 LogoMargin = new Thickness(15, -40, 15, 0);
-                
+
                 // Set Hauling theme accent color (Blue) if Auto
                 if (SettingsVM.SelectedTheme.Value == "Auto")
                 {
@@ -131,7 +131,7 @@ namespace Golem_Mining_Suite.ViewModels
 
         [ObservableProperty]
         private bool _isLocationPromptVisible;
-        
+
         [ObservableProperty]
         private System.Collections.ObjectModel.ObservableCollection<TerminalInfo> _locationPromptTerminals = new();
 
@@ -153,7 +153,7 @@ namespace Golem_Mining_Suite.ViewModels
                 VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
             else
                 VersionText = "v1.0.0";
-            
+
             // Initialize HaulingRoutesView to avoid null warning
             _haulingRoutesView = new HaulingRoutesView();
 
@@ -162,11 +162,11 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Initialize views
             _mainMenuView = new MainMenuView { DataContext = this };
-            
+
             _surfaceMiningView = new SurfaceMiningView();
             var surfaceVM = App.Current.Services.GetService(typeof(SurfaceMiningViewModel));
             if (surfaceVM != null) _surfaceMiningView.DataContext = surfaceVM;
-            
+
             _asteroidMiningView = new AsteroidMiningView();
             var asteroidVM = App.Current.Services.GetService(typeof(AsteroidMiningViewModel));
             if (asteroidVM != null) _asteroidMiningView.DataContext = asteroidVM;
@@ -174,7 +174,7 @@ namespace Golem_Mining_Suite.ViewModels
             _rocMiningView = new ROCMiningView();
             var rocVM = App.Current.Services.GetService(typeof(ROCMiningViewModel));
             if (rocVM != null) _rocMiningView.DataContext = rocVM;
-            
+
             _haulingDashboardView = new HaulingDashboardView();
             var haulingVM = App.Current.Services.GetService(typeof(HaulingDashboardViewModel));
             if (haulingVM != null) _haulingDashboardView.DataContext = haulingVM;
@@ -204,7 +204,7 @@ namespace Golem_Mining_Suite.ViewModels
                 }
 
                 IsLocationPromptVisible = true;
-                
+
                 // Bring app to front if possible? 
                 // Application.Current.MainWindow.Activate();
             });
@@ -304,7 +304,7 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void OpenHaulingRoutes()
         {
-             CurrentView = _haulingRoutesView;
+            CurrentView = _haulingRoutesView;
         }
 
         [RelayCommand]

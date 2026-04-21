@@ -90,8 +90,8 @@ namespace Golem_Mining_Suite.Services
             catch (Exception ex)
             {
                 var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "livedata_debug.log");
-                try 
-                { 
+                try
+                {
                     File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Upload failed: {ex.Message}\n");
                     File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] [Supabase] Exception type: {ex.GetType().Name}\n");
                     if (ex.InnerException != null)
@@ -212,9 +212,9 @@ namespace Golem_Mining_Suite.Services
                     // For now, let's break the loop. If the connection drops, the library *should* throw an event,
                     // but if it doesn't auto-reconnect, we might be stuck.
                     // Let's add a periodic check.
-                    
+
                     await MonitorConnectionAsync();
-                    
+
                     // If Monitor returns, it means we lost connection.
                     System.Diagnostics.Debug.WriteLine("[Supabase] Connection lost, retrying in 5 seconds...");
                     ConnectionStatusChanged?.Invoke(this, false);
@@ -237,36 +237,36 @@ namespace Golem_Mining_Suite.Services
             // As a workaround, we will rely on the fact that if the underlying socket closes, 
             // the listener might stop receiving. 
             // However, the original error was an exception. 
-            
+
             // NOTE: Ideally we would attach to an OnClose/OnDisconnect event from the client, 
             // but the Supabase-csharp client documentation/interface for that varies.
-            
+
             // For now, we'll implement a dummy delay loop. Real robust implementation requires
             // checking _client.Realtime.Socket.State if exposed, or handling the disconnect event.
             // Since we can't easily see the internal state, we will assume the library stays connected
             // unless we decide to restart.
-            
+
             // To properly catch the "Remote party closed" exception which likely happens ON the socket thread,
             // we might need to rely on the library's internal error handling or global exception handlers.
-            
+
             // Only exit this method if we detect a failure or want to reconnect.
             // Currently, we just wait indefinitely until an exception bubbles up or we implement a heartbeat.
-            
+
             // Let's assume the loop in ConnectAndSubscribeAsync handles the "Start" and exception retry.
             // But once `await channel.Subscribe()` returns, we are just "running".
-            
+
             // If the socket closes, does it throw here? No.
             // The exception seen in logs "Error while listening to websocket stream" comes from `WebsocketClient.Listen`.
             // The Supabase library likely uses `Websocket.Client`.
-            
+
             // We can try to keep this method alive.
-            try 
+            try
             {
                 while (_client!.Realtime.Socket != null) // Check if socket object exists
                 {
-                   await Task.Delay(2000);
-                   // If we could check state: 
-                   // if (_client.Realtime.Socket.IsConnected == false) return;
+                    await Task.Delay(2000);
+                    // If we could check state: 
+                    // if (_client.Realtime.Socket.IsConnected == false) return;
                 }
             }
             catch

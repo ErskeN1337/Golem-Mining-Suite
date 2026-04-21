@@ -71,7 +71,7 @@ namespace Golem_Mining_Suite.Services
 
                     if (string.IsNullOrWhiteSpace(name))
                     {
-                         name = terminal.GetProperty("name").GetString() ?? "";
+                        name = terminal.GetProperty("name").GetString() ?? "";
                     }
 
                     string starSystem = terminal.GetProperty("star_system_name").GetString() ?? "";
@@ -156,94 +156,94 @@ namespace Golem_Mining_Suite.Services
                 var pricesData = jsonDoc.RootElement.GetProperty("data");
 
                 foreach (var priceEntry in pricesData.EnumerateArray())
+                {
+                    var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
+                    var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
+
+                    // Price Sell = Terminal SELLS to us (Cost)
+                    // Price Buy = Terminal BUYS from us (Value)
+                    double priceSell = 0;
+                    double priceBuy = 0;
+
+                    if (priceEntry.TryGetProperty("price_sell", out var psVal))
+                        priceSell = psVal.ValueKind == JsonValueKind.Number ? psVal.GetDouble() : 0;
+
+                    if (priceEntry.TryGetProperty("price_buy", out var pbVal))
+                        priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
+
+                    int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
+                    string starSystem;
+
+                    if (_terminalToSystem.ContainsKey(terminalId))
                     {
-                        var commodityName = priceEntry.GetProperty("commodity_name").GetString() ?? "";
-                        var terminalName = priceEntry.GetProperty("terminal_name").GetString() ?? "";
-                        
-                        // Price Sell = Terminal SELLS to us (Cost)
-                        // Price Buy = Terminal BUYS from us (Value)
-                        double priceSell = 0;
-                        double priceBuy = 0;
-
-                        if (priceEntry.TryGetProperty("price_sell", out var psVal)) 
-                            priceSell = psVal.ValueKind == JsonValueKind.Number ? psVal.GetDouble() : 0;
-                            
-                        if (priceEntry.TryGetProperty("price_buy", out var pbVal)) 
-                            priceBuy = pbVal.ValueKind == JsonValueKind.Number ? pbVal.GetDouble() : 0;
-
-                        int terminalId = priceEntry.GetProperty("id_terminal").GetInt32();
-                        string starSystem;
-                        
-                        if (_terminalToSystem.ContainsKey(terminalId))
-                        {
-                            starSystem = _terminalToSystem[terminalId];
-                        }
-                        else if (_knownMissingTerminals.TryGetValue(terminalName, out var knownSystem))
-                        {
-                            starSystem = knownSystem;
-                        }
-                        else if (terminalId == 21) starSystem = "Stanton"; // Likely TDD Area18
-                        else if (terminalId == 89) starSystem = "Stanton"; // TDD New Babbage
-                        else if (terminalId == 90) starSystem = "Stanton"; // TDD Orison
-                        else if (terminalId == 436) starSystem = "Stanton"; // Checkmate
-                        else if (terminalId == 443) starSystem = "Stanton"; // Orbituary
-                        else
-                        {
-                            starSystem = $"Unknown ({terminalId})";
-                        }
-
-                        int scuMax = 100;
-                        int scu = 0;
-
-                        if (priceEntry.TryGetProperty("scu", out JsonElement scuElement))
-                             scu = scuElement.ValueKind == JsonValueKind.Number ? scuElement.GetInt32() : 0;
-                        if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
-                             scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
-
-                        // Include if there is ANY activity (Buy OR Sell)
-                        if (priceSell <= 0 && priceBuy <= 0)
-                            continue;
-
-                        var displayName = MapCommodityName(commodityName);
-
-                        if (onlyMinerals && !IsMineralName(displayName))
-                            continue;
-
-                        double inventoryPercent = scuMax > 0 ? (double)scu / scuMax * 100 : 0;
-                        string demand = inventoryPercent < 50 ? "High" : "Low";
-
-                        // Check for LIVE override
-                        var overrideData = _liveOverrides.FirstOrDefault(o => o.MineralName == displayName && o.BestLocation == terminalName);
-                        if (overrideData != null)
-                        {
-                            priceList.Add(overrideData);
-                        }
-                        else
-                        {
-                            // API seems to use Player perspective:
-                            // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
-                            // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
-
-                            double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
-                            double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
-                            
-                            // Determine primary "Price" text for display
-                            double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
-
-                            priceList.Add(new PriceData
-                            {
-                                MineralName = displayName,
-                                Price = $"{primaryPrice:N2} aUEC",
-                                NumericPrice = primaryPrice,
-                                UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
-                                UnitSellPrice = unitSellPrice,   // We Buy (Cost)
-                                BestLocation = terminalName,
-                                Demand = demand,
-                                StarSystem = starSystem,
-                                LastUpdatedText = "API"
-                            });
-                        }
+                        starSystem = _terminalToSystem[terminalId];
                     }
+                    else if (_knownMissingTerminals.TryGetValue(terminalName, out var knownSystem))
+                    {
+                        starSystem = knownSystem;
+                    }
+                    else if (terminalId == 21) starSystem = "Stanton"; // Likely TDD Area18
+                    else if (terminalId == 89) starSystem = "Stanton"; // TDD New Babbage
+                    else if (terminalId == 90) starSystem = "Stanton"; // TDD Orison
+                    else if (terminalId == 436) starSystem = "Stanton"; // Checkmate
+                    else if (terminalId == 443) starSystem = "Stanton"; // Orbituary
+                    else
+                    {
+                        starSystem = $"Unknown ({terminalId})";
+                    }
+
+                    int scuMax = 100;
+                    int scu = 0;
+
+                    if (priceEntry.TryGetProperty("scu", out JsonElement scuElement))
+                        scu = scuElement.ValueKind == JsonValueKind.Number ? scuElement.GetInt32() : 0;
+                    if (priceEntry.TryGetProperty("scu_max", out JsonElement scuMaxElement))
+                        scuMax = scuMaxElement.ValueKind == JsonValueKind.Number ? scuMaxElement.GetInt32() : 0;
+
+                    // Include if there is ANY activity (Buy OR Sell)
+                    if (priceSell <= 0 && priceBuy <= 0)
+                        continue;
+
+                    var displayName = MapCommodityName(commodityName);
+
+                    if (onlyMinerals && !IsMineralName(displayName))
+                        continue;
+
+                    double inventoryPercent = scuMax > 0 ? (double)scu / scuMax * 100 : 0;
+                    string demand = inventoryPercent < 50 ? "High" : "Low";
+
+                    // Check for LIVE override
+                    var overrideData = _liveOverrides.FirstOrDefault(o => o.MineralName == displayName && o.BestLocation == terminalName);
+                    if (overrideData != null)
+                    {
+                        priceList.Add(overrideData);
+                    }
+                    else
+                    {
+                        // API seems to use Player perspective:
+                        // price_buy = Price you Buy at (Cost) -> Station Sells (UnitSellPrice)
+                        // price_sell = Price you Sell at (Income) -> Station Buys (UnitBuyPrice)
+
+                        double unitBuyPrice = priceSell;  // We Sell (Income) = JSON price_sell
+                        double unitSellPrice = priceBuy;  // We Buy (Cost) = JSON price_buy
+
+                        // Determine primary "Price" text for display
+                        double primaryPrice = unitSellPrice > 0 ? unitSellPrice : unitBuyPrice;
+
+                        priceList.Add(new PriceData
+                        {
+                            MineralName = displayName,
+                            Price = $"{primaryPrice:N2} aUEC",
+                            NumericPrice = primaryPrice,
+                            UnitBuyPrice = unitBuyPrice,     // We Sell (Income)
+                            UnitSellPrice = unitSellPrice,   // We Buy (Cost)
+                            BestLocation = terminalName,
+                            Demand = demand,
+                            StarSystem = starSystem,
+                            LastUpdatedText = "API"
+                        });
+                    }
+                }
 
                 // Merge overrides
                 foreach (var live in _liveOverrides)
@@ -282,31 +282,31 @@ namespace Golem_Mining_Suite.Services
 
         private void AddLivePriceOverride(TerminalData data)
         {
-             if (data.PriceSell <= 0) return;
-             
-             var displayName = MapCommodityName(data.CommodityName);
-             if (!IsMineralName(displayName)) return;
-             
-             // Create PriceData
-             var priceData = new PriceData
-             {
-                 MineralName = displayName,
-                 Price = $"{data.PriceSell:N0} aUEC",
-                 NumericPrice = data.PriceSell,
-                 BestLocation = data.TerminalName,
-                 Demand = "Live", 
-                 StarSystem = data.StarSystem,
-                 LastUpdated = data.CapturedAt,
-                 LastUpdatedText = data.CapturedAt.ToString("HH:mm:ss")
-             };
-             
-             // Remove existing override for same location/mineral
-             var existing = _liveOverrides.FirstOrDefault(p => p.MineralName == displayName && p.BestLocation == priceData.BestLocation);
-             if (existing != null)
-             {
-                 _liveOverrides.Remove(existing);
-             }
-             _liveOverrides.Add(priceData);
+            if (data.PriceSell <= 0) return;
+
+            var displayName = MapCommodityName(data.CommodityName);
+            if (!IsMineralName(displayName)) return;
+
+            // Create PriceData
+            var priceData = new PriceData
+            {
+                MineralName = displayName,
+                Price = $"{data.PriceSell:N0} aUEC",
+                NumericPrice = data.PriceSell,
+                BestLocation = data.TerminalName,
+                Demand = "Live",
+                StarSystem = data.StarSystem,
+                LastUpdated = data.CapturedAt,
+                LastUpdatedText = data.CapturedAt.ToString("HH:mm:ss")
+            };
+
+            // Remove existing override for same location/mineral
+            var existing = _liveOverrides.FirstOrDefault(p => p.MineralName == displayName && p.BestLocation == priceData.BestLocation);
+            if (existing != null)
+            {
+                _liveOverrides.Remove(existing);
+            }
+            _liveOverrides.Add(priceData);
         }
 
         public void SetLiveConnectionStatus(bool connected)

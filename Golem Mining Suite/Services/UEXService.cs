@@ -37,7 +37,7 @@ namespace Golem_Mining_Suite.Services
                 // UEX API endpoint: /commodities
                 // Note: Actual endpoint might vary based on docs, assuming GET /commodities works or similar
                 // Based on docs provided: https://api.uexcorp.uk/2.0/commodities
-                
+
                 // Add headers if needed? Usually Authorization header or query param?
                 // Docs check needed. Usually it's a header. Assuming "Authorization: Bearer <key>" or custom header?
                 // Docs say: "To obtain your access token...". Usually headers.
@@ -48,10 +48,10 @@ namespace Golem_Mining_Suite.Services
                 // But user said "We're gonna use UEX API".
                 // I will assume it's publicly available OR key is needed. 
                 // Let's try to pass key if we have it.
-                
+
                 // _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey); 
                 // or apiKey query param? 
-                
+
                 var response = await _httpClient.GetAsync("commodities");
                 if (response.IsSuccessStatusCode)
                 {
@@ -61,13 +61,13 @@ namespace Golem_Mining_Suite.Services
                         var list = new List<CommodityData>();
                         foreach (var item in result.Data)
                         {
-                             list.Add(new CommodityData 
-                             {
-                                 Name = item.Name ?? "Unknown",
-                                 Code = item.Code ?? "",
-                                 AveragePriceBuy = item.PriceBuyAvg,
-                                 AveragePriceSell = item.PriceSellAvg
-                             });
+                            list.Add(new CommodityData
+                            {
+                                Name = item.Name ?? "Unknown",
+                                Code = item.Code ?? "",
+                                AveragePriceBuy = item.PriceBuyAvg,
+                                AveragePriceSell = item.PriceSellAvg
+                            });
                         }
                         return list;
                     }
@@ -91,7 +91,7 @@ namespace Golem_Mining_Suite.Services
     {
         [JsonPropertyName("status")]
         public string? Status { get; set; }
-        
+
         [JsonPropertyName("data")]
         public List<UexCommodity>? Data { get; set; }
     }
@@ -100,16 +100,16 @@ namespace Golem_Mining_Suite.Services
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
-        
+
         [JsonPropertyName("name")]
         public string? Name { get; set; }
-        
+
         [JsonPropertyName("slug")] // or Code?
         public string? Code { get; set; }
-        
+
         [JsonPropertyName("price_buy")]
         public double PriceBuyAvg { get; set; } // Simplified mapping
-        
+
         [JsonPropertyName("price_sell")]
         public double PriceSellAvg { get; set; }
     }

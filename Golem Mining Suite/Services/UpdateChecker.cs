@@ -6,90 +6,90 @@ using System.Reflection;
 
 namespace Golem_Mining_Suite
 {
-	/// <summary>
-	/// Checks GitHub for a newer release. Uses an <see cref="IHttpClientFactory"/>-provided
-	/// <see cref="HttpClient"/> (named client: <c>github</c>) so the User-Agent header and
-	/// timeout are configured once at startup rather than per-call.
-	/// </summary>
-	public class UpdateChecker
-	{
-		private const string GITHUB_API_URL = "https://api.github.com/repos/ErskeN1337/Golem-Mining-Suite/releases/latest";
+    /// <summary>
+    /// Checks GitHub for a newer release. Uses an <see cref="IHttpClientFactory"/>-provided
+    /// <see cref="HttpClient"/> (named client: <c>github</c>) so the User-Agent header and
+    /// timeout are configured once at startup rather than per-call.
+    /// </summary>
+    public class UpdateChecker
+    {
+        private const string GITHUB_API_URL = "https://api.github.com/repos/ErskeN1337/Golem-Mining-Suite/releases/latest";
 
-		private readonly HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
-		public UpdateChecker(IHttpClientFactory httpClientFactory)
-		{
-			_httpClient = httpClientFactory.CreateClient("github");
-		}
+        public UpdateChecker(IHttpClientFactory httpClientFactory)
+        {
+            _httpClient = httpClientFactory.CreateClient("github");
+        }
 
-		public async Task<UpdateInfo> CheckForUpdateAsync()
-		{
-			try
-			{
-				var response = await _httpClient.GetStringAsync(GITHUB_API_URL);
-				var jsonDoc = JsonDocument.Parse(response);
-				var root = jsonDoc.RootElement;
+        public async Task<UpdateInfo> CheckForUpdateAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetStringAsync(GITHUB_API_URL);
+                var jsonDoc = JsonDocument.Parse(response);
+                var root = jsonDoc.RootElement;
 
-				string latestVersion = root.GetProperty("tag_name").GetString()?.Replace("v", "") ?? "0.0.0";
-				string downloadUrl = "";
-				string releaseNotes = "";
+                string latestVersion = root.GetProperty("tag_name").GetString()?.Replace("v", "") ?? "0.0.0";
+                string downloadUrl = "";
+                string releaseNotes = "";
 
-				// Try to get release notes
-				if (root.TryGetProperty("body", out var bodyElement))
-				{
-					releaseNotes = bodyElement.GetString() ?? "";
-				}
+                // Try to get release notes
+                if (root.TryGetProperty("body", out var bodyElement))
+                {
+                    releaseNotes = bodyElement.GetString() ?? "";
+                }
 
-				// Get the ZIP file download URL
-				if (root.TryGetProperty("assets", out var assetsElement))
-				{
-					foreach (var asset in assetsElement.EnumerateArray())
-					{
-						string? assetName = asset.GetProperty("name").GetString();
-						if (assetName != null && assetName.EndsWith(".zip"))
-						{
-							downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
-							break;
-						}
-					}
-				}
+                // Get the ZIP file download URL
+                if (root.TryGetProperty("assets", out var assetsElement))
+                {
+                    foreach (var asset in assetsElement.EnumerateArray())
+                    {
+                        string? assetName = asset.GetProperty("name").GetString();
+                        if (assetName != null && assetName.EndsWith(".zip"))
+                        {
+                            downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
+                            break;
+                        }
+                    }
+                }
 
-				// Get current version
-				var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-				string currentVersionString = currentVersion != null
-					? $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}"
-					: "1.0.0";
+                // Get current version
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                string currentVersionString = currentVersion != null
+                    ? $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}"
+                    : "1.0.0";
 
-				// Compare versions
-				bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
+                // Compare versions
+                bool isNewer = IsNewerVersion(latestVersion, currentVersionString);
 
-				return new UpdateInfo
-				{
-					IsUpdateAvailable = isNewer,
-					LatestVersion = latestVersion,
-					CurrentVersion = currentVersionString,
-					DownloadUrl = downloadUrl ?? "",
-					ReleaseNotes = releaseNotes ?? ""
-				};
-			}
-			catch (Exception)
-			{
-				return new UpdateInfo { IsUpdateAvailable = false, CurrentVersion = "0.0.0", LatestVersion = "0.0.0", DownloadUrl = "", ReleaseNotes = "" };
-			}
-		}
+                return new UpdateInfo
+                {
+                    IsUpdateAvailable = isNewer,
+                    LatestVersion = latestVersion,
+                    CurrentVersion = currentVersionString,
+                    DownloadUrl = downloadUrl ?? "",
+                    ReleaseNotes = releaseNotes ?? ""
+                };
+            }
+            catch (Exception)
+            {
+                return new UpdateInfo { IsUpdateAvailable = false, CurrentVersion = "0.0.0", LatestVersion = "0.0.0", DownloadUrl = "", ReleaseNotes = "" };
+            }
+        }
 
-		private static bool IsNewerVersion(string latestVersion, string currentVersion)
-		{
-			try
-			{
-				var latest = new Version(latestVersion);
-				var current = new Version(currentVersion);
-				return latest > current;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-	}
+        private static bool IsNewerVersion(string latestVersion, string currentVersion)
+        {
+            try
+            {
+                var latest = new Version(latestVersion);
+                var current = new Version(currentVersion);
+                return latest > current;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
 }

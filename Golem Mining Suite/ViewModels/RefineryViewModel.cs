@@ -172,8 +172,8 @@ namespace Golem_Mining_Suite.ViewModels
 
                 if (MineralPrices.ContainsKey(row.SelectedMineral))
                 {
-                   double price = MineralPrices[row.SelectedMineral];
-                   totalRawValue += price * row.Scu;
+                    double price = MineralPrices[row.SelectedMineral];
+                    totalRawValue += price * row.Scu;
                 }
             }
 
@@ -221,12 +221,12 @@ namespace Golem_Mining_Suite.ViewModels
 
             (string label, Color color) = quality.Value.Tier switch
             {
-                QualityTier.Debuff   => ("Debuff",   Color.FromRgb(0xC1, 0x49, 0x49)),
+                QualityTier.Debuff => ("Debuff", Color.FromRgb(0xC1, 0x49, 0x49)),
                 QualityTier.Baseline => ("Baseline", Color.FromRgb(0xD4, 0xA2, 0x3A)),
-                QualityTier.Good     => ("Good",     Color.FromRgb(0x67, 0xA9, 0x4F)),
-                QualityTier.Keeper   => ("Keeper",   Color.FromRgb(0x3F, 0x8B, 0x5F)),
-                QualityTier.Endgame  => ("Endgame",  Color.FromRgb(0xA3, 0x7B, 0xD1)),
-                _                    => ("Baseline", Color.FromRgb(0xD4, 0xA2, 0x3A)),
+                QualityTier.Good => ("Good", Color.FromRgb(0x67, 0xA9, 0x4F)),
+                QualityTier.Keeper => ("Keeper", Color.FromRgb(0x3F, 0x8B, 0x5F)),
+                QualityTier.Endgame => ("Endgame", Color.FromRgb(0xA3, 0x7B, 0xD1)),
+                _ => ("Baseline", Color.FromRgb(0xD4, 0xA2, 0x3A)),
             };
             QualityTierText = label;
             QualityTierBrush = new SolidColorBrush(color);

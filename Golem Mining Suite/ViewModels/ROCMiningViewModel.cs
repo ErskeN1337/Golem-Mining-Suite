@@ -60,7 +60,7 @@ namespace Golem_Mining_Suite.ViewModels
             {
                 _allRockTypes = _miningDataService.GetROCRockTypes();
                 RockTypes = new ObservableCollection<string>(_allRockTypes);
-                
+
                 // Debug output to verify data loading
                 System.Diagnostics.Debug.WriteLine($"ROC Mining Data Loaded: {_allRockTypes.Count} rock types");
                 foreach (var rock in _allRockTypes)
@@ -95,7 +95,7 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void OpenUexLink()
         {
-             try
+            try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
@@ -134,7 +134,7 @@ namespace Golem_Mining_Suite.ViewModels
                 .ToList();
 
             Suggestions.Clear();
-            foreach(var r in matchingRocks) Suggestions.Add(r);
+            foreach (var r in matchingRocks) Suggestions.Add(r);
 
             ShowSuggestions = Suggestions.Count > 0;
         }

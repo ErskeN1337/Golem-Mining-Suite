@@ -50,7 +50,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             _coordinator = coordinator;
             _priceService = priceService;
-            
+
             // Initialize filterable collection view
             FilteredTerminals = System.Windows.Data.CollectionViewSource.GetDefaultView(_terminals);
             FilteredTerminals.Filter = FilterTerminals;
@@ -75,12 +75,12 @@ namespace Golem_Mining_Suite.ViewModels
             try
             {
                 var terminals = await _priceService.GetTerminalsAsync();
-                
+
                 // Marshal to UI thread if needed (though ObservableCollection usually handles it if created on UI thread)
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     foreach (var t in terminals) Terminals.Add(t);
-                    
+
                     if (Terminals.Count > 0 && SelectedTerminal == null)
                     {
                         // Don't auto-select to avoid overwriting "Unknown" if user hasn't chosen?
@@ -104,7 +104,7 @@ namespace Golem_Mining_Suite.ViewModels
 
         partial void OnSearchTextChanged(string value)
         {
-             FilteredTerminals.Refresh();
+            FilteredTerminals.Refresh();
         }
 
         private bool FilterTerminals(object item)
@@ -112,7 +112,7 @@ namespace Golem_Mining_Suite.ViewModels
             if (string.IsNullOrEmpty(SearchText)) return true;
             if (item is TerminalInfo terminal)
             {
-                return terminal.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase) || 
+                return terminal.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase) ||
                        terminal.StarSystem.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase);
             }
             return false;
@@ -123,7 +123,7 @@ namespace Golem_Mining_Suite.ViewModels
             if (value != null)
             {
                 _coordinator.SetManualLocation(value.Name, value.StarSystem);
-                
+
                 // Sync search text with selection (if not already matching to avoid loops while typing)
                 if (!string.Equals(SearchText, value.DisplayName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -154,7 +154,7 @@ namespace Golem_Mining_Suite.ViewModels
                     StatusText = "Loading terminals...";
                     var terminals = await _priceService.GetTerminalsAsync();
                     foreach (var t in terminals) Terminals.Add(t);
-                    
+
                     // Try to auto-select if we have a saved preference or just pick one
                     if (Terminals.Count > 0) SelectedTerminal = Terminals[0];
                 }
@@ -184,7 +184,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             ContributionCount++;
             LastUpdateText = $"{DateTime.Now:HH:mm:ss}";
-            
+
             System.Diagnostics.Debug.WriteLine($"[LiveData] Captured: {data.CommodityName} at {data.TerminalName} - {data.PriceSell} aUEC");
         }
 
@@ -197,7 +197,7 @@ namespace Golem_Mining_Suite.ViewModels
         private void UpdateGameStatus()
         {
             IsGameRunning = _coordinator.IsGameRunning;
-            
+
             if (IsGameRunning)
             {
                 GameStatusText = "Running";

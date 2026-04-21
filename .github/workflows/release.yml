@@ -5,31 +5,38 @@ on:
     tags:
       - 'v*.*.*'
 
+# Single release pipeline. ci.yml handles PR / push-to-master validation;
+# this workflow ONLY fires on semver tag pushes and produces the signed zip.
 jobs:
   build-and-release:
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Setup .NET
+
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-        
-    - name: Restore dependencies
-      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
-      
+
+    - name: Restore
+      run: dotnet restore "Golem Mining Suite.sln"
+
     - name: Build Release
       run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-      
+
     - name: Create ZIP
       run: |
         $version = "${{ github.ref_name }}"
-        Compress-Archive -Path "Golem Mining Suite/bin/Release/net8.0-windows/win-x64/publish/*" -DestinationPath "Golem-Mining-Suite-$version.zip"
+        $publishDir = Get-ChildItem -Path "Golem Mining Suite/bin/Release" -Directory |
+          Where-Object { $_.Name -like 'net8.0-windows*' } |
+          Select-Object -First 1 -ExpandProperty FullName
+        if (-not $publishDir) { throw "Could not locate publish output directory" }
+        $zipSource = Join-Path $publishDir "win-x64/publish/*"
+        Compress-Archive -Path $zipSource -DestinationPath "Golem-Mining-Suite-$version.zip"
       shell: pwsh
-      
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:

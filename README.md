@@ -4,12 +4,16 @@
 
 **Golem Mining Suite** is a comprehensive tool for Star Citizen miners, designed to optimize your mining operations and maximize profits. Whether you prefer surface mining, asteroid belts, or ground vehicle (ROC) mining, this suite provides the data you need.
 
-## 🆕 Latest Update (v1.3.0)
-**The Wallet & Logbook Update**
-- **💳 Integrated Wallet**: Manage your in-game finances with a new dedicated view.
-- **📝 Transaction Logbook**: Track deposits, withdrawals, and maintain a history of your mining and hauling profits.
-- **✨ Visual Polish**: Enhanced UI with perfect alignment and refined dark mode aesthetics.
-- **🐞 Bug Fixes**: Resolved UI overlapping issues and improved navigation bar layout.
+## 🆕 Latest Update (v1.4.0-beta)
+**The Audit & 4.7 Refresh Update**
+- **💎 4.7 Quality Score (0-1000)**: Refinery Calculator now reads the new SC 4.7 mining quality stat. Tier badges (Debuff → Endgame) and an Effective Value row show how quality swings your payout.
+- **🔥 New Pyro Refineries**: Pyro Gateway, Ruin Station, and Terra Gateway added alongside the existing Stanton refinery stations.
+- **📦 Regolith Migration**: Import your Regolith Co. sessions before their June 1, 2026 shutdown — works via file-drop JSON *or* live API key pull.
+- **👥 Crew Sessions**: New local crew-session browser with aUEC share tracking. Set your User Handle in Settings.
+- **🔔 Desktop Toasts**: Get notified the moment your refinery order is ready.
+- **🏴‍☠️ Piracy Route Risk**: Optional checkbox in the Route Optimizer that scores each leg against known Pyro piracy hotspots.
+- **📝 Game.log Tailing**: Session / QT / death / stall / disconnect detection running quietly in the background — foundation for future overlays.
+- **🛡️ Hardening**: Full .NET 8 polish — IHttpClientFactory, ILogger<T>, ISupabaseService, CsvHelper, TreatWarningsAsErrors, 130+ xUnit tests, secrets off disk.
 
 ## 🌟 Features
 

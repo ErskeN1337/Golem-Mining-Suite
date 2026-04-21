@@ -99,7 +99,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
 
             string colorHex = Themes.FirstOrDefault(t => t.Value == themeValue)?.ColorHex ?? "#FF8C42";
-            
+
             Application.Current.Resources["AccentColor"] = (Color)ColorConverter.ConvertFromString(colorHex);
             Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex));
         }

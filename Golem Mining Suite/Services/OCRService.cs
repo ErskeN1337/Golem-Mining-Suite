@@ -133,7 +133,7 @@ namespace Golem_Mining_Suite.Services
                 {
                     bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     ms.Position = 0;
-                    
+
                     using (var pix = Pix.LoadFromMemory(ms.ToArray()))
                     using (var page = _engine.Process(pix))
                     {
@@ -156,9 +156,10 @@ namespace Golem_Mining_Suite.Services
             using (var bitmap = CaptureScreenRegion(x, y, width, height))
             {
                 if (bitmap == null) return null;
-                
+
                 // DEBUG: Save image to check what we are seeing
-                try {
+                try
+                {
                     string debugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ocr_debug.png");
                     bitmap.Save(debugPath, System.Drawing.Imaging.ImageFormat.Png);
                 }
@@ -181,7 +182,7 @@ namespace Golem_Mining_Suite.Services
             // - Centered horizontally
             // - In bottom 60% of screen
             // - Takes up about 70% of screen width
-            
+
             int terminalWidth = (int)(windowWidth * 0.7);
             int terminalHeight = (int)(windowHeight * 0.6);
             int terminalX = windowX + (windowWidth - terminalWidth) / 2;

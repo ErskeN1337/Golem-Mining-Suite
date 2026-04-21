@@ -62,7 +62,7 @@ namespace Golem_Mining_Suite.ViewModels
         private void LoadData()
         {
             _allMiningData = _miningDataService.GetAsteroidMinerals();
-            
+
             // Group by MineralName to remove duplicates and aggregate OreTypes
             _groupedMinerals = _allMiningData
                 .GroupBy(m => m.MineralName)
@@ -98,7 +98,7 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void OpenUexLink()
         {
-             try
+            try
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
@@ -137,7 +137,7 @@ namespace Golem_Mining_Suite.ViewModels
                 .ToList();
 
             Suggestions.Clear();
-            foreach(var m in matchingGroups) Suggestions.Add(m.MineralName);
+            foreach (var m in matchingGroups) Suggestions.Add(m.MineralName);
 
             ShowSuggestions = Suggestions.Count > 0;
             Minerals = new ObservableCollection<AsteroidMineralGroup>(matchingGroups);
@@ -164,16 +164,16 @@ namespace Golem_Mining_Suite.ViewModels
                 var group = _groupedMinerals.FirstOrDefault(g => g.MineralName == suggestion);
                 if (group != null)
                 {
-                     Minerals = new ObservableCollection<AsteroidMineralGroup> { group };
+                    Minerals = new ObservableCollection<AsteroidMineralGroup> { group };
                 }
-                
+
                 ShowSuggestions = false;
                 // Keep the search text so user knows what is selected, or clear it? 
                 // Typically if we select a suggestion, we might want to just show that one result.
                 // Or OpenLocation directly?
                 // The original logic opened location.
                 OpenLocation(suggestion);
-                
+
                 SearchText = "Search mineral...";
                 Minerals = new ObservableCollection<AsteroidMineralGroup>(_groupedMinerals); // Reset list after opening logic
             }

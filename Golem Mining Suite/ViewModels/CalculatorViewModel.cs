@@ -162,9 +162,9 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void RemoveMineralRow(MineralRowViewModel row)
         {
-             MineralRows.Remove(row);
-             UpdateCanAdd();
-             CalculateTotals();
+            MineralRows.Remove(row);
+            UpdateCanAdd();
+            CalculateTotals();
         }
 
         private void UpdateCanAdd()
@@ -187,7 +187,7 @@ namespace Golem_Mining_Suite.ViewModels
             // Capacity
             CargoCapacity = _shipCapacities[SelectedShip];
             UsedCapacity = MineralRows.Sum(r => r.SCU);
-            
+
             CapacityPercentage = CargoCapacity > 0 ? (UsedCapacity / CargoCapacity) * 100 : 0;
             if (CapacityPercentage > 100) CapacityPercentage = 100;
 
@@ -197,7 +197,7 @@ namespace Golem_Mining_Suite.ViewModels
             // Value
             double stationMultiplier = 1.0;
             string bestLocation = "Port Tressler";
-            
+
             if (SelectedStation != null && SelectedStation.Contains("Port Tressler"))
             {
                 stationMultiplier = 1.05;
@@ -205,7 +205,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
 
             double totalValue = 0;
-            foreach(var row in MineralRows)
+            foreach (var row in MineralRows)
             {
                 if (row.SelectedMineral != "None" && _basePrices.ContainsKey(row.SelectedMineral))
                 {
@@ -245,13 +245,13 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private string _scuText = "0";
 
-        public double SCU 
-        { 
-            get 
+        public double SCU
+        {
+            get
             {
                 if (double.TryParse(ScuText, out double val)) return val;
                 return 0;
-            } 
+            }
         }
 
         public ObservableCollection<string> Minerals => _parent.Minerals;

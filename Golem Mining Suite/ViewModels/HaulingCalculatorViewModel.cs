@@ -16,7 +16,7 @@ namespace Golem_Mining_Suite.ViewModels
         private readonly IWindowService _windowService;
         private readonly IPriceService _priceService;
         private readonly ILogger<HaulingCalculatorViewModel> _logger;
-        
+
         // Cache of prices: CommodityName -> (StationName -> PriceData)
         // Storing PriceData instead of double to access both Buy/Sell prices
         internal Dictionary<string, Dictionary<string, PriceData>> _commodityPrices = new Dictionary<string, Dictionary<string, PriceData>>();
@@ -54,9 +54,9 @@ namespace Golem_Mining_Suite.ViewModels
 
         [ObservableProperty]
         private string _totalValueText = "Total Value: 0 aUEC";
-        
+
         [ObservableProperty]
-        private string _profitText = "Estimated Profit: TBD"; 
+        private string _profitText = "Estimated Profit: TBD";
 
         [ObservableProperty]
         private string _pricePerSCUText = "Average: 0 aUEC/SCU";
@@ -112,7 +112,7 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Load Commodities & Prices
             var prices = await _priceService.GetAllCommodityPricesAsync();
-            
+
             _commodityPrices.Clear();
             Commodities.Clear();
             Stations.Clear();
@@ -141,14 +141,14 @@ namespace Golem_Mining_Suite.ViewModels
                         // (e.g. multiple terminals at same location, or API artifacts)
                         // We want the BEST prices available to the user.
                         var existing = stationDict[p.BestLocation];
-                        
-                        if (p.UnitBuyPrice > existing.UnitBuyPrice) 
+
+                        if (p.UnitBuyPrice > existing.UnitBuyPrice)
                             existing.UnitBuyPrice = p.UnitBuyPrice; // Found a terminal that pays more
-                            
+
                         if (p.UnitSellPrice < existing.UnitSellPrice && p.UnitSellPrice > 0)
-                             existing.UnitSellPrice = p.UnitSellPrice; // Found a terminal that sells cheaper? (Actually we want max for availability usually, but min for cost)
+                            existing.UnitSellPrice = p.UnitSellPrice; // Found a terminal that sells cheaper? (Actually we want max for availability usually, but min for cost)
                         else if (existing.UnitSellPrice == 0 && p.UnitSellPrice > 0)
-                             existing.UnitSellPrice = p.UnitSellPrice;
+                            existing.UnitSellPrice = p.UnitSellPrice;
 
                         // Also update numeric price for sorting if needed
                         existing.NumericPrice = Math.Max(existing.NumericPrice, p.NumericPrice);
@@ -157,11 +157,11 @@ namespace Golem_Mining_Suite.ViewModels
             }
 
             // Populate Stations List
-            foreach(var s in allStations.OrderBy(s => s))
+            foreach (var s in allStations.OrderBy(s => s))
             {
                 Stations.Add(s);
             }
-            
+
             // Default station
             SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
 
@@ -190,9 +190,9 @@ namespace Golem_Mining_Suite.ViewModels
         [RelayCommand]
         private void RemoveCommodityRow(HaulingCommodityRowViewModel row)
         {
-             Rows.Remove(row);
-             UpdateCanAdd();
-             CalculateTotals();
+            Rows.Remove(row);
+            UpdateCanAdd();
+            CalculateTotals();
         }
 
         private void UpdateCanAdd()
@@ -211,7 +211,7 @@ namespace Golem_Mining_Suite.ViewModels
         public void CalculateTotals()
         {
             if (_isUpdatingStations) return; // Prevent re-entrancy loop
-            
+
             if (string.IsNullOrEmpty(SelectedShip)) return;
 
             // Capacity
@@ -219,7 +219,7 @@ namespace Golem_Mining_Suite.ViewModels
             else CargoCapacity = 0;
 
             UsedCapacity = Rows.Sum(r => r.SCU);
-            
+
             CapacityPercentage = CargoCapacity > 0 ? (UsedCapacity / CargoCapacity) * 100 : 0;
             if (CapacityPercentage > 100) CapacityPercentage = 100;
 
@@ -237,10 +237,10 @@ namespace Golem_Mining_Suite.ViewModels
 
             // Value Calculation based on Selected Station
             double totalValue = 0;
-            
+
             if (!string.IsNullOrEmpty(SelectedStation))
             {
-                foreach(var row in Rows)
+                foreach (var row in Rows)
                 {
                     if (row.SelectedCommodity != "None" && _commodityPrices.ContainsKey(row.SelectedCommodity))
                     {
@@ -249,13 +249,13 @@ namespace Golem_Mining_Suite.ViewModels
                         if (stationData.ContainsKey(SelectedStation))
                         {
                             var priceData = stationData[SelectedStation];
-                            
+
                             // Haul Value = How much the station PAYS (UnitBuyPrice)
                             // Multiplier: 1 SCU = 100 Units
                             // If UnitBuyPrice is 0 (Station doesn't buy), then value is 0.
                             double unitPrice = priceData.UnitBuyPrice;
-                            
-                            totalValue += unitPrice * row.SCU * 100; 
+
+                            totalValue += unitPrice * row.SCU * 100;
                         }
                     }
                 }
@@ -280,7 +280,7 @@ namespace Golem_Mining_Suite.ViewModels
         {
             if (_isUpdatingStations) return;
 
-            try 
+            try
             {
                 _isUpdatingStations = true;
 
@@ -300,12 +300,12 @@ namespace Golem_Mining_Suite.ViewModels
                         .OrderBy(s => s)
                         .ToList();
 
-                    if (Stations.Count != allKnownStations.Count) 
+                    if (Stations.Count != allKnownStations.Count)
                     {
                         var current = SelectedStation;
                         Stations.Clear();
                         foreach (var s in allKnownStations) Stations.Add(s);
-                        
+
                         if (Stations.Contains(current)) SelectedStation = current;
                         else SelectedStation = Stations.FirstOrDefault() ?? "Default Station";
                     }
@@ -333,7 +333,7 @@ namespace Golem_Mining_Suite.ViewModels
                 // Update the Stations list
                 var currentSelection = SelectedStation;
                 bool isSame = Stations.Count == validStations.Count && Stations.All(s => validStations.Contains(s));
-                
+
                 if (!isSame)
                 {
                     Stations.Clear();
@@ -387,13 +387,13 @@ namespace Golem_Mining_Suite.ViewModels
         [ObservableProperty]
         private bool _hasPriceWarning = false;
 
-        public double SCU 
-        { 
-            get 
+        public double SCU
+        {
+            get
             {
                 if (double.TryParse(ScuText, out double val)) return val;
                 return 0;
-            } 
+            }
         }
 
         public ObservableCollection<string> Commodities => _parent.Commodities;
@@ -438,10 +438,10 @@ namespace Golem_Mining_Suite.ViewModels
                     // Always show the price, even if it's 0
                     double pricePerSCU = unitPrice * 100;
                     PricePerUnit = $"{pricePerSCU:N0} aUEC/SCU";
-                    
+
                     double rowVal = unitPrice * SCU * 100;
                     RowValue = $"Value: {rowVal:N0} aUEC";
-                    
+
                     PriceWarning = "";
                     HasPriceWarning = false;
                 }

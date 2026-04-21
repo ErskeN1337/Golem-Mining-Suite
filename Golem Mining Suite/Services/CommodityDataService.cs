@@ -20,7 +20,7 @@ namespace Golem_Mining_Suite.Services
         public async Task<List<CommodityData>> GetAllCommoditiesAsync()
         {
             System.Diagnostics.Debug.WriteLine($"[CommodityDataService] Getting commodities. UseAPI: {_useApi}, IsConfigured: {_uexService.IsConfigured}");
-            
+
             if (_useApi && _uexService.IsConfigured)
             {
                 try
@@ -46,7 +46,7 @@ namespace Golem_Mining_Suite.Services
             }
             else
             {
-                 System.Diagnostics.Debug.WriteLine("[CommodityDataService] API not configured or disabled. Using static.");
+                System.Diagnostics.Debug.WriteLine("[CommodityDataService] API not configured or disabled. Using static.");
             }
 
             if (_cachedCommodities == null || _cachedCommodities.Count == 0)
@@ -61,7 +61,7 @@ namespace Golem_Mining_Suite.Services
         public async Task<CommodityData?> GetCommodityDetailsAsync(string commodityName)
         {
             var all = await GetAllCommoditiesAsync();
-            return all.FirstOrDefault(c => c.Name.Equals(commodityName, System.StringComparison.OrdinalIgnoreCase) || 
+            return all.FirstOrDefault(c => c.Name.Equals(commodityName, System.StringComparison.OrdinalIgnoreCase) ||
                                          c.Code.Equals(commodityName, System.StringComparison.OrdinalIgnoreCase));
         }
 

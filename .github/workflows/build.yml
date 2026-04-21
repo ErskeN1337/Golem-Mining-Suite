@@ -1,39 +1,40 @@
-﻿name: Build and Release
+name: Manual Build Artifact
 
+# Dev/QA build: produces a publish-zip artifact without cutting a GitHub Release.
+# - ci.yml   : PR + push-to-master validation (build + test + format)
+# - release.yml : semver-tag-triggered official release (creates a GitHub Release)
+# - build.yml (this file) : on-demand zip for manual testing, dispatched from the
+#                           Actions tab. Does NOT create a Release.
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
-    
+
+    - name: Restore
+      run: dotnet restore "Golem Mining Suite.sln"
+
     - name: Build
-      run: dotnet build "Golem Mining Suite/Golem Mining Suite.csproj" -c Release --no-restore
-    
+      run: dotnet build "Golem Mining Suite.sln" -c Release --no-restore
+
     - name: Publish
-      run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -o publish
-    
+      run: dotnet publish "Golem Mining Suite/Golem Mining Suite.csproj" -c Release -o publish --no-restore
+
     - name: Create ZIP
-      run: Compress-Archive -Path publish/* -DestinationPath "Golem-Mining-Suite-${{ github.ref_name }}.zip"
-    
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+      run: Compress-Archive -Path publish/* -DestinationPath "Golem-Mining-Suite-dispatch-${{ github.run_number }}.zip"
+      shell: pwsh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: Golem-Mining-Suite-${{ github.ref_name }}.zip
-        body: |
-          Automated release for ${{ github.ref_name }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Golem-Mining-Suite-dispatch-${{ github.run_number }}
+        path: Golem-Mining-Suite-dispatch-${{ github.run_number }}.zip

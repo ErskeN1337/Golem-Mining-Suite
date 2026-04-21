@@ -6,20 +6,50 @@ on:
   pull_request:
     branches: [ "master" ]
 
+# WPF + net8.0-windows10.0.17763.0 can only build on Windows. windows-latest
+# is required here — do not move to ubuntu-latest.
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Setup .NET
+
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-        
-    - name: Restore dependencies
-      run: dotnet restore "Golem Mining Suite/Golem Mining Suite.csproj"
-      
-    - name: Build
-      run: dotnet build "Golem Mining Suite/Golem Mining Suite.csproj" --configuration Release --no-restore
+
+    - name: Restore
+      run: dotnet restore "Golem Mining Suite.sln"
+
+    # TreatWarningsAsErrors is on in the .csproj, so any new warning fails CI here.
+    - name: Build (Release, no-restore)
+      run: dotnet build "Golem Mining Suite.sln" --no-restore -c Release
+
+    - name: Test (Release, no-build, trx logger)
+      run: dotnet test "Golem Mining Suite.sln" --no-build -c Release --logger "trx" --results-directory TestResults
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: TestResults
+
+  format:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # dotnet format ships with the .NET SDK from 6.x onwards, so no separate
+    # install step is required. The --verify-no-changes flag fails CI when
+    # formatting or analyzer fixups are needed.
+    - name: Verify formatting
+      run: dotnet format "Golem Mining Suite.sln" --verify-no-changes

@@ -74,7 +74,7 @@ namespace Golem_Mining_Suite.Services.Configuration
             {
                 SupabaseUrl = FirstNonEmpty(envUrl, userSettings.GetValueOrDefault("Supabase.Url"), shippedSettings.GetValueOrDefault("Supabase.Url")),
                 SupabaseKey = FirstNonEmpty(envKey, userSettings.GetValueOrDefault("Supabase.Key"), shippedSettings.GetValueOrDefault("Supabase.Key")),
-                UexApiKey   = FirstNonEmpty(envUex, userSettings.GetValueOrDefault("UEX.ApiKey"),   shippedSettings.GetValueOrDefault("UEX.ApiKey"))
+                UexApiKey = FirstNonEmpty(envUex, userSettings.GetValueOrDefault("UEX.ApiKey"), shippedSettings.GetValueOrDefault("UEX.ApiKey"))
             };
         }
 

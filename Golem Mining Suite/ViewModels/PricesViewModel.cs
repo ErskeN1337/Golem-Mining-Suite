@@ -38,7 +38,7 @@ namespace Golem_Mining_Suite.ViewModels
             Prices = new ObservableCollection<PriceData>();
             Minerals = new ObservableCollection<string>();
             _allPrices = new List<PriceData>(); // Initialize to avoid null warning
-            
+
             // Subscribe to live events — interface surfaces these directly, no cast needed.
             IsLiveConnected = _priceService.IsLiveConnected; // Init
 
@@ -52,7 +52,7 @@ namespace Golem_Mining_Suite.ViewModels
             {
                 App.Current.Dispatcher.Invoke(() => IsLiveConnected = connected);
             };
-            
+
             LoadDataCommand.ExecuteAsync(null);
         }
 
@@ -117,7 +117,7 @@ namespace Golem_Mining_Suite.ViewModels
             }
 
             var sorted = filtered.OrderByDescending(p => p.NumericPrice).ToList();
-            
+
             Prices.Clear();
             foreach (var item in sorted) Prices.Add(item);
 

@@ -12,7 +12,7 @@ namespace Golem_Mining_Suite.Views
         public MainMenuView()
         {
             InitializeComponent();
-            
+
             // Set version from assembly
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if (version != null)

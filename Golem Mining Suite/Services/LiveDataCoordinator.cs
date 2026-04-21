@@ -20,14 +20,14 @@ namespace Golem_Mining_Suite.Services
         private readonly ISupabaseService? _supabaseService;
         private readonly ILogger<LiveDataCoordinator> _logger;
         private readonly string _logFilePath;
-        
+
         private CancellationTokenSource? _cancellationTokenSource;
         private Task? _monitoringTask;
         private bool _isEnabled = false;
         private DateTime _lastCapture = DateTime.MinValue;
         private string _manualTerminalName = "";
         private string _manualStarSystem = "";
-        
+
         private const int CAPTURE_INTERVAL_SECONDS = 30; // Rate limit: 1 capture per 30 seconds
         private const int MONITORING_INTERVAL_MS = 5000; // Check every 5 seconds
 
@@ -63,7 +63,7 @@ namespace Golem_Mining_Suite.Services
         public async Task<bool> StartAsync()
         {
             LogDebug("StartAsync called");
-            
+
             if (_isEnabled)
             {
                 LogDebug("Already enabled, returning true");
@@ -109,7 +109,7 @@ namespace Golem_Mining_Suite.Services
             _isEnabled = true;
             _cancellationTokenSource = new CancellationTokenSource();
             _monitoringTask = Task.Run(() => MonitoringLoop(_cancellationTokenSource.Token));
-            
+
             LogDebug("Monitoring started successfully");
             return true;
         }
@@ -141,7 +141,7 @@ namespace Golem_Mining_Suite.Services
             try
             {
                 LogDebug("Monitoring loop started");
-                
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try
@@ -179,7 +179,7 @@ namespace Golem_Mining_Suite.Services
                             await Task.Delay(MONITORING_INTERVAL_MS, cancellationToken);
                             continue;
                         }
-                        
+
                         // If we get here, we are capturing!
                         LogDebug("Attempting capture (Game Running & Visible)...");
 
@@ -191,7 +191,7 @@ namespace Golem_Mining_Suite.Services
                             {
                                 _lastCapture = DateTime.Now;
                                 TerminalDataCaptured?.Invoke(this, terminalData);
-                                
+
                                 // Upload to Supabase if available
                                 if (_supabaseService != null)
                                 {
@@ -239,7 +239,7 @@ namespace Golem_Mining_Suite.Services
                 LogDebug($"Stack trace: {ex.StackTrace}");
                 ErrorOccurred?.Invoke(this, $"Monitoring loop crashed: {ex.Message}");
             }
-            
+
             LogDebug("Monitoring loop ended");
         }
         private TerminalData? CaptureTerminalData()
@@ -247,7 +247,7 @@ namespace Golem_Mining_Suite.Services
             try
             {
                 LogDebug("Starting capture attempt...");
-                
+
                 // Get game window bounds
                 var bounds = _gameDetection.GetWindowBounds();
                 if (!bounds.HasValue)
@@ -312,15 +312,15 @@ namespace Golem_Mining_Suite.Services
                     // If terminal is still unknown, request manual input
                     if (parsedData.TerminalName == "Unknown Terminal" && parsedData.IsValid(ignoreTerminalName: true))
                     {
-                         // Basic validity check passed (has commodity), but no terminal.
-                         // Fire event to prompt user.
-                         LogDebugCritical("⚠️ Unknown Terminal detected with valid data. Requesting user input...");
-                         LocationRequired?.Invoke(this, EventArgs.Empty);
+                        // Basic validity check passed (has commodity), but no terminal.
+                        // Fire event to prompt user.
+                        LogDebugCritical("⚠️ Unknown Terminal detected with valid data. Requesting user input...");
+                        LocationRequired?.Invoke(this, EventArgs.Empty);
                     }
 
                     LogDebugCritical($"Successfully parsed: {parsedData.CommodityName} at {parsedData.TerminalName}");
                 }
-                
+
                 return parsedData;
             }
             catch (Exception ex)

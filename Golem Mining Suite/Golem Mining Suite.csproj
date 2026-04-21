@@ -10,7 +10,9 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
-		<Version>1.2.9</Version>
+		<Version>1.4.0-beta</Version>
+		<AssemblyVersion>1.4.0.0</AssemblyVersion>
+		<FileVersion>1.4.0.0</FileVersion>
 		<ApplicationIcon>Assets\Images\Golem.ico</ApplicationIcon>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<!-- CS1591: missing xmldoc — allowed by default.
