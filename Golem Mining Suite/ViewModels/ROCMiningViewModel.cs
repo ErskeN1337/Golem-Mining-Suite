@@ -37,11 +37,7 @@ namespace Golem_Mining_Suite.ViewModels
             _miningDataService = miningDataService;
             _windowService = windowService;
 
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            if (version != null)
-                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
-            else
-                VersionText = "v1.0.0";
+            VersionText = Utilities.AppVersion.Display;
 
             _allRockTypes = new List<string>();
             RockTypes = new ObservableCollection<string>();

@@ -148,11 +148,7 @@ namespace Golem_Mining_Suite.ViewModels
             _priceService = priceService;
             SettingsVM = settingsVM;
 
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            if (version != null)
-                VersionText = $"v{version.Major}.{version.Minor}.{version.Build}";
-            else
-                VersionText = "v1.0.0";
+            VersionText = Utilities.AppVersion.Display;
 
             // Initialize HaulingRoutesView to avoid null warning
             _haulingRoutesView = new HaulingRoutesView();

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using Golem_Mining_Suite.Utilities;
 
 namespace Golem_Mining_Suite.Views
 {
@@ -12,13 +13,7 @@ namespace Golem_Mining_Suite.Views
         public MainMenuView()
         {
             InitializeComponent();
-
-            // Set version from assembly
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            if (version != null)
-                VersionText.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
-            else
-                VersionText.Text = "v1.0.0";
+            VersionText.Text = AppVersion.Display;
         }
 
         private void SurfaceMining_Click(object sender, RoutedEventArgs e)
