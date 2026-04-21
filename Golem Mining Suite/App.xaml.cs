@@ -138,7 +138,9 @@ namespace Golem_Mining_Suite
             services.AddTransient<RefineryViewModel>();
             services.AddTransient<HaulingPricesViewModel>();
             services.AddTransient<HaulingCalculatorViewModel>();
-            services.AddTransient<RouteOptimizerViewModel>();
+            services.AddTransient<RouteOptimizerViewModel>(p => new RouteOptimizerViewModel(
+                p.GetRequiredService<IPriceService>(),
+                p.GetService<IPiracyRouteAnalyzer>()));
             services.AddSingleton<SettingsViewModel>();
 
             // Wave 3 services — pure-logic solvers + Game.log tailer.
@@ -152,6 +154,13 @@ namespace Golem_Mining_Suite
             services.AddSingleton<RefineryOrderWatcher>();
             services.AddSingleton<ICrewSessionService, CrewSessionService>();
             services.AddTransient<CrewSessionViewModel>();
+
+            // Wave 6 — counter-piracy analyzer. Singleton because it caches pull-point
+            // data for 10 minutes; Supabase is optional so the service is resolved
+            // with a nullable fallback (matches LiveDataCoordinator pattern).
+            services.AddSingleton<IPiracyRouteAnalyzer>(p => new PiracyRouteAnalyzer(
+                p.GetRequiredService<ILogger<PiracyRouteAnalyzer>>(),
+                p.GetService<ISupabaseService>()));
 
             // Windows
             services.AddSingleton<MainWindow>();

@@ -1,4 +1,5 @@
 using Golem_Mining_Suite.Models;
+using Golem_Mining_Suite.Models.Piracy;
 using Golem_Mining_Suite.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Supabase;
@@ -275,6 +276,79 @@ namespace Golem_Mining_Suite.Services
         }
 
         /// <summary>
+        /// Upload a user-submitted piracy pull-point report. Insert-only — community
+        /// aggregation (median / outlier rejection) happens server-side per R4 §6.1.
+        /// </summary>
+        public async Task<bool> UploadPullPointReportAsync(PullPoint point)
+        {
+            if (point == null) return false;
+            if (!_isInitialized || _client == null) return false;
+
+            try
+            {
+                var record = new PullPointReportRecord
+                {
+                    external_id = point.Id,
+                    name = point.Name,
+                    position_x_km = point.Position.X,
+                    position_y_km = point.Position.Y,
+                    position_z_km = point.Position.Z,
+                    radius_km = point.RadiusKm,
+                    notoriety = point.Notoriety,
+                    source = point.Source,
+                    reported_by = point.LastReportedBy,
+                    reported_at = point.LastReportedAt ?? DateTime.UtcNow
+                };
+
+                await _client.From<PullPointReportRecord>().Insert(record);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to upload pull-point report {Id}", point.Id);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Fetch recent crowdsourced pull-point reports. Returns an empty list when
+        /// Supabase is not initialised so the analyzer falls back to seed data.
+        /// </summary>
+        public async Task<List<PullPoint>> GetCrowdsourcedPullPointsAsync(int maxAgeDays = 30)
+        {
+            if (!_isInitialized || _client == null)
+                return new List<PullPoint>();
+
+            try
+            {
+                var cutoff = DateTime.UtcNow.AddDays(-maxAgeDays);
+
+                var response = await _client
+                    .From<PullPointReportRecord>()
+                    .Filter("reported_at", Postgrest.Constants.Operator.GreaterThanOrEqual, cutoff.ToString("o"))
+                    .Order("reported_at", Postgrest.Constants.Ordering.Descending)
+                    .Get();
+
+                return response.Models.Select(r => new PullPoint
+                {
+                    Id = string.IsNullOrEmpty(r.external_id) ? $"crowd_{r.id}" : r.external_id!,
+                    Name = r.name ?? "Unnamed report",
+                    Position = new Vec3(r.position_x_km, r.position_y_km, r.position_z_km),
+                    RadiusKm = r.radius_km <= 0 ? 20.0 : r.radius_km,
+                    Notoriety = r.notoriety,
+                    LastReportedBy = r.reported_by,
+                    LastReportedAt = r.reported_at,
+                    Source = "crowdsourced"
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to fetch crowdsourced pull points");
+                return new List<PullPoint>();
+            }
+        }
+
+        /// <summary>
         /// Get all recent terminal prices (for all commodities)
         /// </summary>
         public async Task<List<TerminalData>> GetAllRecentPricesAsync(int maxAgeMinutes = 30)
@@ -347,5 +421,47 @@ namespace Golem_Mining_Suite.Services
 
         [Postgrest.Attributes.Column("created_at")]
         public DateTime created_at { get; set; }
+    }
+
+    /// <summary>
+    /// Database model for the <c>pull_point_reports</c> table. See R4 §6.1 for the
+    /// schema rationale; columns here mirror the fields we surface on
+    /// <see cref="PullPoint"/> plus reporter metadata.
+    /// </summary>
+    [Postgrest.Attributes.Table("pull_point_reports")]
+    public class PullPointReportRecord : Postgrest.Models.BaseModel
+    {
+        [Postgrest.Attributes.PrimaryKey("id", false)]
+        public int id { get; set; }
+
+        [Postgrest.Attributes.Column("external_id")]
+        public string? external_id { get; set; }
+
+        [Postgrest.Attributes.Column("name")]
+        public string? name { get; set; }
+
+        [Postgrest.Attributes.Column("position_x_km")]
+        public double position_x_km { get; set; }
+
+        [Postgrest.Attributes.Column("position_y_km")]
+        public double position_y_km { get; set; }
+
+        [Postgrest.Attributes.Column("position_z_km")]
+        public double position_z_km { get; set; }
+
+        [Postgrest.Attributes.Column("radius_km")]
+        public double radius_km { get; set; }
+
+        [Postgrest.Attributes.Column("notoriety")]
+        public int notoriety { get; set; }
+
+        [Postgrest.Attributes.Column("source")]
+        public string? source { get; set; }
+
+        [Postgrest.Attributes.Column("reported_by")]
+        public string? reported_by { get; set; }
+
+        [Postgrest.Attributes.Column("reported_at")]
+        public DateTime reported_at { get; set; }
     }
 }

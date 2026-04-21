@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Golem_Mining_Suite.Models;
+using Golem_Mining_Suite.Models.Piracy;
 
 namespace Golem_Mining_Suite.Services.Interfaces
 {
@@ -32,5 +33,21 @@ namespace Golem_Mining_Suite.Services.Interfaces
 
         /// <summary>Subscribe to Realtime terminal inserts. Long-running; retries internally.</summary>
         Task SubscribeToTerminalUpdatesAsync();
+
+        /// <summary>
+        /// Upload a user-submitted piracy pull-point report to the
+        /// <c>pull_point_reports</c> table. Returns false when Supabase is not
+        /// initialised or the insert fails; callers are expected to fall back to
+        /// local persistence in that case.
+        /// </summary>
+        Task<bool> UploadPullPointReportAsync(PullPoint point);
+
+        /// <summary>
+        /// Fetch recent crowdsourced pull-point reports. Used by the analyzer to
+        /// merge community data with the shipped seed set. An empty list is
+        /// returned when Supabase is not initialised so the analyzer can degrade
+        /// gracefully to seed-only mode.
+        /// </summary>
+        Task<List<PullPoint>> GetCrowdsourcedPullPointsAsync(int maxAgeDays = 30);
     }
 }
