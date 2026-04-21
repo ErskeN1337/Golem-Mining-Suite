@@ -69,7 +69,45 @@
                     <TextBlock Grid.Column="0" Text="Refinery Method:" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <ComboBox x:Name="MethodComboBox" Grid.Column="2"
                               ItemsSource="{Binding Methods}"
-                              SelectedItem="{Binding SelectedMethod}"/>
+                              SelectedItem="{Binding SelectedMethod}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="360">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Name}"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding YieldText}"
+                                               Foreground="{Binding YieldBrush}"
+                                               ToolTip="Yield bonus (higher = more refined output)"
+                                               Margin="12,0,0,0"
+                                               VerticalAlignment="Center"
+                                               FontFamily="Consolas"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding CostText}"
+                                               Foreground="{Binding CostBrush}"
+                                               ToolTip="Refinery fee (lower = cheaper)"
+                                               Margin="12,0,0,0"
+                                               VerticalAlignment="Center"
+                                               FontFamily="Consolas"/>
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding SpeedText}"
+                                               Foreground="{Binding SpeedBrush}"
+                                               ToolTip="Speed rating (more stars = faster)"
+                                               Margin="12,0,0,0"
+                                               VerticalAlignment="Center"
+                                               FontSize="13"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
 
                 <!-- 4.7 quality score input + tier badge. Defaults to 500 (Baseline, 1.0x)

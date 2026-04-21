@@ -26,10 +26,10 @@ namespace Golem_Mining_Suite.ViewModels
         private string _selectedRefinery = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _methods = new();
+        private ObservableCollection<RefineryMethodOption> _methods = new();
 
         [ObservableProperty]
-        private string _selectedMethod = default!;
+        private RefineryMethodOption? _selectedMethod;
 
         [ObservableProperty]
         private ObservableCollection<RefineryMineralRowViewModel> _mineralRows = new();
@@ -113,7 +113,9 @@ namespace Golem_Mining_Suite.ViewModels
             if (_allMethods.Any())
             {
                 StatusText = $"Loaded {_allMethods.Count} refinery methods";
-                Methods = new ObservableCollection<string>(_allMethods.Select(m => m.Name).OrderBy(n => n));
+                Methods = new ObservableCollection<RefineryMethodOption>(
+                    _allMethods.OrderBy(m => m.Name)
+                               .Select(m => new RefineryMethodOption { Method = m }));
                 if (Methods.Any()) SelectedMethod = Methods.First();
             }
             else
@@ -156,13 +158,13 @@ namespace Golem_Mining_Suite.ViewModels
             CanAddMineral = MineralRows.Count < MAX_MINERALS;
         }
 
-        partial void OnSelectedMethodChanged(string value) => CalculateProfit();
+        partial void OnSelectedMethodChanged(RefineryMethodOption? value) => CalculateProfit();
         partial void OnSelectedRefineryChanged(string value) => CalculateProfit();
         partial void OnQualityTextChanged(string value) => CalculateProfit();
 
         public void CalculateProfit()
         {
-            if (string.IsNullOrEmpty(SelectedMethod) || _allMethods == null) return;
+            if (SelectedMethod == null || _allMethods == null) return;
 
             double totalRawValue = 0;
 
@@ -177,8 +179,7 @@ namespace Golem_Mining_Suite.ViewModels
                 }
             }
 
-            var method = _allMethods.FirstOrDefault(m => m.Name == SelectedMethod);
-            if (method == null) return;
+            var method = SelectedMethod.Method;
 
             double refineryCost = totalRawValue * (method.CostPercent / 100.0);
             double yieldBonus = method.YieldBonus;
