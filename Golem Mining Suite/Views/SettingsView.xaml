@@ -4,9 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Golem_Mining_Suite.ViewModels"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}"
              Background="Transparent">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="40">
@@ -79,7 +82,78 @@
 
                     <Separator Background="{DynamicResource BorderBrush}" Margin="0,10,0,15" Opacity="0.5"/>
 
-                    <!-- Star Citizen Handle (used by Crew Sessions / My Share) -->
+                    <!-- Wave 8A: Discord Account. Only shown when DI wired a DiscordAuthService. -->
+                    <StackPanel Visibility="{Binding IsDiscordAvailable, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="Discord Account" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Text="Sign in to auto-populate your Star Citizen Handle and (soon) sync scouting finds."
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" Margin="0,5,0,10" TextWrapping="Wrap"/>
+
+                        <!-- Signed-out state: big blurple button. -->
+                        <Button Command="{Binding SignInCommand}"
+                                Visibility="{Binding IsDiscordSignedOut, Converter={StaticResource BoolToVis}}"
+                                Height="40"
+                                Width="220"
+                                HorizontalAlignment="Left"
+                                Background="#5865F2"
+                                Foreground="White"
+                                FontWeight="SemiBold"
+                                BorderThickness="0"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSigningIn}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Sign in with Discord" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Signed-in state: avatar + username + sign-out link. -->
+                        <Grid Visibility="{Binding IsDiscordSignedIn, Converter={StaticResource BoolToVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Avatar (hidden when no hash — string.Empty URL image source fails silently). -->
+                            <Border Grid.Column="0" Width="48" Height="48" CornerRadius="24" ClipToBounds="True"
+                                    Background="{DynamicResource PrimaryBackgroundBrush}" Margin="0,0,12,0">
+                                <Image Source="{Binding DiscordAvatarUrl}" Stretch="UniformToFill"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding DiscordUsername}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="Signed in with Discord"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <!-- Sign-out as a link-style button so it reads as a soft secondary action. -->
+                            <Button Grid.Column="2"
+                                    Content="Sign out"
+                                    Command="{Binding SignOutCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="{DynamicResource AccentBrush}"
+                                    FontSize="13"
+                                    Cursor="Hand"
+                                    Padding="8,4"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Separator Background="{DynamicResource BorderBrush}" Margin="0,15,0,15" Opacity="0.5"
+                               Visibility="{Binding IsDiscordAvailable, Converter={StaticResource BoolToVis}}"/>
+
+                    <!-- Star Citizen Handle (used by Crew Sessions / My Share). Becomes read-only when Discord owns it. -->
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -91,6 +165,7 @@
                         </StackPanel>
                         <TextBox Grid.Column="1"
                                  Text="{Binding UserHandle, UpdateSourceTrigger=LostFocus}"
+                                 IsReadOnly="{Binding IsDiscordSignedIn}"
                                  Width="200"
                                  Height="35"
                                  VerticalContentAlignment="Center"
@@ -98,7 +173,18 @@
                                  Background="{DynamicResource PrimaryBackgroundBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
                                  BorderBrush="{DynamicResource BorderBrush}"
-                                 CaretBrush="{DynamicResource AccentBrush}"/>
+                                 CaretBrush="{DynamicResource AccentBrush}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Opacity" Value="1.0"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDiscordSignedIn}" Value="True">
+                                            <Setter Property="Opacity" Value="0.6"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                     </Grid>
 
                 </StackPanel>

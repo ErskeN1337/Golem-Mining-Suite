@@ -20,10 +20,15 @@ namespace Golem_Mining_Suite.Services.Configuration
         public string SupabaseKey { get; init; } = "";
         public string UexApiKey { get; init; } = "";
 
+        /// <summary>Discord OAuth Application ID. Public — safe to ship in source.</summary>
+        public string DiscordClientId { get; init; } = "";
+
         public bool IsSupabaseConfigured =>
             !string.IsNullOrWhiteSpace(SupabaseUrl) && !string.IsNullOrWhiteSpace(SupabaseKey);
 
         public bool IsUexConfigured => !string.IsNullOrWhiteSpace(UexApiKey);
+
+        public bool IsDiscordConfigured => !string.IsNullOrWhiteSpace(DiscordClientId);
     }
 
     public static class SecretResolver
@@ -31,6 +36,15 @@ namespace Golem_Mining_Suite.Services.Configuration
         private const string EnvSupabaseUrl = "GOLEM_SUPABASE_URL";
         private const string EnvSupabaseKey = "GOLEM_SUPABASE_KEY";
         private const string EnvUexApiKey = "GOLEM_UEX_API_KEY";
+        private const string EnvDiscordClientId = "GOLEM_DISCORD_CLIENT_ID";
+
+        /// <summary>
+        /// Hardcoded Discord Application ID. Discord client_ids are PUBLIC by design
+        /// (they appear in OAuth URLs the browser shows the user) so this is not a
+        /// secret in the same sense as a Bearer token. Override via env var or the
+        /// %APPDATA% override if you ever fork your own Discord app.
+        /// </summary>
+        private const string DefaultDiscordClientId = "1495954686292004954";
 
         /// <summary>
         /// Returns the absolute path to the user-scoped override file
@@ -62,6 +76,7 @@ namespace Golem_Mining_Suite.Services.Configuration
             var envUrl = Environment.GetEnvironmentVariable(EnvSupabaseUrl) ?? "";
             var envKey = Environment.GetEnvironmentVariable(EnvSupabaseKey) ?? "";
             var envUex = Environment.GetEnvironmentVariable(EnvUexApiKey) ?? "";
+            var envDiscord = Environment.GetEnvironmentVariable(EnvDiscordClientId) ?? "";
 
             // Source 2: %APPDATA%\Golem Mining Suite\appsettings.json
             var userSettings = TryLoadJsonSecrets(GetUserOverridePath());
@@ -74,7 +89,8 @@ namespace Golem_Mining_Suite.Services.Configuration
             {
                 SupabaseUrl = FirstNonEmpty(envUrl, userSettings.GetValueOrDefault("Supabase.Url"), shippedSettings.GetValueOrDefault("Supabase.Url")),
                 SupabaseKey = FirstNonEmpty(envKey, userSettings.GetValueOrDefault("Supabase.Key"), shippedSettings.GetValueOrDefault("Supabase.Key")),
-                UexApiKey = FirstNonEmpty(envUex, userSettings.GetValueOrDefault("UEX.ApiKey"), shippedSettings.GetValueOrDefault("UEX.ApiKey"))
+                UexApiKey = FirstNonEmpty(envUex, userSettings.GetValueOrDefault("UEX.ApiKey"), shippedSettings.GetValueOrDefault("UEX.ApiKey")),
+                DiscordClientId = FirstNonEmpty(envDiscord, userSettings.GetValueOrDefault("Discord.ClientId"), shippedSettings.GetValueOrDefault("Discord.ClientId"), DefaultDiscordClientId)
             };
         }
 
@@ -112,6 +128,12 @@ namespace Golem_Mining_Suite.Services.Configuration
                 {
                     if (uex.TryGetProperty("ApiKey", out var apiKey) && apiKey.ValueKind == JsonValueKind.String)
                         result["UEX.ApiKey"] = apiKey.GetString() ?? "";
+                }
+
+                if (root.TryGetProperty("Discord", out var discord))
+                {
+                    if (discord.TryGetProperty("ClientId", out var clientId) && clientId.ValueKind == JsonValueKind.String)
+                        result["Discord.ClientId"] = clientId.GetString() ?? "";
                 }
             }
             catch

@@ -84,6 +84,15 @@ namespace Golem_Mining_Suite
                 c.Timeout = TimeSpan.FromSeconds(30);
             });
 
+            // Wave 8A: Discord OAuth2 PKCE. No auth header on the named client itself —
+            // the bearer token rotates per-request after sign-in, so consumers set
+            // Authorization on each HttpRequestMessage they send.
+            services.AddHttpClient("discord", c =>
+            {
+                c.BaseAddress = new Uri("https://discord.com/api/");
+                c.Timeout = TimeSpan.FromSeconds(20);
+            });
+
             // Services
             if (secrets.IsSupabaseConfigured)
             {
@@ -151,7 +160,9 @@ namespace Golem_Mining_Suite
             services.AddTransient<RouteOptimizerViewModel>(p => new RouteOptimizerViewModel(
                 p.GetRequiredService<IPriceService>(),
                 p.GetService<IPiracyRouteAnalyzer>()));
-            services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<SettingsViewModel>(p => new SettingsViewModel(
+                p.GetRequiredService<ISettingsService>(),
+                p.GetService<IDiscordAuthService>()));
 
             // Wave 3 services — pure-logic solvers + Game.log tailer.
             services.AddSingleton<FractureSolver>();
@@ -171,6 +182,21 @@ namespace Golem_Mining_Suite
             services.AddSingleton<IPiracyRouteAnalyzer>(p => new PiracyRouteAnalyzer(
                 p.GetRequiredService<ILogger<PiracyRouteAnalyzer>>(),
                 p.GetService<ISupabaseService>()));
+
+            // Wave 8A — Discord OAuth2 sign-in. Skip registration when the Discord client id
+            // is missing so the app still boots cleanly in headless/dev contexts that have
+            // stripped it from the override. SettingsViewModel tolerates a null service.
+            if (secrets.IsDiscordConfigured)
+            {
+                services.AddSingleton<IDiscordAuthService>(p => new DiscordAuthService(
+                    p.GetRequiredService<ILogger<DiscordAuthService>>(),
+                    p.GetRequiredService<IHttpClientFactory>(),
+                    secrets.DiscordClientId));
+            }
+            else
+            {
+                Log.Warning("Discord is not configured (no ClientId via env var, %APPDATA% override, or default). Discord sign-in will be unavailable.");
+            }
 
             // Windows
             services.AddSingleton<MainWindow>();
@@ -220,6 +246,17 @@ namespace Golem_Mining_Suite
             // Wave 5C: refinery watcher ctor loads from disk synchronously, so no
             // explicit LoadAsync is needed — resolving the singleton primes it.
             _ = Services.GetRequiredService<RefineryOrderWatcher>();
+
+            // Wave 8A: restore any previously-signed-in Discord account so the Settings
+            // view shows the username immediately on launch. Service is optional — if
+            // Discord isn't configured it simply won't be registered and we skip.
+            var discordAuth = Services.GetService<IDiscordAuthService>();
+            if (discordAuth is not null)
+            {
+                _ = discordAuth.LoadAsync().ContinueWith(
+                    t => Log.Warning(t.Exception, "DiscordAuthService failed to load at startup."),
+                    TaskContinuationOptions.OnlyOnFaulted);
+            }
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
