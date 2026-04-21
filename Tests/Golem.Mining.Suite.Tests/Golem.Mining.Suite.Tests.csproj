@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Must target net8.0-windows because main project references WPF (net8.0-windows). -->
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- Must match the main project's TFM (net8.0-windows10.0.17763.0 — see main .csproj for why). -->
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <RootNamespace>Golem.Mining.Suite.Tests</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
