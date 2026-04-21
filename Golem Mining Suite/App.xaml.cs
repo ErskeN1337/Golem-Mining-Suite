@@ -47,6 +47,16 @@ namespace Golem_Mining_Suite
             {
                 c.BaseAddress = new Uri(UEXService.BaseUrl); // https://api.uexcorp.uk/2.0/
                 c.Timeout = TimeSpan.FromSeconds(30);
+                // UEX API 2.0 requires Bearer auth on every request. Without this header
+                // the API returns 401 and the consumer silently falls back to hardcoded
+                // static prices — which is exactly the "stale prices" symptom users report
+                // ("Quantanium @ 88 instead of ~88,800"). Header is only set when the key
+                // is present so headless/dev builds without secrets still start cleanly.
+                if (!string.IsNullOrWhiteSpace(secrets.UexApiKey))
+                {
+                    c.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue("Bearer", secrets.UexApiKey);
+                }
             });
             services.AddHttpClient("prices", c =>
             {
