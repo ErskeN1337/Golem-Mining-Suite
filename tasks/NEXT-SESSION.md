@@ -54,18 +54,12 @@ Building this captures the migration window (~40 days until Regolith shutdown).
 
 ### Wave 8 scope
 
-- [ ] **8A: Discord OAuth** — `DiscordAuthService`. Standard OAuth2 PKCE flow (no client
-      secret needed for desktop). Return user profile (id, username, avatar) and store
-      a refreshable token in `%APPDATA%`. **Blocked on user creating the Discord app.**
-- [ ] **8B: Supabase `scouting_finds` schema** — table + RLS policy + `ISupabaseService`
-      methods (`UploadScoutingFindAsync`, `GetScoutingFindsForSessionAsync`). Tests via
-      stub Supabase client.
+- [x] **8A: Discord OAuth** ✅ commit `8f74eda` — DiscordAuthService with PKCE, loopback HttpListener on 127.0.0.1:51547, token persistence + auto-refresh, "Sign in with Discord" button in Settings (8E folded in). Discord client_id `1495954686292004954` baked into SecretResolver default. 9 new tests.
+- [ ] **8B: Supabase `scouting_finds` schema** — IN PROGRESS. Table + RLS policy + `ISupabaseService` methods (`UploadScoutingFindAsync`, `GetScoutingFindsForSessionAsync`). Tests via stub Supabase client.
 - [ ] **8C: Live crew presence** — Supabase Realtime channel keyed on session id;
       members publish presence on join/leave; UI shows green-dot online indicator.
 - [ ] **8D: Shared scouting find UI** — extend `CrewSessionView` with a "Finds" tab;
       drop a scan via OCR or manual entry → broadcasts to all crew on the session.
-- [ ] **8E: "Sign in with Discord" button** in Settings replacing the manual handle.
-      Falls back to handle if Discord declined / offline.
 
 ### Wave 8 dependencies the user must satisfy
 
